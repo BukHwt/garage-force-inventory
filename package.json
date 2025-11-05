@@ -1,0 +1,24 @@
+{
+  "name": "garage-force-inventory",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:mobile": "playwright test --project='Mobile Chrome'",
+    "test:headed": "playwright test --headed",
+    "client": "cd client && npm start",
+    "server": "cd server && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "concurrently": "^8.0.0"
+  }
+}
