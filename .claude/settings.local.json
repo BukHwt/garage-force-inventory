@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npx prisma:*)",
+      "Bash(test:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm start)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(npx playwright install chromium)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
