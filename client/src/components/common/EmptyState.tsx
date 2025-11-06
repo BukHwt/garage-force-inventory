@@ -7,9 +7,9 @@ interface EmptyStateProps {
 
 export function EmptyState({ message, icon = '📦' }: EmptyStateProps) {
   return (
-    <div className="bg-white p-8 rounded shadow text-center">
+    <div className="bg-dark-card p-8 rounded-lg shadow-lg border border-dark-border text-center">
       <div className="text-5xl mb-4">{icon}</div>
-      <p className="text-gray-500">{message}</p>
+      <p className="text-dark-text-secondary">{message}</p>
     </div>
   );
 }

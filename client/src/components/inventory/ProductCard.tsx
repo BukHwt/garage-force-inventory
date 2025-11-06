@@ -22,31 +22,47 @@ export function ProductCard({ product, selectedLocation, onCardClick }: ProductC
     }
   };
 
+  // Get category-specific colors
+  const getCategoryColors = (categoryName: string) => {
+    const name = categoryName.toLowerCase();
+    if (name.includes('coating')) {
+      return 'bg-category-coatings-bg text-category-coatings-text';
+    } else if (name.includes('chip')) {
+      return 'bg-category-chips-bg text-category-chips-text';
+    } else if (name.includes('disposable')) {
+      return 'bg-category-disposables-bg text-category-disposables-text';
+    } else if (name.includes('equipment')) {
+      return 'bg-category-equipment-bg text-category-equipment-text';
+    }
+    // Default fallback
+    return 'bg-gf-charcoal-600 text-dark-text-primary';
+  };
+
   return (
     <div
       onClick={handleClick}
-      className={`bg-white p-4 rounded-lg shadow-md ${
-        isReorderNeeded ? 'border-l-4 border-gf-red' : ''
-      } ${onCardClick ? 'cursor-pointer active:bg-gf-gray-light transition-colors duration-150' : ''}`}
+      className={`bg-dark-card p-4 rounded-lg shadow-lg border ${
+        isReorderNeeded ? 'border-l-4 border-alert-red' : 'border-dark-border'
+      } ${onCardClick ? 'cursor-pointer active:bg-gf-charcoal-700 transition-colors duration-150' : ''}`}
       style={{ minHeight: '44px' }}
     >
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
-          <h3 className="font-heading font-semibold text-gf-charcoal">{product.name}</h3>
+          <h3 className="font-heading font-semibold text-dark-text-primary">{product.name}</h3>
           {product.sku && (
-            <p className="text-xs text-gf-gray">SKU: {product.sku}</p>
+            <p className="text-xs text-dark-text-muted">SKU: {product.sku}</p>
           )}
           {product.category && (
-            <span className="inline-block mt-1 px-2 py-1 bg-gf-red-50 text-gf-red-700 text-xs rounded font-semibold">
+            <span className={`inline-block mt-1 px-2 py-1 text-xs rounded font-semibold ${getCategoryColors(product.category.name)}`}>
               {product.category.name}
             </span>
           )}
         </div>
         <div className="text-right">
-          <div className="text-2xl font-heading font-bold text-gf-charcoal">
+          <div className="text-2xl font-heading font-bold text-dark-text-primary">
             {displayQuantity}
           </div>
-          <div className="text-xs font-body text-gf-gray">
+          <div className="text-xs font-body text-dark-text-secondary">
             {product.unitSize || 'units'}
           </div>
         </div>
@@ -54,13 +70,13 @@ export function ProductCard({ product, selectedLocation, onCardClick }: ProductC
 
       {/* Location breakdown when showing all locations */}
       {showingAllLocations && product.inventoryItems.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-gf-charcoal-100">
-          <div className="text-xs text-gf-gray font-semibold mb-1">By Location:</div>
+        <div className="mt-3 pt-3 border-t border-dark-border">
+          <div className="text-xs text-dark-text-muted font-semibold mb-1">By Location:</div>
           <div className="grid grid-cols-3 gap-2">
             {product.inventoryItems.map(item => (
               <div key={item.id} className="text-xs">
-                <div className="font-semibold text-gf-charcoal-600">{item.location.name}</div>
-                <div className="text-gf-gray">{item.quantity}</div>
+                <div className="font-semibold text-dark-text-secondary">{item.location.name}</div>
+                <div className="text-dark-text-muted">{item.quantity}</div>
               </div>
             ))}
           </div>
@@ -69,8 +85,9 @@ export function ProductCard({ product, selectedLocation, onCardClick }: ProductC
 
       {/* Reorder warning */}
       {isReorderNeeded && (
-        <div className="mt-2 text-xs text-gf-red font-semibold">
-          ⚠️ Below reorder point ({product.reorderPoint})
+        <div className="mt-2 text-xs text-alert-red font-semibold flex items-center">
+          <span className="text-base mr-1">⚠️</span>
+          Below reorder point ({product.reorderPoint})
         </div>
       )}
     </div>

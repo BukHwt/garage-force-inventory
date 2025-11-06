@@ -6,22 +6,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Garage Force Brand Colors
-        'gf-red': {
-          DEFAULT: '#E31E24',
-          50: '#FEF2F2',
-          100: '#FEE2E2',
-          200: '#FECACA',
-          300: '#FCA5A5',
-          400: '#F87171',
-          500: '#E31E24',
-          600: '#C81D22',
-          700: '#A01A1E',
-          800: '#7F161A',
-          900: '#661216',
+        // Garage Force Brand Colors - Green Primary Theme
+        'gf-green': {
+          DEFAULT: '#00A651', // Garage Force brand green
+          50: '#E6F7EF',
+          100: '#CCEFDF',
+          200: '#99DFBF',
+          300: '#66CF9F',
+          400: '#33BF7F',
+          500: '#00A651',
+          600: '#008541',
+          700: '#006331',
+          800: '#004221',
+          900: '#002110',
         },
         'gf-charcoal': {
-          DEFAULT: '#2C2C2C',
+          DEFAULT: '#1A1A1A', // Dark background
           50: '#F7F7F7',
           100: '#E3E3E3',
           200: '#C8C8C8',
@@ -35,7 +35,44 @@ module.exports = {
         },
         'gf-gray': {
           DEFAULT: '#58595B',
-          light: '#F5F5F5',
+          light: '#E3E3E3',
+          dark: '#2C2C2C',
+        },
+        // Dark theme specific colors - Level 3 brightness (1-10 scale)
+        'dark': {
+          bg: '#2E2E2E',        // Main background (medium-dark)
+          card: '#3C3C3C',      // Card backgrounds (lighter gray)
+          border: '#5A5A5A',    // Borders (more visible)
+          text: {
+            primary: '#FFFFFF',   // Primary text (pure white)
+            secondary: '#E0E0E0', // Secondary text (very light)
+            muted: '#BDBDBD',     // Muted text (light gray)
+          },
+        },
+        // Alert colors
+        'alert': {
+          red: '#DC2626',         // Red for low inventory alerts
+          'red-bg': '#7F1D1D',    // Dark red background
+          'red-border': '#991B1B', // Red border
+        },
+        // Category colors for badges
+        'category': {
+          coatings: {
+            bg: '#71717A',        // Off gray/slate
+            text: '#F4F4F5',
+          },
+          chips: {
+            bg: '#6366F1',        // Indigo
+            text: '#FFFFFF',
+          },
+          disposables: {
+            bg: '#D97706',        // Mustard/amber
+            text: '#FFFFFF',
+          },
+          equipment: {
+            bg: '#0891B2',        // Cyan
+            text: '#FFFFFF',
+          },
         },
       },
       fontFamily: {

@@ -27,7 +27,7 @@ export function BottomNavigation({ activeTab = 'dashboard', onTabChange }: Botto
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gf-charcoal-200 shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-dark-card border-t-2 border-gf-green shadow-lg">
       <div className="grid grid-cols-4 gap-1 p-2">
         {navItems.map(item => (
           <button
@@ -35,8 +35,8 @@ export function BottomNavigation({ activeTab = 'dashboard', onTabChange }: Botto
             onClick={() => handleClick(item.id)}
             className={`flex flex-col items-center justify-center p-3 transition-colors duration-200 ${
               item.id === activeTab
-                ? 'text-gf-red'
-                : 'text-gf-gray hover:text-gf-red'
+                ? 'text-gf-green'
+                : 'text-dark-text-muted hover:text-gf-green'
             }`}
             style={{ minHeight: '44px' }}
           >

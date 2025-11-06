@@ -13,12 +13,13 @@
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    @apply bg-gf-gray-light;
+    @apply bg-dark-bg text-dark-text-primary;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
     font-weight: 700;
+    @apply text-dark-text-primary;
   }
 
   code {
@@ -28,28 +29,28 @@
 }
 
 @layer components {
-  /* Garage Force Brand Button Styles */
+  /* Garage Force Brand Button Styles - Dark Theme with Green */
   .btn-gf-primary {
-    @apply bg-gf-red text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-gf-red-600 active:bg-gf-red-700 transition-colors duration-200;
+    @apply bg-gf-green text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-gf-green-600 active:bg-gf-green-700 transition-colors duration-200;
     min-height: 44px;
   }
 
   .btn-gf-secondary {
-    @apply bg-gf-charcoal text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-gf-charcoal-700 active:bg-gf-charcoal-800 transition-colors duration-200;
+    @apply bg-gf-charcoal-600 text-dark-text-primary font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-gf-charcoal-700 active:bg-gf-charcoal-800 transition-colors duration-200;
     min-height: 44px;
   }
 
   .btn-gf-outline {
-    @apply bg-white text-gf-red border-2 border-gf-red font-semibold py-3 px-6 rounded-lg hover:bg-gf-red-50 active:bg-gf-red-100 transition-colors duration-200;
+    @apply bg-dark-card text-gf-green border-2 border-gf-green font-semibold py-3 px-6 rounded-lg hover:bg-gf-green-900 active:bg-gf-green-800 transition-colors duration-200;
     min-height: 44px;
   }
 
-  /* Garage Force Card Styles */
+  /* Garage Force Card Styles - Dark Theme */
   .card-gf {
-    @apply bg-white rounded-lg shadow-md p-4;
+    @apply bg-dark-card rounded-lg shadow-lg p-4 border border-dark-border;
   }
 
   .card-gf-accent {
-    @apply bg-white rounded-lg shadow-md p-4 border-l-4 border-gf-red;
+    @apply bg-dark-card rounded-lg shadow-lg p-4 border-l-4 border-gf-green;
   }
 }
