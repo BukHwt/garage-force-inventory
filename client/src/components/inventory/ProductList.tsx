@@ -22,7 +22,7 @@ export function ProductList({
 
   return (
     <div className="space-y-3">
-      <h2 className="font-bold text-gray-800 text-lg">
+      <h2 className="font-bold text-dark-text-primary text-lg">
         Inventory {locationName && `- ${locationName}`}
       </h2>
 

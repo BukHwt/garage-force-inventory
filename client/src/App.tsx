@@ -43,17 +43,17 @@ function App() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow max-w-md">
-          <h2 className="font-bold text-red-800 mb-2">Error Loading Data</h2>
-          <p className="text-red-700">{error}</p>
+      <div className="min-h-screen bg-dark-bg flex items-center justify-center p-4">
+        <div className="bg-gf-green-900 border-l-4 border-gf-green p-4 rounded shadow-lg max-w-md">
+          <h2 className="font-bold text-gf-green-200 mb-2">Error Loading Data</h2>
+          <p className="text-dark-text-secondary">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-20">
+    <div className="min-h-screen bg-dark-bg pb-20">
       <Header />
 
       <div className="p-4 space-y-4">
