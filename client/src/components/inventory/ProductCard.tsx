@@ -25,28 +25,28 @@ export function ProductCard({ product, selectedLocation, onCardClick }: ProductC
   return (
     <div
       onClick={handleClick}
-      className={`bg-white p-4 rounded shadow ${
-        isReorderNeeded ? 'border-l-4 border-red-500' : ''
-      } ${onCardClick ? 'cursor-pointer active:bg-gray-50' : ''}`}
+      className={`bg-white p-4 rounded-lg shadow-md ${
+        isReorderNeeded ? 'border-l-4 border-gf-red' : ''
+      } ${onCardClick ? 'cursor-pointer active:bg-gf-gray-light transition-colors duration-150' : ''}`}
       style={{ minHeight: '44px' }}
     >
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-800">{product.name}</h3>
+          <h3 className="font-heading font-semibold text-gf-charcoal">{product.name}</h3>
           {product.sku && (
-            <p className="text-xs text-gray-500">SKU: {product.sku}</p>
+            <p className="text-xs text-gf-gray">SKU: {product.sku}</p>
           )}
           {product.category && (
-            <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+            <span className="inline-block mt-1 px-2 py-1 bg-gf-red-50 text-gf-red-700 text-xs rounded font-semibold">
               {product.category.name}
             </span>
           )}
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-gray-800">
+          <div className="text-2xl font-heading font-bold text-gf-charcoal">
             {displayQuantity}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs font-body text-gf-gray">
             {product.unitSize || 'units'}
           </div>
         </div>
@@ -54,13 +54,13 @@ export function ProductCard({ product, selectedLocation, onCardClick }: ProductC
 
       {/* Location breakdown when showing all locations */}
       {showingAllLocations && product.inventoryItems.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <div className="text-xs text-gray-600 font-semibold mb-1">By Location:</div>
+        <div className="mt-3 pt-3 border-t border-gf-charcoal-100">
+          <div className="text-xs text-gf-gray font-semibold mb-1">By Location:</div>
           <div className="grid grid-cols-3 gap-2">
             {product.inventoryItems.map(item => (
               <div key={item.id} className="text-xs">
-                <div className="font-semibold text-gray-700">{item.location.name}</div>
-                <div className="text-gray-600">{item.quantity}</div>
+                <div className="font-semibold text-gf-charcoal-600">{item.location.name}</div>
+                <div className="text-gf-gray">{item.quantity}</div>
               </div>
             ))}
           </div>
@@ -69,7 +69,7 @@ export function ProductCard({ product, selectedLocation, onCardClick }: ProductC
 
       {/* Reorder warning */}
       {isReorderNeeded && (
-        <div className="mt-2 text-xs text-red-600 font-semibold">
+        <div className="mt-2 text-xs text-gf-red font-semibold">
           ⚠️ Below reorder point ({product.reorderPoint})
         </div>
       )}

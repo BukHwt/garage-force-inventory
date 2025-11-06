@@ -1,17 +1,55 @@
+/* Import Garage Force Brand Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  body {
+    margin: 0;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+      'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply bg-gf-gray-light;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    font-weight: 700;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer components {
+  /* Garage Force Brand Button Styles */
+  .btn-gf-primary {
+    @apply bg-gf-red text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-gf-red-600 active:bg-gf-red-700 transition-colors duration-200;
+    min-height: 44px;
+  }
+
+  .btn-gf-secondary {
+    @apply bg-gf-charcoal text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-gf-charcoal-700 active:bg-gf-charcoal-800 transition-colors duration-200;
+    min-height: 44px;
+  }
+
+  .btn-gf-outline {
+    @apply bg-white text-gf-red border-2 border-gf-red font-semibold py-3 px-6 rounded-lg hover:bg-gf-red-50 active:bg-gf-red-100 transition-colors duration-200;
+    min-height: 44px;
+  }
+
+  /* Garage Force Card Styles */
+  .card-gf {
+    @apply bg-white rounded-lg shadow-md p-4;
+  }
+
+  .card-gf-accent {
+    @apply bg-white rounded-lg shadow-md p-4 border-l-4 border-gf-red;
+  }
 }
