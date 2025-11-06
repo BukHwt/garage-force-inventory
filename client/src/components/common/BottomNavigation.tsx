@@ -27,21 +27,21 @@ export function BottomNavigation({ activeTab = 'dashboard', onTabChange }: Botto
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gf-charcoal-200 shadow-lg">
       <div className="grid grid-cols-4 gap-1 p-2">
         {navItems.map(item => (
           <button
             key={item.id}
             onClick={() => handleClick(item.id)}
-            className={`flex flex-col items-center justify-center p-3 ${
+            className={`flex flex-col items-center justify-center p-3 transition-colors duration-200 ${
               item.id === activeTab
-                ? 'text-blue-600'
-                : 'text-gray-600 hover:text-blue-600'
+                ? 'text-gf-red'
+                : 'text-gf-gray hover:text-gf-red'
             }`}
             style={{ minHeight: '44px' }}
           >
             <span className="text-2xl mb-1">{item.icon}</span>
-            <span className={`text-xs ${item.id === activeTab ? 'font-semibold' : ''}`}>
+            <span className={`text-xs font-body ${item.id === activeTab ? 'font-semibold' : ''}`}>
               {item.label}
             </span>
           </button>
