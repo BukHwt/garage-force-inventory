@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Product, InventoryItem } from '../../types';
 import { getTotalQuantity, getLocationQuantity, needsReorder } from '../../utils/inventory';
 
@@ -9,7 +9,8 @@ interface ProductCardProps {
   onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
 }
 
-export function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick }: ProductCardProps) {
+// Memoized component - only re-renders when props actually change
+export const ProductCard = memo(function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick }: ProductCardProps) {
   const isReorderNeeded = needsReorder(product);
   const showingAllLocations = selectedLocation === 'all';
 
@@ -115,4 +116,4 @@ export function ProductCard({ product, selectedLocation, onCardClick, onAdjustCl
       )}
     </div>
   );
-}
+});

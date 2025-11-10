@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import './index.css';
 
 // Hooks
@@ -8,7 +8,8 @@ import { useInventory } from './hooks/useInventory';
 import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inventory';
 
 // API Services
-import { adjustInventory } from './api/services/inventory';
+import { adjustInventory, receiveInventory, transferInventory } from './api/services/inventory';
+import type { ReceiveInventoryRequest, TransferInventoryRequest } from './api/services/inventory';
 
 // Types
 import { InventoryItem } from './types';
@@ -21,10 +22,12 @@ import { ReorderAlerts } from './components/inventory/ReorderAlerts';
 import { LocationFilter } from './components/inventory/LocationFilter';
 import { ProductList } from './components/inventory/ProductList';
 import { InventoryAdjustmentModal } from './components/common/InventoryAdjustmentModal';
+import { AddInventoryScreen } from './components/inventory/AddInventoryScreen';
 
 function App() {
   const { products, locations, loading, error, refetch } = useInventory();
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
 
   // Modal state for inventory adjustments
   const [adjustmentModal, setAdjustmentModal] = useState<{
@@ -37,45 +40,57 @@ function App() {
     productName: '',
   });
 
-  // Derived state - computed from products and filter
-  const filteredProducts = filterProductsByLocation(products, selectedLocation);
-  const reorderAlerts = getProductsNeedingReorder(products);
+  // Memoized derived state - only recompute when dependencies change
+  const filteredProducts = useMemo(
+    () => filterProductsByLocation(products, selectedLocation),
+    [products, selectedLocation]
+  );
 
-  // Handle product card clicks (placeholder for future detail view)
-  const handleProductClick = (productId: string) => {
+  const reorderAlerts = useMemo(
+    () => getProductsNeedingReorder(products),
+    [products]
+  );
+
+  // Stable callback references - prevent unnecessary re-renders of child components
+  const handleProductClick = useCallback((productId: string) => {
     console.log('Product clicked:', productId);
     // Future: Navigate to product detail view
-  };
+  }, []);
 
-  // Handle opening adjustment modal
-  const handleAdjustClick = (inventoryItem: InventoryItem, productName: string) => {
+  const handleAdjustClick = useCallback((inventoryItem: InventoryItem, productName: string) => {
     setAdjustmentModal({
       isOpen: true,
       inventoryItem,
       productName,
     });
-  };
+  }, []);
 
-  // Handle closing adjustment modal
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setAdjustmentModal({
       isOpen: false,
       inventoryItem: null,
       productName: '',
     });
-  };
+  }, []);
 
-  // Handle inventory adjustment
-  const handleAdjustment = async (inventoryItemId: string, adjustment: number) => {
+  const handleAdjustment = useCallback(async (inventoryItemId: string, adjustment: number) => {
     await adjustInventory(inventoryItemId, adjustment);
-    await refetch(); // Refresh the data after adjustment
-  };
+    await refetch();
+  }, [refetch]);
 
-  // Handle navigation tab changes (placeholder for future routing)
-  const handleTabChange = (tabId: string) => {
-    console.log('Tab changed:', tabId);
-    // Future: Implement routing
-  };
+  const handleReceiveInventory = useCallback(async (data: ReceiveInventoryRequest) => {
+    await receiveInventory(data);
+    await refetch();
+  }, [refetch]);
+
+  const handleTransferInventory = useCallback(async (data: TransferInventoryRequest) => {
+    await transferInventory(data);
+    await refetch();
+  }, [refetch]);
+
+  const handleTabChange = useCallback((tabId: string) => {
+    setActiveTab(tabId);
+  }, []);
 
   // Loading state
   if (loading) {
@@ -96,32 +111,69 @@ function App() {
 
   return (
     <div className="min-h-screen bg-dark-bg pb-20">
-      <Header />
+      {/* Dashboard View */}
+      {activeTab === 'dashboard' && (
+        <>
+          <Header />
 
-      <div className="p-4 space-y-4">
-        {/* Reorder Alerts */}
-        <ReorderAlerts products={reorderAlerts} />
+          <div className="p-4 space-y-4">
+            {/* Reorder Alerts */}
+            <ReorderAlerts products={reorderAlerts} />
 
-        {/* Location Filter */}
-        <LocationFilter
+            {/* Location Filter */}
+            <LocationFilter
+              locations={locations}
+              selectedLocation={selectedLocation}
+              onLocationChange={setSelectedLocation}
+            />
+
+            {/* Product List */}
+            <ProductList
+              products={filteredProducts}
+              selectedLocation={selectedLocation}
+              locations={locations}
+              onProductClick={handleProductClick}
+              onAdjustClick={handleAdjustClick}
+            />
+          </div>
+        </>
+      )}
+
+      {/* Add Inventory View */}
+      {activeTab === 'add' && (
+        <AddInventoryScreen
+          products={products}
           locations={locations}
-          selectedLocation={selectedLocation}
-          onLocationChange={setSelectedLocation}
+          onReceive={handleReceiveInventory}
+          onTransfer={handleTransferInventory}
         />
+      )}
 
-        {/* Product List */}
-        <ProductList
-          products={filteredProducts}
-          selectedLocation={selectedLocation}
-          locations={locations}
-          onProductClick={handleProductClick}
-          onAdjustClick={handleAdjustClick}
-        />
-      </div>
+      {/* Products View (placeholder) */}
+      {activeTab === 'products' && (
+        <div className="min-h-screen bg-dark-bg">
+          <Header />
+          <div className="p-4">
+            <h2 className="font-heading text-xl font-bold text-dark-text-primary">Products</h2>
+            <p className="font-body text-dark-text-secondary mt-2">Product management coming soon...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Settings View (placeholder) */}
+      {activeTab === 'settings' && (
+        <div className="min-h-screen bg-dark-bg">
+          <Header />
+          <div className="p-4">
+            <h2 className="font-heading text-xl font-bold text-dark-text-primary">Settings</h2>
+            <p className="font-body text-dark-text-secondary mt-2">Settings coming soon...</p>
+          </div>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <BottomNavigation
-        activeTab="dashboard"
+        activeTab={activeTab}
         onTabChange={handleTabChange}
       />
 

@@ -199,4 +199,263 @@ router.patch('/:id/adjust', async (req: Request, res: Response) => {
   }
 });
 
+// Transfer inventory between locations
+router.post('/transfer', async (req: Request, res: Response) => {
+  try {
+    const { productId, fromLocationId, toLocationId, quantity, notes } = req.body;
+
+    // Validation
+    if (!productId || !fromLocationId || !toLocationId) {
+      return res.status(400).json({ error: 'Product and both locations are required' });
+    }
+
+    if (fromLocationId === toLocationId) {
+      return res.status(400).json({ error: 'Source and destination locations must be different' });
+    }
+
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ error: 'Quantity must be greater than zero' });
+    }
+
+    // Verify product exists
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Verify both locations exist
+    const [fromLocation, toLocation] = await Promise.all([
+      prisma.location.findUnique({ where: { id: fromLocationId } }),
+      prisma.location.findUnique({ where: { id: toLocationId } }),
+    ]);
+
+    if (!fromLocation) {
+      return res.status(404).json({ error: 'Source location not found' });
+    }
+
+    if (!toLocation) {
+      return res.status(404).json({ error: 'Destination location not found' });
+    }
+
+    // Check if source has inventory
+    const fromItem = await prisma.inventoryItem.findFirst({
+      where: {
+        productId,
+        locationId: fromLocationId,
+      },
+    });
+
+    if (!fromItem) {
+      return res.status(400).json({ error: 'No inventory available at source location' });
+    }
+
+    if (fromItem.quantity < quantity) {
+      return res.status(400).json({
+        error: `Insufficient quantity at source location. Available: ${fromItem.quantity}, Requested: ${quantity}`,
+      });
+    }
+
+    // Use a transaction to ensure atomicity
+    const result = await prisma.$transaction(async (tx) => {
+      // Update or delete from source location
+      let updatedFromItem = null;
+      const newFromQuantity = fromItem.quantity - quantity;
+
+      if (newFromQuantity > 0) {
+        // Update quantity at source
+        updatedFromItem = await tx.inventoryItem.update({
+          where: { id: fromItem.id },
+          data: { quantity: newFromQuantity },
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            location: true,
+          },
+        });
+      } else {
+        // Remove from source location (quantity becomes 0)
+        await tx.inventoryItem.delete({
+          where: { id: fromItem.id },
+        });
+      }
+
+      // Check if destination already has this product
+      const existingToItem = await tx.inventoryItem.findFirst({
+        where: {
+          productId,
+          locationId: toLocationId,
+        },
+      });
+
+      let toItem;
+
+      if (existingToItem) {
+        // Add to existing inventory at destination
+        toItem = await tx.inventoryItem.update({
+          where: { id: existingToItem.id },
+          data: {
+            quantity: existingToItem.quantity + quantity,
+          },
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            location: true,
+          },
+        });
+      } else {
+        // Create new inventory item at destination
+        toItem = await tx.inventoryItem.create({
+          data: {
+            productId,
+            locationId: toLocationId,
+            quantity,
+          },
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            location: true,
+          },
+        });
+      }
+
+      // Create transaction record
+      const transaction = await tx.inventoryTransaction.create({
+        data: {
+          productId,
+          transactionType: 'TRANSFER',
+          fromLocationId,
+          toLocationId,
+          quantity,
+          notes: notes || `Transferred ${quantity} ${product.unitSize || 'units'} from ${fromLocation.name} to ${toLocation.name}`,
+        },
+      });
+
+      return { fromItem: updatedFromItem, toItem, transaction };
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error transferring inventory:', error);
+    res.status(500).json({ error: 'Failed to transfer inventory' });
+  }
+});
+
+// Receive inventory (creates transaction and updates/creates inventory item)
+router.post('/receive', async (req: Request, res: Response) => {
+  try {
+    const { productId, locationId, quantity, batchNumber, expiresAt, notes } = req.body;
+
+    // Validation
+    if (!productId || !locationId) {
+      return res.status(400).json({ error: 'Product and location are required' });
+    }
+
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ error: 'Quantity must be greater than zero' });
+    }
+
+    // Verify product exists
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Verify location exists
+    const location = await prisma.location.findUnique({
+      where: { id: locationId },
+    });
+
+    if (!location) {
+      return res.status(404).json({ error: 'Location not found' });
+    }
+
+    // Use a transaction to ensure atomicity
+    const result = await prisma.$transaction(async (tx) => {
+      // Check if inventory item already exists for this product at this location
+      const existingItem = await tx.inventoryItem.findFirst({
+        where: {
+          productId,
+          locationId,
+        },
+      });
+
+      let inventoryItem;
+
+      if (existingItem) {
+        // Update existing inventory item
+        inventoryItem = await tx.inventoryItem.update({
+          where: { id: existingItem.id },
+          data: {
+            quantity: existingItem.quantity + quantity,
+            ...(batchNumber && { batchNumber }),
+            ...(expiresAt && { expiresAt: new Date(expiresAt) }),
+            ...(notes && { notes }),
+          },
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            location: true,
+          },
+        });
+      } else {
+        // Create new inventory item
+        inventoryItem = await tx.inventoryItem.create({
+          data: {
+            productId,
+            locationId,
+            quantity,
+            batchNumber,
+            expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+            notes,
+          },
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            location: true,
+          },
+        });
+      }
+
+      // Create transaction record
+      const transaction = await tx.inventoryTransaction.create({
+        data: {
+          productId,
+          transactionType: 'RECEIPT',
+          toLocationId: locationId,
+          quantity,
+          notes: notes || `Received ${quantity} ${product.unitSize || 'units'}`,
+        },
+      });
+
+      return { inventoryItem, transaction };
+    });
+
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Error receiving inventory:', error);
+    res.status(500).json({ error: 'Failed to receive inventory' });
+  }
+});
+
 export default router;
