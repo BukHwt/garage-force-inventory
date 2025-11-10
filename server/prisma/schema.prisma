@@ -42,6 +42,11 @@ model Product {
   category            Category?              @relation(fields: [categoryId], references: [id])
   imageUrl            String?
   notes               String?
+  // Product structure fields
+  productType         String                 @default("simple") // simple, kit, component, variant_parent
+  parentProductId     String?                // For variants: links to parent product
+  parentProduct       Product?               @relation("ProductVariants", fields: [parentProductId], references: [id], onDelete: Cascade)
+  variants            Product[]              @relation("ProductVariants")
   // Reorder management fields
   reorderPoint        Int?                   // Trigger reorder alert when total qty falls below this
   maxStockLevel       Int?                   // Optional maximum to prevent over-ordering
@@ -52,6 +57,9 @@ model Product {
   updatedAt           DateTime               @updatedAt
   inventoryItems      InventoryItem[]
   transactions        InventoryTransaction[]
+  // Kit relationships
+  kitComponents       ProductComponent[]     @relation("KitProduct")
+  componentOf         ProductComponent[]     @relation("ComponentProduct")
 }
 
 model InventoryItem {
@@ -84,4 +92,22 @@ model InventoryTransaction {
 
   @@index([productId, createdAt])
   @@index([transactionType])
+}
+
+model ProductComponent {
+  id               String   @id @default(uuid())
+  kitProductId     String   // The kit/bundle product
+  kitProduct       Product  @relation("KitProduct", fields: [kitProductId], references: [id], onDelete: Cascade)
+  componentProductId String // The component product (e.g., Part A, Part B)
+  componentProduct Product  @relation("ComponentProduct", fields: [componentProductId], references: [id], onDelete: Cascade)
+  quantityRequired Int      @default(1) // How many of this component are needed
+  isOptional       Boolean  @default(false) // For alternative components (e.g., choose one Part B variant)
+  componentLabel   String?  // e.g., "Part A", "Part B", "Hardener"
+  sortOrder        Int      @default(0) // For displaying components in order
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([kitProductId, componentProductId])
+  @@index([kitProductId])
+  @@index([componentProductId])
 }
