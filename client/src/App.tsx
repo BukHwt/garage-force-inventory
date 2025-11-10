@@ -7,6 +7,12 @@ import { useInventory } from './hooks/useInventory';
 // Utils
 import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inventory';
 
+// API Services
+import { adjustInventory } from './api/services/inventory';
+
+// Types
+import { InventoryItem } from './types';
+
 // Components
 import { Header } from './components/layout/Header';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
@@ -14,10 +20,22 @@ import { BottomNavigation } from './components/common/BottomNavigation';
 import { ReorderAlerts } from './components/inventory/ReorderAlerts';
 import { LocationFilter } from './components/inventory/LocationFilter';
 import { ProductList } from './components/inventory/ProductList';
+import { InventoryAdjustmentModal } from './components/common/InventoryAdjustmentModal';
 
 function App() {
-  const { products, locations, loading, error } = useInventory();
+  const { products, locations, loading, error, refetch } = useInventory();
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
+
+  // Modal state for inventory adjustments
+  const [adjustmentModal, setAdjustmentModal] = useState<{
+    isOpen: boolean;
+    inventoryItem: InventoryItem | null;
+    productName: string;
+  }>({
+    isOpen: false,
+    inventoryItem: null,
+    productName: '',
+  });
 
   // Derived state - computed from products and filter
   const filteredProducts = filterProductsByLocation(products, selectedLocation);
@@ -27,6 +45,30 @@ function App() {
   const handleProductClick = (productId: string) => {
     console.log('Product clicked:', productId);
     // Future: Navigate to product detail view
+  };
+
+  // Handle opening adjustment modal
+  const handleAdjustClick = (inventoryItem: InventoryItem, productName: string) => {
+    setAdjustmentModal({
+      isOpen: true,
+      inventoryItem,
+      productName,
+    });
+  };
+
+  // Handle closing adjustment modal
+  const handleCloseModal = () => {
+    setAdjustmentModal({
+      isOpen: false,
+      inventoryItem: null,
+      productName: '',
+    });
+  };
+
+  // Handle inventory adjustment
+  const handleAdjustment = async (inventoryItemId: string, adjustment: number) => {
+    await adjustInventory(inventoryItemId, adjustment);
+    await refetch(); // Refresh the data after adjustment
   };
 
   // Handle navigation tab changes (placeholder for future routing)
@@ -73,6 +115,7 @@ function App() {
           selectedLocation={selectedLocation}
           locations={locations}
           onProductClick={handleProductClick}
+          onAdjustClick={handleAdjustClick}
         />
       </div>
 
@@ -81,6 +124,17 @@ function App() {
         activeTab="dashboard"
         onTabChange={handleTabChange}
       />
+
+      {/* Inventory Adjustment Modal */}
+      {adjustmentModal.inventoryItem && (
+        <InventoryAdjustmentModal
+          inventoryItem={adjustmentModal.inventoryItem}
+          productName={adjustmentModal.productName}
+          isOpen={adjustmentModal.isOpen}
+          onClose={handleCloseModal}
+          onAdjust={handleAdjustment}
+        />
+      )}
     </div>
   );
 }

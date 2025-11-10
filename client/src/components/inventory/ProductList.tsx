@@ -1,5 +1,5 @@
 import React from 'react';
-import { Product, Location } from '../../types';
+import { Product, Location, InventoryItem } from '../../types';
 import { ProductCard } from './ProductCard';
 import { EmptyState } from '../common/EmptyState';
 
@@ -8,6 +8,7 @@ interface ProductListProps {
   selectedLocation: string;
   locations: Location[];
   onProductClick?: (productId: string) => void;
+  onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
 }
 
 export function ProductList({
@@ -15,6 +16,7 @@ export function ProductList({
   selectedLocation,
   locations,
   onProductClick,
+  onAdjustClick,
 }: ProductListProps) {
   const locationName = selectedLocation !== 'all'
     ? locations.find(l => l.id === selectedLocation)?.name
@@ -36,6 +38,7 @@ export function ProductList({
               product={product}
               selectedLocation={selectedLocation}
               onCardClick={onProductClick}
+              onAdjustClick={onAdjustClick}
             />
           ))}
         </div>

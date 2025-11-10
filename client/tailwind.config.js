@@ -38,15 +38,15 @@ module.exports = {
           light: '#E3E3E3',
           dark: '#2C2C2C',
         },
-        // Dark theme specific colors - Level 3 brightness (1-10 scale)
+        // Dark theme specific colors - Level 5 brightness (1-10 scale)
         'dark': {
-          bg: '#2E2E2E',        // Main background (medium-dark)
-          card: '#3C3C3C',      // Card backgrounds (lighter gray)
-          border: '#5A5A5A',    // Borders (more visible)
+          bg: '#4A4A4A',        // Main background (medium gray)
+          card: '#5C5C5C',      // Card backgrounds (lighter)
+          border: '#787878',    // Borders (clearly visible)
           text: {
             primary: '#FFFFFF',   // Primary text (pure white)
-            secondary: '#E0E0E0', // Secondary text (very light)
-            muted: '#BDBDBD',     // Muted text (light gray)
+            secondary: '#F0F0F0', // Secondary text (very light)
+            muted: '#D0D0D0',     // Muted text (light gray)
           },
         },
         // Alert colors
