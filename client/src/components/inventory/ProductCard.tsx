@@ -1,14 +1,15 @@
 import React from 'react';
-import { Product } from '../../types';
+import { Product, InventoryItem } from '../../types';
 import { getTotalQuantity, getLocationQuantity, needsReorder } from '../../utils/inventory';
 
 interface ProductCardProps {
   product: Product;
   selectedLocation: string;
   onCardClick?: (productId: string) => void;
+  onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
 }
 
-export function ProductCard({ product, selectedLocation, onCardClick }: ProductCardProps) {
+export function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick }: ProductCardProps) {
   const isReorderNeeded = needsReorder(product);
   const showingAllLocations = selectedLocation === 'all';
 
@@ -80,6 +81,28 @@ export function ProductCard({ product, selectedLocation, onCardClick }: ProductC
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Adjust button when viewing specific location */}
+      {!showingAllLocations && onAdjustClick && product.inventoryItems.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-dark-border">
+          {product.inventoryItems
+            .filter(item => item.location.id === selectedLocation)
+            .map(item => (
+              <button
+                key={item.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAdjustClick(item, product.name);
+                }}
+                className="w-full bg-gf-green border border-gf-green-600 text-white font-heading font-semibold py-3 px-4 rounded-lg active:bg-gf-green-700 transition-colors flex items-center justify-center gap-2"
+                style={{ minHeight: '44px' }}
+              >
+                <span className="text-lg">⚖️</span>
+                <span>Adjust Quantity</span>
+              </button>
+            ))}
         </div>
       )}
 

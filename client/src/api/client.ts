@@ -88,6 +88,16 @@ export function apiPut<T>(endpoint: string, data: any): Promise<T> {
 }
 
 /**
+ * Helper for PATCH requests
+ */
+export function apiPatch<T>(endpoint: string, data: any): Promise<T> {
+  return apiClient<T>(endpoint, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
  * Helper for DELETE requests
  */
 export function apiDelete<T>(endpoint: string): Promise<T> {

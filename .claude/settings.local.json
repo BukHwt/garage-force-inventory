@@ -10,7 +10,19 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
-      "Bash(npx playwright install chromium)"
+      "Bash(npx playwright install chromium)",
+      "Bash(git add client/src/App.tsx client/src/api client/src/components client/src/hooks client/src/types client/src/utils .claude/agents/react-refactor-architect.md)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nRefactor React app to production-ready architecture\n\nImplemented modern React best practices with clean separation of concerns:\n- Added TypeScript types layer for strict type safety\n- Created API client with error handling and service abstractions  \n- Built reusable presentational components (Header, ProductCard, LocationFilter, etc.)\n- Implemented custom useInventory hook for data fetching\n- Extracted business logic to pure utility functions\n- Reduced App.tsx from 241 to 88 lines with better maintainability\n- Fixed API URL configuration to prevent duplicate /api/ in requests\n\nMobile-first design maintained with 44px touch targets throughout.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push)",
+      "Bash(git add client/src/components/common/BottomNavigation.tsx client/src/components/inventory/LocationFilter.tsx client/src/components/inventory/ProductCard.tsx client/src/components/inventory/ReorderAlerts.tsx client/src/components/layout/Header.tsx client/src/index.css client/tailwind.config.js)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nApply Garage Force official branding\n\nImplemented official Garage Force brand identity throughout the app:\n- Added Garage Force Red (#E31E24) as primary brand color\n- Added Deep Charcoal (#2C2C2C) as secondary brand color\n- Integrated Montserrat font for headings (Google Fonts)\n- Integrated Open Sans font for body text (Google Fonts)\n- Updated Tailwind config with custom GF color scales\n- Rebranded all components (Header, ProductCard, LocationFilter, etc.)\n- Added custom button and card classes with GF styling\n- Maintained 44px touch targets and WCAG AA contrast ratios\n- Preserved mobile-first accessibility features\n\nApp now features professional Garage Force look and feel while\nmaintaining excellent UX and accessibility standards.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git add .claude/agents/garage-force-expert.md BRANDING_GUIDE.md client/src/App.tsx client/src/components client/src/index.css client/tailwind.config.js)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nApply correct Garage Force branding with green and dark theme\n\nFixed branding to use correct Garage Force GREEN (not red):\n- Primary brand color: Garage Force Green (#00A651)\n- Updated garage-force-expert agent with correct brand info\n- Vibrant green reorder alerts box for high visibility\n- Dark theme optimized for outdoor use (brightness level 3)\n\nCategory-specific badge colors for easy recognition:\n- Coatings: Off gray/slate\n- Decorative Chips: Indigo\n- Disposables: Mustard/amber\n- Equipment: Cyan\n\nRed alerts for low inventory on individual products:\n- Red left border on product cards when below reorder point\n- Red warning text for urgent reorder needs\n- Maintains high visibility in bright sunlight\n\nDark theme improvements:\n- Lightened backgrounds for better readability\n- Improved contrast ratios (WCAG AA compliant)\n- Better visibility in outdoor conditions\n- 44px touch targets maintained throughout\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git checkout -b feature/product-subcategories)",
+      "Bash(set PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=yes)",
+      "Bash($env:PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION='yes')",
+      "Bash(export PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION='yes')",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
