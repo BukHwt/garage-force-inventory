@@ -24,7 +24,8 @@
       "Bash(export PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION='yes')",
       "Bash(git add:*)",
       "Bash(git checkout:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
