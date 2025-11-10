@@ -8,7 +8,8 @@ import { useInventory } from './hooks/useInventory';
 import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inventory';
 
 // API Services
-import { adjustInventory } from './api/services/inventory';
+import { adjustInventory, receiveInventory, transferInventory } from './api/services/inventory';
+import type { ReceiveInventoryRequest, TransferInventoryRequest } from './api/services/inventory';
 
 // Types
 import { InventoryItem } from './types';
@@ -21,10 +22,12 @@ import { ReorderAlerts } from './components/inventory/ReorderAlerts';
 import { LocationFilter } from './components/inventory/LocationFilter';
 import { ProductList } from './components/inventory/ProductList';
 import { InventoryAdjustmentModal } from './components/common/InventoryAdjustmentModal';
+import { AddInventoryScreen } from './components/inventory/AddInventoryScreen';
 
 function App() {
   const { products, locations, loading, error, refetch } = useInventory();
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
 
   // Modal state for inventory adjustments
   const [adjustmentModal, setAdjustmentModal] = useState<{
@@ -71,10 +74,21 @@ function App() {
     await refetch(); // Refresh the data after adjustment
   };
 
-  // Handle navigation tab changes (placeholder for future routing)
+  // Handle receiving new inventory
+  const handleReceiveInventory = async (data: ReceiveInventoryRequest) => {
+    await receiveInventory(data);
+    await refetch(); // Refresh the data after receiving
+  };
+
+  // Handle transferring inventory between locations
+  const handleTransferInventory = async (data: TransferInventoryRequest) => {
+    await transferInventory(data);
+    await refetch(); // Refresh the data after transfer
+  };
+
+  // Handle navigation tab changes
   const handleTabChange = (tabId: string) => {
-    console.log('Tab changed:', tabId);
-    // Future: Implement routing
+    setActiveTab(tabId);
   };
 
   // Loading state
@@ -96,32 +110,69 @@ function App() {
 
   return (
     <div className="min-h-screen bg-dark-bg pb-20">
-      <Header />
+      {/* Dashboard View */}
+      {activeTab === 'dashboard' && (
+        <>
+          <Header />
 
-      <div className="p-4 space-y-4">
-        {/* Reorder Alerts */}
-        <ReorderAlerts products={reorderAlerts} />
+          <div className="p-4 space-y-4">
+            {/* Reorder Alerts */}
+            <ReorderAlerts products={reorderAlerts} />
 
-        {/* Location Filter */}
-        <LocationFilter
+            {/* Location Filter */}
+            <LocationFilter
+              locations={locations}
+              selectedLocation={selectedLocation}
+              onLocationChange={setSelectedLocation}
+            />
+
+            {/* Product List */}
+            <ProductList
+              products={filteredProducts}
+              selectedLocation={selectedLocation}
+              locations={locations}
+              onProductClick={handleProductClick}
+              onAdjustClick={handleAdjustClick}
+            />
+          </div>
+        </>
+      )}
+
+      {/* Add Inventory View */}
+      {activeTab === 'add' && (
+        <AddInventoryScreen
+          products={products}
           locations={locations}
-          selectedLocation={selectedLocation}
-          onLocationChange={setSelectedLocation}
+          onReceive={handleReceiveInventory}
+          onTransfer={handleTransferInventory}
         />
+      )}
 
-        {/* Product List */}
-        <ProductList
-          products={filteredProducts}
-          selectedLocation={selectedLocation}
-          locations={locations}
-          onProductClick={handleProductClick}
-          onAdjustClick={handleAdjustClick}
-        />
-      </div>
+      {/* Products View (placeholder) */}
+      {activeTab === 'products' && (
+        <div className="min-h-screen bg-dark-bg">
+          <Header />
+          <div className="p-4">
+            <h2 className="font-heading text-xl font-bold text-dark-text-primary">Products</h2>
+            <p className="font-body text-dark-text-secondary mt-2">Product management coming soon...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Settings View (placeholder) */}
+      {activeTab === 'settings' && (
+        <div className="min-h-screen bg-dark-bg">
+          <Header />
+          <div className="p-4">
+            <h2 className="font-heading text-xl font-bold text-dark-text-primary">Settings</h2>
+            <p className="font-body text-dark-text-secondary mt-2">Settings coming soon...</p>
+          </div>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <BottomNavigation
-        activeTab="dashboard"
+        activeTab={activeTab}
         onTabChange={handleTabChange}
       />
 

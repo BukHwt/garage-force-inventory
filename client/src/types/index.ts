@@ -18,6 +18,7 @@ export interface InventoryItem {
 export interface Product {
   id: string;
   name: string;
+  description?: string;
   sku?: string;
   color?: string;
   unitSize?: string;
