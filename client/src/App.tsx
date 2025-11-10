@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import './index.css';
 
 // Hooks
@@ -40,56 +40,57 @@ function App() {
     productName: '',
   });
 
-  // Derived state - computed from products and filter
-  const filteredProducts = filterProductsByLocation(products, selectedLocation);
-  const reorderAlerts = getProductsNeedingReorder(products);
+  // Memoized derived state - only recompute when dependencies change
+  const filteredProducts = useMemo(
+    () => filterProductsByLocation(products, selectedLocation),
+    [products, selectedLocation]
+  );
 
-  // Handle product card clicks (placeholder for future detail view)
-  const handleProductClick = (productId: string) => {
+  const reorderAlerts = useMemo(
+    () => getProductsNeedingReorder(products),
+    [products]
+  );
+
+  // Stable callback references - prevent unnecessary re-renders of child components
+  const handleProductClick = useCallback((productId: string) => {
     console.log('Product clicked:', productId);
     // Future: Navigate to product detail view
-  };
+  }, []);
 
-  // Handle opening adjustment modal
-  const handleAdjustClick = (inventoryItem: InventoryItem, productName: string) => {
+  const handleAdjustClick = useCallback((inventoryItem: InventoryItem, productName: string) => {
     setAdjustmentModal({
       isOpen: true,
       inventoryItem,
       productName,
     });
-  };
+  }, []);
 
-  // Handle closing adjustment modal
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setAdjustmentModal({
       isOpen: false,
       inventoryItem: null,
       productName: '',
     });
-  };
+  }, []);
 
-  // Handle inventory adjustment
-  const handleAdjustment = async (inventoryItemId: string, adjustment: number) => {
+  const handleAdjustment = useCallback(async (inventoryItemId: string, adjustment: number) => {
     await adjustInventory(inventoryItemId, adjustment);
-    await refetch(); // Refresh the data after adjustment
-  };
+    await refetch();
+  }, [refetch]);
 
-  // Handle receiving new inventory
-  const handleReceiveInventory = async (data: ReceiveInventoryRequest) => {
+  const handleReceiveInventory = useCallback(async (data: ReceiveInventoryRequest) => {
     await receiveInventory(data);
-    await refetch(); // Refresh the data after receiving
-  };
+    await refetch();
+  }, [refetch]);
 
-  // Handle transferring inventory between locations
-  const handleTransferInventory = async (data: TransferInventoryRequest) => {
+  const handleTransferInventory = useCallback(async (data: TransferInventoryRequest) => {
     await transferInventory(data);
-    await refetch(); // Refresh the data after transfer
-  };
+    await refetch();
+  }, [refetch]);
 
-  // Handle navigation tab changes
-  const handleTabChange = (tabId: string) => {
+  const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId);
-  };
+  }, []);
 
   // Loading state
   if (loading) {
