@@ -40,8 +40,17 @@ export const QuantityInput = memo(function QuantityInput({
         {label}
       </label>
 
-      {/* Main quantity input */}
-      <div className="flex items-center gap-3 mb-3">
+      {/* Main quantity input with increment/decrement */}
+      <div className="flex items-center gap-2 mb-3">
+        <button
+          type="button"
+          onClick={() => handleQuickAdjust(-1)}
+          disabled={disabled || isAtMin}
+          className="bg-dark-bg border border-dark-border text-dark-text-primary font-heading font-bold text-xl px-4 rounded-lg active:bg-dark-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ minHeight: '44px', width: '44px' }}
+        >
+          −
+        </button>
         <input
           type="number"
           value={value}
@@ -49,9 +58,18 @@ export const QuantityInput = memo(function QuantityInput({
           disabled={disabled}
           min={min}
           max={max}
-          className="flex-1 bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-gf-green disabled:opacity-50"
+          className="flex-1 bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-center text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-gf-green disabled:opacity-50"
           style={{ minHeight: '44px' }}
         />
+        <button
+          type="button"
+          onClick={() => handleQuickAdjust(1)}
+          disabled={disabled || isAtMax}
+          className="bg-dark-bg border border-dark-border text-dark-text-primary font-heading font-bold text-xl px-4 rounded-lg active:bg-dark-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ minHeight: '44px', width: '44px' }}
+        >
+          +
+        </button>
       </div>
 
       {/* Quick adjustment buttons */}

@@ -7,9 +7,8 @@ interface ProductListProps {
   products: Product[];
   selectedLocation: string;
   locations: Location[];
-  onProductClick?: (productId: string) => void;
+  onProductClick?: (product: Product, locationId: string) => void;
   onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
-  onUseOnJobClick?: (productId: string, locationId: string) => void;
 }
 
 export function ProductList({
@@ -18,7 +17,6 @@ export function ProductList({
   locations,
   onProductClick,
   onAdjustClick,
-  onUseOnJobClick,
 }: ProductListProps) {
   const locationName = selectedLocation !== 'all'
     ? locations.find(l => l.id === selectedLocation)?.name
@@ -41,7 +39,6 @@ export function ProductList({
               selectedLocation={selectedLocation}
               onCardClick={onProductClick}
               onAdjustClick={onAdjustClick}
-              onUseOnJobClick={onUseOnJobClick}
             />
           ))}
         </div>
