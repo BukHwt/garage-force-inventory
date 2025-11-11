@@ -110,7 +110,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes } = req.body;
+    const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes, reorderPoint, supplierType } = req.body;
 
     const product = await prisma.product.update({
       where: { id },
@@ -124,6 +124,8 @@ router.put('/:id', async (req: Request, res: Response) => {
         ...(categoryId !== undefined && { categoryId }),
         ...(imageUrl !== undefined && { imageUrl }),
         ...(notes !== undefined && { notes }),
+        ...(reorderPoint !== undefined && { reorderPoint }),
+        ...(supplierType !== undefined && { supplierType }),
       },
       include: {
         category: true,
