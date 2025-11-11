@@ -6,7 +6,7 @@ interface InventoryAdjustmentModalProps {
   productName: string;
   isOpen: boolean;
   onClose: () => void;
-  onAdjust: (inventoryItemId: string, adjustment: number) => Promise<void>;
+  onAdjust: (inventoryItemId: string, adjustment: number, status?: 'SEALED' | 'OPEN') => Promise<void>;
 }
 
 export function InventoryAdjustmentModal({
@@ -17,8 +17,11 @@ export function InventoryAdjustmentModal({
   onAdjust,
 }: InventoryAdjustmentModalProps) {
   const [adjustment, setAdjustment] = useState<number>(0);
+  const [status, setStatus] = useState<'SEALED' | 'OPEN'>(inventoryItem.status);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const statusChanged = status !== inventoryItem.status;
 
   if (!isOpen) return null;
 
@@ -33,8 +36,9 @@ export function InventoryAdjustmentModal({
       return;
     }
 
-    if (adjustment === 0) {
-      setError('Please enter an adjustment amount');
+    // Allow submission if either quantity adjusted OR status changed
+    if (adjustment === 0 && !statusChanged) {
+      setError('Please adjust quantity or change status');
       return;
     }
 
@@ -42,8 +46,10 @@ export function InventoryAdjustmentModal({
     setError(null);
 
     try {
-      await onAdjust(inventoryItem.id, adjustment);
+      // Pass status to backend if it changed
+      await onAdjust(inventoryItem.id, adjustment, statusChanged ? status : undefined);
       setAdjustment(0);
+      setStatus(inventoryItem.status);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to adjust inventory');
@@ -59,6 +65,7 @@ export function InventoryAdjustmentModal({
 
   const handleClose = () => {
     setAdjustment(0);
+    setStatus(inventoryItem.status);
     setError(null);
     onClose();
   };
@@ -116,6 +123,46 @@ export function InventoryAdjustmentModal({
             </div>
           </div>
 
+          {/* Status Toggle */}
+          <div className="mb-4">
+            <label className="font-body text-sm text-dark-text-secondary mb-2 block">
+              Container Status:
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setStatus('SEALED')}
+                className={`font-heading font-semibold py-3 rounded-lg transition-all border-2 ${
+                  status === 'SEALED'
+                    ? 'bg-gf-green border-gf-green text-white'
+                    : 'bg-dark-bg border-dark-border text-dark-text-secondary active:bg-dark-card'
+                }`}
+                style={{ minHeight: '44px' }}
+              >
+                <div className="text-lg mb-1">🔒</div>
+                <div className="text-sm">Sealed</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatus('OPEN')}
+                className={`font-heading font-semibold py-3 rounded-lg transition-all border-2 ${
+                  status === 'OPEN'
+                    ? 'bg-amber-500 border-amber-600 text-white'
+                    : 'bg-dark-bg border-dark-border text-dark-text-secondary active:bg-dark-card'
+                }`}
+                style={{ minHeight: '44px' }}
+              >
+                <div className="text-lg mb-1">📦</div>
+                <div className="text-sm">Open</div>
+              </button>
+            </div>
+            {statusChanged && (
+              <p className="text-xs text-gf-green-400 mt-2 font-semibold">
+                ℹ️ Status will be changed from {inventoryItem.status} to {status}
+              </p>
+            )}
+          </div>
+
           {/* Quick Adjustment Buttons */}
           <div className="mb-4">
             <label className="font-body text-sm text-dark-text-secondary mb-2 block">
@@ -167,22 +214,46 @@ export function InventoryAdjustmentModal({
             </div>
           </div>
 
-          {/* Manual Adjustment Input */}
+          {/* Manual Adjustment Input with Increment/Decrement */}
           <div className="mb-4">
             <label className="font-body text-sm text-dark-text-secondary mb-2 block">
               Or enter custom amount:
             </label>
-            <input
-              type="number"
-              value={adjustment}
-              onChange={(e) => {
-                setAdjustment(Number(e.target.value));
-                setError(null);
-              }}
-              className="w-full bg-dark-bg border border-dark-border text-dark-text-primary font-body px-4 py-3 rounded-lg focus:outline-none focus:border-gf-green"
-              style={{ minHeight: '44px' }}
-              placeholder="0"
-            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAdjustment(adjustment - 1);
+                  setError(null);
+                }}
+                className="bg-dark-bg border border-dark-border text-dark-text-primary font-heading font-bold text-xl px-4 rounded-lg active:bg-dark-card transition-colors"
+                style={{ minHeight: '44px', width: '44px' }}
+              >
+                −
+              </button>
+              <input
+                type="number"
+                value={adjustment}
+                onChange={(e) => {
+                  setAdjustment(Number(e.target.value));
+                  setError(null);
+                }}
+                className="flex-1 bg-dark-bg border border-dark-border text-dark-text-primary font-body text-center px-4 py-3 rounded-lg focus:outline-none focus:border-gf-green"
+                style={{ minHeight: '44px' }}
+                placeholder="0"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setAdjustment(adjustment + 1);
+                  setError(null);
+                }}
+                className="bg-dark-bg border border-dark-border text-dark-text-primary font-heading font-bold text-xl px-4 rounded-lg active:bg-dark-card transition-colors"
+                style={{ minHeight: '44px', width: '44px' }}
+              >
+                +
+              </button>
+            </div>
           </div>
 
           {/* Error Message */}
@@ -205,11 +276,11 @@ export function InventoryAdjustmentModal({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || adjustment === 0 || !isValidAdjustment}
+              disabled={isSubmitting || (adjustment === 0 && !statusChanged) || !isValidAdjustment}
               className="flex-1 bg-gf-green border border-gf-green-600 text-white font-heading font-semibold py-3 rounded-lg active:bg-gf-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ minHeight: '44px' }}
             >
-              {isSubmitting ? 'Adjusting...' : 'Apply'}
+              {isSubmitting ? 'Saving...' : 'Apply Changes'}
             </button>
           </div>
         </form>
