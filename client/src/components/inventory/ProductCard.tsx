@@ -5,13 +5,12 @@ import { getTotalQuantity, getLocationQuantity, needsReorder } from '../../utils
 interface ProductCardProps {
   product: Product;
   selectedLocation: string;
-  onCardClick?: (productId: string) => void;
+  onCardClick?: (product: Product, locationId: string) => void;
   onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
-  onUseOnJobClick?: (productId: string, locationId: string) => void;
 }
 
 // Memoized component - only re-renders when props actually change
-export const ProductCard = memo(function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick, onUseOnJobClick }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick }: ProductCardProps) {
   const isReorderNeeded = needsReorder(product);
   const showingAllLocations = selectedLocation === 'all';
 
@@ -19,9 +18,23 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
     ? getTotalQuantity(product)
     : getLocationQuantity(product, selectedLocation);
 
+  // Calculate open vs sealed quantities
+  const inventoryToShow = showingAllLocations
+    ? product.inventoryItems
+    : product.inventoryItems.filter(item => item.location.id === selectedLocation);
+
+  const openQuantity = inventoryToShow
+    .filter(item => item.status === 'OPEN')
+    .reduce((sum, item) => sum + item.quantity, 0);
+
+  const sealedQuantity = inventoryToShow
+    .filter(item => item.status === 'SEALED')
+    .reduce((sum, item) => sum + item.quantity, 0);
+
   const handleClick = () => {
-    if (onCardClick) {
-      onCardClick(product.id);
+    // Only make card clickable when viewing a specific location (not "all")
+    if (onCardClick && !showingAllLocations) {
+      onCardClick(product, selectedLocation);
     }
   };
 
@@ -46,7 +59,7 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
       onClick={handleClick}
       className={`bg-dark-card p-4 rounded-lg shadow-lg border ${
         isReorderNeeded ? 'border-l-4 border-alert-red' : 'border-dark-border'
-      } ${onCardClick ? 'cursor-pointer active:bg-gf-charcoal-700 transition-colors duration-150' : ''}`}
+      } ${onCardClick && !showingAllLocations ? 'cursor-pointer active:bg-gf-charcoal-700 transition-colors duration-150' : ''}`}
       style={{ minHeight: '44px' }}
     >
       <div className="flex justify-between items-start mb-2">
@@ -62,12 +75,51 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
           )}
         </div>
         <div className="text-right">
-          <div className="text-2xl font-heading font-bold text-dark-text-primary">
-            {displayQuantity}
-          </div>
-          <div className="text-xs font-body text-dark-text-secondary">
-            {product.unitSize || 'units'}
-          </div>
+          {/* Show split open/sealed display */}
+          {openQuantity > 0 && sealedQuantity > 0 ? (
+            <>
+              <div className="flex gap-2 justify-end items-baseline">
+                <div className="text-right">
+                  <div className="text-lg font-heading font-bold text-amber-400">
+                    {openQuantity}
+                  </div>
+                  <div className="text-xs font-body text-amber-400/80">
+                    open
+                  </div>
+                </div>
+                <div className="text-dark-text-muted">+</div>
+                <div className="text-right">
+                  <div className="text-lg font-heading font-bold text-gf-green">
+                    {sealedQuantity}
+                  </div>
+                  <div className="text-xs font-body text-gf-green-400">
+                    sealed
+                  </div>
+                </div>
+              </div>
+              <div className="text-xs font-body text-dark-text-secondary mt-1">
+                {product.unitSize || 'units'}
+              </div>
+            </>
+          ) : openQuantity > 0 ? (
+            <>
+              <div className="text-2xl font-heading font-bold text-amber-400">
+                {openQuantity}
+              </div>
+              <div className="text-xs font-body text-amber-400/80">
+                open {product.unitSize || 'units'}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-2xl font-heading font-bold text-dark-text-primary">
+                {displayQuantity}
+              </div>
+              <div className="text-xs font-body text-dark-text-secondary">
+                {product.unitSize || 'units'}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -83,46 +135,6 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* Action buttons when viewing specific location */}
-      {!showingAllLocations && product.inventoryItems.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-dark-border">
-          {product.inventoryItems
-            .filter(item => item.location.id === selectedLocation)
-            .map(item => (
-              <div key={item.id} className="flex gap-2">
-                {/* Use on Job button */}
-                {onUseOnJobClick && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onUseOnJobClick(product.id, selectedLocation);
-                    }}
-                    className="flex-1 bg-gf-green border border-gf-green-600 text-white font-heading font-semibold py-3 px-4 rounded-lg active:bg-gf-green-700 transition-colors flex items-center justify-center gap-2"
-                    style={{ minHeight: '44px' }}
-                  >
-                    <span className="text-lg">🔧</span>
-                    <span>Use on Job</span>
-                  </button>
-                )}
-                {/* Adjust Quantity button */}
-                {onAdjustClick && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAdjustClick(item, product.name);
-                    }}
-                    className="flex-1 bg-gf-charcoal-600 border border-gf-charcoal-500 text-white font-heading font-semibold py-3 px-4 rounded-lg active:bg-gf-charcoal-700 transition-colors flex items-center justify-center gap-2"
-                    style={{ minHeight: '44px' }}
-                  >
-                    <span className="text-lg">⚖️</span>
-                    <span>Adjust</span>
-                  </button>
-                )}
-              </div>
-            ))}
         </div>
       )}
 

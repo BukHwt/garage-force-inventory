@@ -93,7 +93,8 @@ async function main() {
       inventoryItems: {
         create: [
           { locationId: warehouse.id, quantity: 28 },
-          { locationId: trailer.id, quantity: 6 },
+          { locationId: trailer.id, quantity: 4, status: 'SEALED' },
+          { locationId: trailer.id, quantity: 2, status: 'OPEN' },
         ],
       },
     },
@@ -138,7 +139,8 @@ async function main() {
       inventoryItems: {
         create: [
           { locationId: warehouse.id, quantity: 18 },
-          { locationId: trailer.id, quantity: 4 },
+          { locationId: trailer.id, quantity: 3, status: 'SEALED' },
+          { locationId: trailer.id, quantity: 1, status: 'OPEN' },
         ],
       },
     },
@@ -275,7 +277,8 @@ async function main() {
       inventoryItems: {
         create: [
           { locationId: warehouse.id, quantity: 8 },
-          { locationId: trailer.id, quantity: 3 },
+          { locationId: trailer.id, quantity: 2, status: 'SEALED' },
+          { locationId: trailer.id, quantity: 1, status: 'OPEN' },
         ],
       },
     },
@@ -303,7 +306,8 @@ async function main() {
       inventoryItems: {
         create: [
           { locationId: warehouse.id, quantity: 35 },
-          { locationId: trailer.id, quantity: 8 },
+          { locationId: trailer.id, quantity: 6, status: 'SEALED' },
+          { locationId: trailer.id, quantity: 2, status: 'OPEN' },
         ],
       },
     },
@@ -426,7 +430,8 @@ async function main() {
       inventoryItems: {
         create: [
           { locationId: warehouse.id, quantity: 8 },
-          { locationId: trailer.id, quantity: 4 },
+          { locationId: trailer.id, quantity: 3, status: 'SEALED' },
+          { locationId: trailer.id, quantity: 1, status: 'OPEN' },
         ],
       },
     },
@@ -448,7 +453,8 @@ async function main() {
       inventoryItems: {
         create: [
           { locationId: warehouse.id, quantity: 5 },
-          { locationId: trailer.id, quantity: 2 },
+          { locationId: trailer.id, quantity: 1, status: 'SEALED' },
+          { locationId: trailer.id, quantity: 1, status: 'OPEN' },
         ],
       },
     },

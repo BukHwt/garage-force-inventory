@@ -8,12 +8,12 @@ import { useInventory } from './hooks/useInventory';
 import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inventory';
 
 // API Services
-import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage } from './api/services/inventory';
+import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage, unsealInventory } from './api/services/inventory';
 import type { ReceiveInventoryRequest, TransferInventoryRequest, UseInventoryRequest } from './api/services/inventory';
 import { updateProduct, createProduct, UpdateProductRequest, CreateProductRequest } from './api/services/products';
 
 // Types
-import { InventoryItem, Category } from './types';
+import { InventoryItem, Category, Product } from './types';
 
 // Components
 import { Header } from './components/layout/Header';
@@ -23,6 +23,8 @@ import { ReorderAlerts } from './components/inventory/ReorderAlerts';
 import { LocationFilter } from './components/inventory/LocationFilter';
 import { ProductList } from './components/inventory/ProductList';
 import { InventoryAdjustmentModal } from './components/common/InventoryAdjustmentModal';
+import { InventoryActionModal } from './components/inventory/InventoryActionModal';
+import { UnsealModal } from './components/inventory/UnsealModal';
 import { AddInventoryScreen } from './components/inventory/AddInventoryScreen';
 import { ProductCatalogScreen } from './components/products/ProductCatalogScreen';
 
@@ -40,6 +42,30 @@ function App() {
     isOpen: false,
     inventoryItem: null,
     productName: '',
+  });
+
+  // Modal state for inventory actions (use open/open sealed)
+  const [actionModal, setActionModal] = useState<{
+    isOpen: boolean;
+    product: Product | null;
+    locationId: string;
+  }>({
+    isOpen: false,
+    product: null,
+    locationId: '',
+  });
+
+  // Modal state for unsealing containers
+  const [unsealModal, setUnsealModal] = useState<{
+    isOpen: boolean;
+    product: Product | null;
+    locationId: string;
+    maxQuantity: number;
+  }>({
+    isOpen: false,
+    product: null,
+    locationId: '',
+    maxQuantity: 0,
   });
 
   // Pre-filled form state for quick actions from Dashboard
@@ -77,9 +103,12 @@ function App() {
   }, [products]);
 
   // Stable callback references - prevent unnecessary re-renders of child components
-  const handleProductClick = useCallback((productId: string) => {
-    console.log('Product clicked:', productId);
-    // Future: Navigate to product detail view
+  const handleProductClick = useCallback((product: Product, locationId: string) => {
+    setActionModal({
+      isOpen: true,
+      product,
+      locationId,
+    });
   }, []);
 
   const handleAdjustClick = useCallback((inventoryItem: InventoryItem, productName: string) => {
@@ -98,8 +127,8 @@ function App() {
     });
   }, []);
 
-  const handleAdjustment = useCallback(async (inventoryItemId: string, adjustment: number) => {
-    await adjustInventory(inventoryItemId, adjustment);
+  const handleAdjustment = useCallback(async (inventoryItemId: string, adjustment: number, status?: 'SEALED' | 'OPEN') => {
+    await adjustInventory(inventoryItemId, adjustment, status);
     await refetch();
   }, [refetch]);
 
@@ -130,7 +159,7 @@ function App() {
     }
   }, [activeTab]);
 
-  const handleUseOnJobClick = useCallback((productId: string, locationId: string) => {
+  const handleUseFromOpen = useCallback((productId: string, locationId: string) => {
     // Save current scroll position and tab
     setSavedScrollPosition(window.scrollY || document.documentElement.scrollTop);
     setPreviousTab(activeTab);
@@ -143,6 +172,69 @@ function App() {
     // Navigate to Manage Inventory tab
     setActiveTab('add');
   }, [activeTab]);
+
+  const handleOpenSealed = useCallback((product: Product, locationId: string) => {
+    // Calculate max sealed quantity at this location
+    const sealedItems = product.inventoryItems.filter(
+      item => item.location.id === locationId && item.status === 'SEALED'
+    );
+    const maxQuantity = sealedItems.reduce((sum, item) => sum + item.quantity, 0);
+
+    // Open unseal modal
+    setUnsealModal({
+      isOpen: true,
+      product,
+      locationId,
+      maxQuantity,
+    });
+
+    // Close the action modal
+    setActionModal({
+      isOpen: false,
+      product: null,
+      locationId: '',
+    });
+  }, []);
+
+  const handleConfirmUnseal = useCallback(async (quantity: number) => {
+    if (!unsealModal.product) return;
+
+    try {
+      await unsealInventory({
+        productId: unsealModal.product.id,
+        locationId: unsealModal.locationId,
+        quantity,
+      });
+      await refetch();
+      // Close the unseal modal after successful unsealing
+      setUnsealModal({
+        isOpen: false,
+        product: null,
+        locationId: '',
+        maxQuantity: 0,
+      });
+    } catch (error) {
+      console.error('Failed to unseal containers:', error);
+      // Could show a toast notification here
+    }
+  }, [unsealModal.product, unsealModal.locationId, refetch]);
+
+  const handleCloseUnsealModal = useCallback(() => {
+    setUnsealModal({
+      isOpen: false,
+      product: null,
+      locationId: '',
+      maxQuantity: 0,
+    });
+  }, []);
+
+  const handleCloseActionModal = useCallback(() => {
+    setActionModal({
+      isOpen: false,
+      product: null,
+      locationId: '',
+    });
+  }, []);
 
   const handleCancelTransaction = useCallback(() => {
     // Clear pre-filled data
@@ -229,7 +321,6 @@ function App() {
               locations={locations}
               onProductClick={handleProductClick}
               onAdjustClick={handleAdjustClick}
-              onUseOnJobClick={handleUseOnJobClick}
             />
           </div>
         </>
@@ -286,6 +377,30 @@ function App() {
           isOpen={adjustmentModal.isOpen}
           onClose={handleCloseModal}
           onAdjust={handleAdjustment}
+        />
+      )}
+
+      {/* Inventory Action Modal (Use Open/Open Sealed) */}
+      {actionModal.product && (
+        <InventoryActionModal
+          product={actionModal.product}
+          locationId={actionModal.locationId}
+          isOpen={actionModal.isOpen}
+          onClose={handleCloseActionModal}
+          onUseFromOpen={handleUseFromOpen}
+          onOpenSealed={handleOpenSealed}
+        />
+      )}
+
+      {/* Unseal Modal */}
+      {unsealModal.product && (
+        <UnsealModal
+          product={unsealModal.product}
+          locationId={unsealModal.locationId}
+          maxQuantity={unsealModal.maxQuantity}
+          isOpen={unsealModal.isOpen}
+          onClose={handleCloseUnsealModal}
+          onConfirm={handleConfirmUnseal}
         />
       )}
     </div>

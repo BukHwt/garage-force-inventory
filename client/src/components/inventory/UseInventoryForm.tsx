@@ -41,6 +41,7 @@ export const UseInventoryForm = memo(function UseInventoryForm({
     jobReference: '',
     notes: '',
   });
+  const [preferredStatus, setPreferredStatus] = useState<'OPEN' | 'SEALED'>('OPEN');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -56,22 +57,51 @@ export const UseInventoryForm = memo(function UseInventoryForm({
     }
   }, [initialProductId, initialLocationId]);
 
+  // Auto-switch status if preferred status has no inventory at selected location
+  useEffect(() => {
+    if (formData.locationId && formData.productId) {
+      const openQty = getAvailableQuantity(formData.productId, formData.locationId, 'OPEN');
+      const sealedQty = getAvailableQuantity(formData.productId, formData.locationId, 'SEALED');
+
+      // If preferred is OPEN but no open inventory, switch to SEALED
+      if (preferredStatus === 'OPEN' && openQty === 0 && sealedQty > 0) {
+        setPreferredStatus('SEALED');
+      }
+      // If preferred is SEALED but no sealed inventory, switch to OPEN
+      else if (preferredStatus === 'SEALED' && sealedQty === 0 && openQty > 0) {
+        setPreferredStatus('OPEN');
+      }
+    }
+  }, [formData.locationId, formData.productId, preferredStatus]);
+
   const selectedProduct = products.find((p) => p.id === formData.productId);
 
-  // Get available quantity at a specific location for the selected product
-  const getAvailableQuantity = (productId: string, locationId: string): number => {
+  // Get available quantity at a specific location for the selected product by status
+  const getAvailableQuantity = (productId: string, locationId: string, status?: 'OPEN' | 'SEALED'): number => {
     if (!productId || !locationId) return 0;
     const product = products.find((p) => p.id === productId);
     if (!product) return 0;
-    const inventoryItem = product.inventoryItems.find(
-      (item) => item.location.id === locationId
+
+    const inventoryItems = product.inventoryItems.filter(
+      (item) => item.location.id === locationId && (!status || item.status === status)
     );
-    return inventoryItem?.quantity || 0;
+    return inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
   };
 
-  // Calculate available quantity at selected location
+  // Calculate available quantity at selected location for preferred status
   const availableQuantity = useMemo(
-    () => getAvailableQuantity(formData.productId, formData.locationId),
+    () => getAvailableQuantity(formData.productId, formData.locationId, preferredStatus),
+    [formData.productId, formData.locationId, preferredStatus]
+  );
+
+  // Calculate quantities for both statuses to show in UI
+  const openQuantity = useMemo(
+    () => getAvailableQuantity(formData.productId, formData.locationId, 'OPEN'),
+    [formData.productId, formData.locationId]
+  );
+
+  const sealedQuantity = useMemo(
+    () => getAvailableQuantity(formData.productId, formData.locationId, 'SEALED'),
     [formData.productId, formData.locationId]
   );
 
@@ -81,22 +111,27 @@ export const UseInventoryForm = memo(function UseInventoryForm({
     [selectedProduct]
   );
 
-  // Determine which locations should be disabled (no inventory)
+  // Determine which locations should be disabled (no inventory at all, regardless of status)
   const disabledLocations = useMemo(() => {
     if (!formData.productId) return locations.map((l) => l.id);
     return locations
-      .filter((location) => getAvailableQuantity(formData.productId, location.id) === 0)
+      .filter((location) => {
+        // Disable if no inventory of any status at this location
+        const totalQty = getAvailableQuantity(formData.productId, location.id);
+        return totalQty === 0;
+      })
       .map((l) => l.id);
   }, [formData.productId, locations]);
 
   const handleProductChange = (productId: string) => {
-    // Reset location when product changes
+    // Reset location and preferred status when product changes
     setFormData({
       ...formData,
       productId,
       locationId: '',
       quantity: 1,
     });
+    setPreferredStatus('OPEN'); // Reset to default
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,6 +185,7 @@ export const UseInventoryForm = memo(function UseInventoryForm({
           jobReference: '',
           notes: '',
         });
+        setPreferredStatus('OPEN'); // Reset to default
         setSuccess(false);
       }, 2000);
     } catch (err) {
@@ -200,6 +236,52 @@ export const UseInventoryForm = memo(function UseInventoryForm({
         disabledLocationIds={disabledLocations}
         disabled={isSubmitting}
       />
+
+      {/* Container Status Selection - Only show when location is selected */}
+      {formData.locationId && (openQuantity > 0 || sealedQuantity > 0) && (
+        <div>
+          <label className="block text-sm font-semibold text-dark-text-primary mb-2">
+            Use From:
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setPreferredStatus('OPEN')}
+              disabled={openQuantity === 0 || isSubmitting}
+              className={`font-heading font-semibold py-3 rounded-lg transition-all border-2 ${
+                preferredStatus === 'OPEN'
+                  ? 'bg-amber-500 border-amber-600 text-white'
+                  : 'bg-dark-bg border-dark-border text-dark-text-secondary active:bg-dark-card'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              style={{ minHeight: '44px' }}
+            >
+              <div className="text-lg mb-1">📦</div>
+              <div className="text-sm">Open Containers</div>
+              <div className="text-xs opacity-80">{openQuantity} available</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreferredStatus('SEALED')}
+              disabled={sealedQuantity === 0 || isSubmitting}
+              className={`font-heading font-semibold py-3 rounded-lg transition-all border-2 ${
+                preferredStatus === 'SEALED'
+                  ? 'bg-gf-green border-gf-green-600 text-white'
+                  : 'bg-dark-bg border-dark-border text-dark-text-secondary active:bg-dark-card'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              style={{ minHeight: '44px' }}
+            >
+              <div className="text-lg mb-1">🔒</div>
+              <div className="text-sm">Sealed Containers</div>
+              <div className="text-xs opacity-80">{sealedQuantity} available</div>
+            </button>
+          </div>
+          {openQuantity > 0 && preferredStatus === 'SEALED' && (
+            <p className="text-xs text-amber-400 mt-2">
+              ℹ️ Note: {openQuantity} open container{openQuantity !== 1 ? 's' : ''} should be used first to prevent waste
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Quantity Input - Only show when location is selected */}
       {formData.locationId && (
