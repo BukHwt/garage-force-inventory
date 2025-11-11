@@ -8,8 +8,8 @@ import { useInventory } from './hooks/useInventory';
 import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inventory';
 
 // API Services
-import { adjustInventory, receiveInventory, transferInventory } from './api/services/inventory';
-import type { ReceiveInventoryRequest, TransferInventoryRequest } from './api/services/inventory';
+import { adjustInventory, receiveInventory, transferInventory, useInventory as useInventoryAPI } from './api/services/inventory';
+import type { ReceiveInventoryRequest, TransferInventoryRequest, UseInventoryRequest } from './api/services/inventory';
 
 // Types
 import { InventoryItem } from './types';
@@ -88,6 +88,11 @@ function App() {
     await refetch();
   }, [refetch]);
 
+  const handleUseInventory = useCallback(async (data: UseInventoryRequest) => {
+    await useInventoryAPI(data);
+    await refetch();
+  }, [refetch]);
+
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId);
   }, []);
@@ -146,6 +151,7 @@ function App() {
           locations={locations}
           onReceive={handleReceiveInventory}
           onTransfer={handleTransferInventory}
+          onUse={handleUseInventory}
         />
       )}
 
