@@ -59,10 +59,13 @@ export function UnsealModal({
         {/* Header */}
         <div className="border-b border-dark-border p-4">
           <h2 className="font-heading text-xl font-bold text-dark-text-primary">
-            Unseal Containers
+            Open Sealed Containers
           </h2>
           <p className="font-body text-sm text-dark-text-secondary mt-1">
             {product.name}
+          </p>
+          <p className="font-body text-xs text-dark-text-muted mt-2">
+            Optional: Open sealed containers now, or use them sealed directly from the Use tab
           </p>
         </div>
 
@@ -214,7 +217,7 @@ export function UnsealModal({
               className="flex-1 bg-amber-500 border border-amber-600 text-white font-heading font-semibold py-3 rounded-lg active:bg-amber-600 transition-colors"
               style={{ minHeight: '44px' }}
             >
-              🔓 Unseal {quantity > 1 ? `${quantity} Containers` : 'Container'}
+              🔓 Open {quantity > 1 ? `${quantity} Containers` : 'Container'}
             </button>
           </div>
         </form>

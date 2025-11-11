@@ -59,9 +59,9 @@ export function InventoryActionModal({
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📦</span>
                 <div className="text-left">
-                  <div className="text-lg">Use from Open Container</div>
+                  <div className="text-lg">Use Container</div>
                   <div className="text-sm font-body font-normal opacity-90">
-                    {totalOpen} {product.unitSize || 'units'} available
+                    {totalOpen} Open {product.unitSize || 'units'} available
                   </div>
                 </div>
               </div>
@@ -80,9 +80,9 @@ export function InventoryActionModal({
               style={{ minHeight: '44px' }}
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">🔒</span>
+                <span className="text-2xl">🔓</span>
                 <div className="text-left">
-                  <div className="text-lg">Open Sealed Container</div>
+                  <div className="text-lg">Open Sealed Containers</div>
                   <div className="text-sm font-body font-normal opacity-90">
                     {totalSealed} sealed {product.unitSize || 'units'} available
                   </div>
