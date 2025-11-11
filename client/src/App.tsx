@@ -157,8 +157,19 @@ function App() {
     await refetch();
   }, [refetch]);
 
-  const handleCreateProduct = useCallback(async (data: CreateProductRequest) => {
-    await createProduct(data);
+  const handleCreateProduct = useCallback(async (data: { name: string; description: string; sku: string; color: string; unitSize: string; reorderPoint: number | null; supplierType: 'GARAGE_FORCE_REQUIRED' | 'GARAGE_FORCE_OPTIONAL' | 'OPEN_SOURCE'; categoryId: string }) => {
+    // Convert null to undefined for API
+    const apiData: CreateProductRequest = {
+      name: data.name,
+      description: data.description || undefined,
+      sku: data.sku || undefined,
+      color: data.color || undefined,
+      unitSize: data.unitSize || undefined,
+      reorderPoint: data.reorderPoint ?? undefined,
+      supplierType: data.supplierType,
+      categoryId: data.categoryId || undefined,
+    };
+    await createProduct(apiData);
     await refetch();
   }, [refetch]);
 
