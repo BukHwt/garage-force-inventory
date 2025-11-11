@@ -8,25 +8,31 @@ import {
   TransferInventoryForm,
   TransferInventoryData,
 } from './TransferInventoryForm';
+import {
+  UseInventoryForm,
+  UseInventoryData,
+} from './UseInventoryForm';
 
-type InventoryMode = 'receive' | 'transfer';
+type InventoryMode = 'receive' | 'transfer' | 'use';
 
 interface AddInventoryScreenProps {
   products: Product[];
   locations: Location[];
   onReceive: (data: ReceiveInventoryData) => Promise<void>;
   onTransfer: (data: TransferInventoryData) => Promise<void>;
+  onUse: (data: UseInventoryData) => Promise<void>;
 }
 
 /**
- * Main screen for adding inventory via receiving or transferring
- * Orchestrates the two sub-forms and handles mode switching
+ * Main screen for inventory management workflows
+ * Orchestrates receive, transfer, and usage forms
  */
 export function AddInventoryScreen({
   products,
   locations,
   onReceive,
   onTransfer,
+  onUse,
 }: AddInventoryScreenProps) {
   const [mode, setMode] = useState<InventoryMode>('receive');
 
@@ -35,20 +41,20 @@ export function AddInventoryScreen({
       {/* Header */}
       <div className="bg-dark-card border-b-2 border-gf-green p-4 sticky top-0 z-10">
         <h1 className="font-heading text-2xl font-bold text-dark-text-primary">
-          Add Inventory
+          Inventory Management
         </h1>
         <p className="font-body text-sm text-dark-text-secondary mt-1">
-          Receive shipments or transfer between locations
+          Receive, transfer, or track usage
         </p>
       </div>
 
       <div className="p-4">
         {/* Mode Selector */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-3 gap-2 mb-4">
           <button
             type="button"
             onClick={() => setMode('receive')}
-            className={`p-4 rounded-lg border-2 transition-all font-heading font-semibold ${
+            className={`p-3 rounded-lg border-2 transition-all font-heading font-semibold ${
               mode === 'receive'
                 ? 'bg-gf-green-700 border-gf-green text-white'
                 : 'bg-dark-bg border-dark-border text-dark-text-primary active:bg-dark-card'
@@ -56,7 +62,7 @@ export function AddInventoryScreen({
             style={{ minHeight: '44px' }}
           >
             <div className="text-2xl mb-1">📦</div>
-            <div>Receive</div>
+            <div className="text-sm">Receive</div>
             <div className="text-xs font-body font-normal opacity-80">
               From supplier
             </div>
@@ -64,7 +70,7 @@ export function AddInventoryScreen({
           <button
             type="button"
             onClick={() => setMode('transfer')}
-            className={`p-4 rounded-lg border-2 transition-all font-heading font-semibold ${
+            className={`p-3 rounded-lg border-2 transition-all font-heading font-semibold ${
               mode === 'transfer'
                 ? 'bg-gf-green-700 border-gf-green text-white'
                 : 'bg-dark-bg border-dark-border text-dark-text-primary active:bg-dark-card'
@@ -72,25 +78,49 @@ export function AddInventoryScreen({
             style={{ minHeight: '44px' }}
           >
             <div className="text-2xl mb-1">🔄</div>
-            <div>Transfer</div>
+            <div className="text-sm">Transfer</div>
             <div className="text-xs font-body font-normal opacity-80">
               Between locations
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('use')}
+            className={`p-3 rounded-lg border-2 transition-all font-heading font-semibold ${
+              mode === 'use'
+                ? 'bg-gf-green-700 border-gf-green text-white'
+                : 'bg-dark-bg border-dark-border text-dark-text-primary active:bg-dark-card'
+            }`}
+            style={{ minHeight: '44px' }}
+          >
+            <div className="text-2xl mb-1">🔧</div>
+            <div className="text-sm">Use</div>
+            <div className="text-xs font-body font-normal opacity-80">
+              On job
             </div>
           </button>
         </div>
 
         {/* Conditional Form Rendering */}
-        {mode === 'receive' ? (
+        {mode === 'receive' && (
           <ReceiveInventoryForm
             products={products}
             locations={locations}
             onSubmit={onReceive}
           />
-        ) : (
+        )}
+        {mode === 'transfer' && (
           <TransferInventoryForm
             products={products}
             locations={locations}
             onSubmit={onTransfer}
+          />
+        )}
+        {mode === 'use' && (
+          <UseInventoryForm
+            products={products}
+            locations={locations}
+            onSubmit={onUse}
           />
         )}
       </div>
