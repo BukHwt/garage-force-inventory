@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import './index.css';
 
 // Hooks
@@ -46,6 +46,11 @@ function App() {
     productId?: string;
     locationId?: string;
   }>({});
+
+  // Scroll position tracking for returning to Dashboard
+  const [savedScrollPosition, setSavedScrollPosition] = useState<number>(0);
+  const shouldRestoreScroll = useRef<boolean>(false);
+  const [previousTab, setPreviousTab] = useState<string>('dashboard');
 
   // Memoized derived state - only recompute when dependencies change
   const filteredProducts = useMemo(
@@ -98,17 +103,24 @@ function App() {
   const handleUseInventory = useCallback(async (data: UseInventoryRequest) => {
     await recordInventoryUsage(data);
     await refetch();
+    // Navigate back to Dashboard after successful usage
+    shouldRestoreScroll.current = true;
+    setActiveTab('dashboard');
   }, [refetch]);
 
   const handleTabChange = useCallback((tabId: string) => {
+    setPreviousTab(activeTab);
     setActiveTab(tabId);
     // Clear pre-filled data when manually changing tabs
     if (tabId !== 'add') {
       setPreFilledData({});
     }
-  }, []);
+  }, [activeTab]);
 
   const handleUseOnJobClick = useCallback((productId: string, locationId: string) => {
+    // Save current scroll position and tab
+    setSavedScrollPosition(window.scrollY || document.documentElement.scrollTop);
+    setPreviousTab(activeTab);
     // Set pre-filled data
     setPreFilledData({
       mode: 'use',
@@ -117,7 +129,29 @@ function App() {
     });
     // Navigate to Manage Inventory tab
     setActiveTab('add');
-  }, []);
+  }, [activeTab]);
+
+  const handleCancelTransaction = useCallback(() => {
+    // Clear pre-filled data
+    setPreFilledData({});
+    // Return to previous tab
+    shouldRestoreScroll.current = previousTab === 'dashboard';
+    setActiveTab(previousTab);
+  }, [previousTab]);
+
+  // Restore scroll position when returning to Dashboard
+  useEffect(() => {
+    if (activeTab === 'dashboard' && shouldRestoreScroll.current) {
+      // Use setTimeout to ensure DOM is ready
+      setTimeout(() => {
+        window.scrollTo(0, savedScrollPosition);
+        shouldRestoreScroll.current = false;
+      }, 0);
+    } else if (activeTab === 'add') {
+      // Always scroll to top when entering Manage tab
+      window.scrollTo(0, 0);
+    }
+  }, [activeTab, savedScrollPosition]);
 
   // Loading state
   if (loading) {
@@ -179,6 +213,7 @@ function App() {
           initialProductId={preFilledData.productId}
           initialLocationId={preFilledData.locationId}
           onClearPreFilled={() => setPreFilledData({})}
+          onCancel={handleCancelTransaction}
         />
       )}
 

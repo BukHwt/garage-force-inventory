@@ -18,6 +18,7 @@ interface UseInventoryFormProps {
   initialProductId?: string;
   initialLocationId?: string;
   onClearPreFilled?: () => void;
+  onCancel?: () => void;
 }
 
 /**
@@ -31,6 +32,7 @@ export const UseInventoryForm = memo(function UseInventoryForm({
   initialProductId,
   initialLocationId,
   onClearPreFilled,
+  onCancel,
 }: UseInventoryFormProps) {
   const [formData, setFormData] = useState<UseInventoryData>({
     productId: initialProductId || '',
@@ -274,15 +276,29 @@ export const UseInventoryForm = memo(function UseInventoryForm({
         </div>
       )}
 
-      {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full bg-gf-green border-2 border-gf-green-600 text-white font-heading font-bold text-lg py-4 rounded-lg active:bg-gf-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-        style={{ minHeight: '44px' }}
-      >
-        {isSubmitting ? 'Recording...' : '🔧 Record Usage'}
-      </button>
+      {/* Action Buttons */}
+      <div className="space-y-3">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-gf-green border-2 border-gf-green-600 text-white font-heading font-bold text-lg py-4 rounded-lg active:bg-gf-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          style={{ minHeight: '44px' }}
+        >
+          {isSubmitting ? 'Recording...' : '🔧 Record Usage'}
+        </button>
+
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="w-full bg-dark-bg border-2 border-dark-border text-dark-text-secondary font-heading font-semibold text-base py-3 rounded-lg active:bg-dark-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ minHeight: '44px' }}
+          >
+            Cancel Transaction
+          </button>
+        )}
+      </div>
     </form>
   );
 });
