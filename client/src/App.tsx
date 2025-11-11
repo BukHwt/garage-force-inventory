@@ -10,9 +10,10 @@ import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inv
 // API Services
 import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage } from './api/services/inventory';
 import type { ReceiveInventoryRequest, TransferInventoryRequest, UseInventoryRequest } from './api/services/inventory';
+import { updateProduct, UpdateProductRequest } from './api/services/products';
 
 // Types
-import { InventoryItem } from './types';
+import { InventoryItem, Category } from './types';
 
 // Components
 import { Header } from './components/layout/Header';
@@ -23,6 +24,7 @@ import { LocationFilter } from './components/inventory/LocationFilter';
 import { ProductList } from './components/inventory/ProductList';
 import { InventoryAdjustmentModal } from './components/common/InventoryAdjustmentModal';
 import { AddInventoryScreen } from './components/inventory/AddInventoryScreen';
+import { ProductCatalogScreen } from './components/products/ProductCatalogScreen';
 
 function App() {
   const { products, locations, loading, error, refetch } = useInventory();
@@ -62,6 +64,17 @@ function App() {
     () => getProductsNeedingReorder(products),
     [products]
   );
+
+  // Extract unique categories from products
+  const categories = useMemo(() => {
+    const categoryMap = new Map<string, Category>();
+    products.forEach((product) => {
+      if (product.category && !categoryMap.has(product.category.id)) {
+        categoryMap.set(product.category.id, product.category);
+      }
+    });
+    return Array.from(categoryMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [products]);
 
   // Stable callback references - prevent unnecessary re-renders of child components
   const handleProductClick = useCallback((productId: string) => {
@@ -138,6 +151,11 @@ function App() {
     shouldRestoreScroll.current = previousTab === 'dashboard';
     setActiveTab(previousTab);
   }, [previousTab]);
+
+  const handleUpdateProduct = useCallback(async (productId: string, updates: UpdateProductRequest) => {
+    await updateProduct(productId, updates);
+    await refetch();
+  }, [refetch]);
 
   // Restore scroll position when returning to Dashboard
   useEffect(() => {
@@ -217,15 +235,13 @@ function App() {
         />
       )}
 
-      {/* Products View (placeholder) */}
+      {/* Products View */}
       {activeTab === 'products' && (
-        <div className="min-h-screen bg-dark-bg">
-          <Header />
-          <div className="p-4">
-            <h2 className="font-heading text-xl font-bold text-dark-text-primary">Products</h2>
-            <p className="font-body text-dark-text-secondary mt-2">Product management coming soon...</p>
-          </div>
-        </div>
+        <ProductCatalogScreen
+          products={products}
+          categories={categories}
+          onUpdateProduct={handleUpdateProduct}
+        />
       )}
 
       {/* Settings View (placeholder) */}
