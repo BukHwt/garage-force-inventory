@@ -12,14 +12,14 @@ datasource db {
 }
 
 model Location {
-  id                   String                 @id @default(uuid())
-  name                 String                 @unique
-  description          String?
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  inventoryItems       InventoryItem[]
-  transactionsFrom     InventoryTransaction[] @relation("FromLocation")
-  transactionsTo       InventoryTransaction[] @relation("ToLocation")
+  id               String                 @id @default(uuid())
+  name             String                 @unique
+  description      String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  inventoryItems   InventoryItem[]
+  transactionsFrom InventoryTransaction[] @relation("FromLocation")
+  transactionsTo   InventoryTransaction[] @relation("ToLocation")
 }
 
 model Category {
@@ -31,35 +31,35 @@ model Category {
 }
 
 model Product {
-  id                  String                 @id @default(uuid())
-  name                String
-  description         String?
-  sku                 String?                @unique
-  color               String?
-  unitSize            String?
-  manufacturer        String?
-  categoryId          String?
-  category            Category?              @relation(fields: [categoryId], references: [id])
-  imageUrl            String?
-  notes               String?
+  id                 String                 @id @default(uuid())
+  name               String
+  description        String?
+  sku                String?                @unique
+  color              String?
+  unitSize           String?
+  manufacturer       String?
+  categoryId         String?
+  category           Category?              @relation(fields: [categoryId], references: [id])
+  imageUrl           String?
+  notes              String?
   // Product structure fields
-  productType         String                 @default("simple") // simple, kit, component, variant_parent
-  parentProductId     String?                // For variants: links to parent product
-  parentProduct       Product?               @relation("ProductVariants", fields: [parentProductId], references: [id], onDelete: Cascade)
-  variants            Product[]              @relation("ProductVariants")
+  productType        String                 @default("simple") // simple, kit, component, variant_parent
+  parentProductId    String? // For variants: links to parent product
+  parentProduct      Product?               @relation("ProductVariants", fields: [parentProductId], references: [id], onDelete: Cascade)
+  variants           Product[]              @relation("ProductVariants")
   // Reorder management fields
-  reorderPoint        Int?                   // Trigger reorder alert when total qty falls below this
-  maxStockLevel       Int?                   // Optional maximum to prevent over-ordering
-  leadTimeDays        Int                    @default(7) // Days from order to delivery
-  supplierType        String                 @default("OPEN_SOURCE") // GARAGE_FORCE_REQUIRED, GARAGE_FORCE_OPTIONAL, OPEN_SOURCE
-  averageUsagePerJob  Float?                 // Estimated consumption per job
-  createdAt           DateTime               @default(now())
-  updatedAt           DateTime               @updatedAt
-  inventoryItems      InventoryItem[]
-  transactions        InventoryTransaction[]
+  reorderPoint       Int? // Trigger reorder alert when total qty falls below this
+  maxStockLevel      Int? // Optional maximum to prevent over-ordering
+  leadTimeDays       Int                    @default(7) // Days from order to delivery
+  supplierType       String                 @default("OPEN_SOURCE") // GARAGE_FORCE_REQUIRED, GARAGE_FORCE_OPTIONAL, OPEN_SOURCE
+  averageUsagePerJob Float? // Estimated consumption per job
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  inventoryItems     InventoryItem[]
+  transactions       InventoryTransaction[]
   // Kit relationships
-  kitComponents       ProductComponent[]     @relation("KitProduct")
-  componentOf         ProductComponent[]     @relation("ComponentProduct")
+  kitComponents      ProductComponent[]     @relation("KitProduct")
+  componentOf        ProductComponent[]     @relation("ComponentProduct")
 }
 
 model InventoryItem {
@@ -69,6 +69,7 @@ model InventoryItem {
   locationId  String
   location    Location  @relation(fields: [locationId], references: [id])
   quantity    Int       @default(1)
+  status      String    @default("SEALED") // SEALED or OPEN - tracks container status
   batchNumber String?
   expiresAt   DateTime?
   notes       String?
@@ -80,13 +81,13 @@ model InventoryTransaction {
   id              String    @id @default(uuid())
   productId       String
   product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  transactionType String    // RECEIPT, CONSUMPTION, TRANSFER, ADJUSTMENT
+  transactionType String // RECEIPT, CONSUMPTION, TRANSFER, ADJUSTMENT
   fromLocationId  String?
   fromLocation    Location? @relation("FromLocation", fields: [fromLocationId], references: [id])
   toLocationId    String?
   toLocation      Location? @relation("ToLocation", fields: [toLocationId], references: [id])
-  quantity        Float     // Using Float to support decimal quantities
-  jobReference    String?   // Simple text field for job name/ID
+  quantity        Float // Using Float to support decimal quantities
+  jobReference    String? // Simple text field for job name/ID
   notes           String?
   createdAt       DateTime  @default(now())
 
@@ -95,17 +96,17 @@ model InventoryTransaction {
 }
 
 model ProductComponent {
-  id               String   @id @default(uuid())
-  kitProductId     String   // The kit/bundle product
-  kitProduct       Product  @relation("KitProduct", fields: [kitProductId], references: [id], onDelete: Cascade)
+  id                 String   @id @default(uuid())
+  kitProductId       String // The kit/bundle product
+  kitProduct         Product  @relation("KitProduct", fields: [kitProductId], references: [id], onDelete: Cascade)
   componentProductId String // The component product (e.g., Part A, Part B)
-  componentProduct Product  @relation("ComponentProduct", fields: [componentProductId], references: [id], onDelete: Cascade)
-  quantityRequired Int      @default(1) // How many of this component are needed
-  isOptional       Boolean  @default(false) // For alternative components (e.g., choose one Part B variant)
-  componentLabel   String?  // e.g., "Part A", "Part B", "Hardener"
-  sortOrder        Int      @default(0) // For displaying components in order
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  componentProduct   Product  @relation("ComponentProduct", fields: [componentProductId], references: [id], onDelete: Cascade)
+  quantityRequired   Int      @default(1) // How many of this component are needed
+  isOptional         Boolean  @default(false) // For alternative components (e.g., choose one Part B variant)
+  componentLabel     String? // e.g., "Part A", "Part B", "Hardener"
+  sortOrder          Int      @default(0) // For displaying components in order
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@unique([kitProductId, componentProductId])
   @@index([kitProductId])

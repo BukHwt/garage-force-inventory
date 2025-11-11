@@ -153,14 +153,19 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Adjust inventory quantity (add/subtract)
+// Adjust inventory quantity (add/subtract) and/or status
 router.patch('/:id/adjust', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { adjustment } = req.body;
+    const { adjustment, status } = req.body;
 
     if (typeof adjustment !== 'number') {
       return res.status(400).json({ error: 'Adjustment must be a number' });
+    }
+
+    // Validate status if provided
+    if (status !== undefined && status !== 'SEALED' && status !== 'OPEN') {
+      return res.status(400).json({ error: 'Status must be either SEALED or OPEN' });
     }
 
     const currentItem = await prisma.inventoryItem.findUnique({
@@ -181,6 +186,7 @@ router.patch('/:id/adjust', async (req: Request, res: Response) => {
       where: { id },
       data: {
         quantity: newQuantity,
+        ...(status !== undefined && { status }),
       },
       include: {
         product: {
@@ -455,6 +461,153 @@ router.post('/receive', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error receiving inventory:', error);
     res.status(500).json({ error: 'Failed to receive inventory' });
+  }
+});
+
+// Unseal containers (move specified quantity from SEALED to OPEN status)
+router.post('/unseal', async (req: Request, res: Response) => {
+  try {
+    const { productId, locationId, quantity = 1 } = req.body;
+
+    // Validation
+    if (!productId || !locationId) {
+      return res.status(400).json({ error: 'Product and location are required' });
+    }
+
+    if (quantity <= 0) {
+      return res.status(400).json({ error: 'Quantity must be greater than zero' });
+    }
+
+    // Verify product exists
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Verify location exists
+    const location = await prisma.location.findUnique({
+      where: { id: locationId },
+    });
+
+    if (!location) {
+      return res.status(404).json({ error: 'Location not found' });
+    }
+
+    // Find sealed inventory at this location
+    const sealedItem = await prisma.inventoryItem.findFirst({
+      where: {
+        productId,
+        locationId,
+        status: 'SEALED',
+      },
+    });
+
+    if (!sealedItem) {
+      return res.status(400).json({ error: 'No sealed inventory available at this location' });
+    }
+
+    if (sealedItem.quantity < quantity) {
+      return res.status(400).json({
+        error: `Insufficient sealed inventory. Available: ${sealedItem.quantity}, Requested: ${quantity}`
+      });
+    }
+
+    // Use a transaction to ensure atomicity
+    const result = await prisma.$transaction(async (tx) => {
+      // Reduce sealed inventory by specified quantity
+      let updatedSealedItem = null;
+      const newSealedQuantity = sealedItem.quantity - quantity;
+
+      if (newSealedQuantity > 0) {
+        // Update sealed inventory
+        updatedSealedItem = await tx.inventoryItem.update({
+          where: { id: sealedItem.id },
+          data: { quantity: newSealedQuantity },
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            location: true,
+          },
+        });
+      } else {
+        // Remove sealed inventory item (quantity becomes 0)
+        await tx.inventoryItem.delete({
+          where: { id: sealedItem.id },
+        });
+      }
+
+      // Check if open inventory already exists at this location
+      const existingOpenItem = await tx.inventoryItem.findFirst({
+        where: {
+          productId,
+          locationId,
+          status: 'OPEN',
+        },
+      });
+
+      let openItem;
+
+      if (existingOpenItem) {
+        // Add to existing open inventory
+        openItem = await tx.inventoryItem.update({
+          where: { id: existingOpenItem.id },
+          data: {
+            quantity: existingOpenItem.quantity + quantity,
+          },
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            location: true,
+          },
+        });
+      } else {
+        // Create new open inventory item
+        openItem = await tx.inventoryItem.create({
+          data: {
+            productId,
+            locationId,
+            quantity,
+            status: 'OPEN',
+          },
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            location: true,
+          },
+        });
+      }
+
+      // Create transaction record
+      const transaction = await tx.inventoryTransaction.create({
+        data: {
+          productId,
+          transactionType: 'ADJUSTMENT',
+          fromLocationId: locationId,
+          toLocationId: locationId,
+          quantity,
+          notes: `Unsealed ${quantity} ${product.unitSize || 'unit'}${quantity > 1 ? 's' : ''} at ${location.name}`,
+        },
+      });
+
+      return { sealedItem: updatedSealedItem, openItem, transaction };
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error unsealing inventory:', error);
+    res.status(500).json({ error: 'Failed to unseal inventory' });
   }
 });
 
