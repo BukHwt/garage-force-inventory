@@ -10,7 +10,7 @@ import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inv
 // API Services
 import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage } from './api/services/inventory';
 import type { ReceiveInventoryRequest, TransferInventoryRequest, UseInventoryRequest } from './api/services/inventory';
-import { updateProduct, UpdateProductRequest } from './api/services/products';
+import { updateProduct, createProduct, UpdateProductRequest, CreateProductRequest } from './api/services/products';
 
 // Types
 import { InventoryItem, Category } from './types';
@@ -157,6 +157,11 @@ function App() {
     await refetch();
   }, [refetch]);
 
+  const handleCreateProduct = useCallback(async (data: CreateProductRequest) => {
+    await createProduct(data);
+    await refetch();
+  }, [refetch]);
+
   // Restore scroll position when returning to Dashboard
   useEffect(() => {
     if (activeTab === 'dashboard' && shouldRestoreScroll.current) {
@@ -241,6 +246,7 @@ function App() {
           products={products}
           categories={categories}
           onUpdateProduct={handleUpdateProduct}
+          onCreateProduct={handleCreateProduct}
         />
       )}
 
