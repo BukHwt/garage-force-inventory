@@ -1,4 +1,4 @@
-import React, { useState, memo, useMemo } from 'react';
+import React, { useState, memo, useMemo, useEffect } from 'react';
 import { Product, Location } from '../../types';
 import { QuantityInput } from './shared/QuantityInput';
 import { LocationPicker } from './shared/LocationPicker';
@@ -15,6 +15,9 @@ interface UseInventoryFormProps {
   products: Product[];
   locations: Location[];
   onSubmit: (data: UseInventoryData) => Promise<void>;
+  initialProductId?: string;
+  initialLocationId?: string;
+  onClearPreFilled?: () => void;
 }
 
 /**
@@ -25,10 +28,13 @@ export const UseInventoryForm = memo(function UseInventoryForm({
   products,
   locations,
   onSubmit,
+  initialProductId,
+  initialLocationId,
+  onClearPreFilled,
 }: UseInventoryFormProps) {
   const [formData, setFormData] = useState<UseInventoryData>({
-    productId: '',
-    locationId: '',
+    productId: initialProductId || '',
+    locationId: initialLocationId || '',
     quantity: 1,
     jobReference: '',
     notes: '',
@@ -36,6 +42,17 @@ export const UseInventoryForm = memo(function UseInventoryForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Update form data when initial values change
+  useEffect(() => {
+    if (initialProductId || initialLocationId) {
+      setFormData((prev) => ({
+        ...prev,
+        productId: initialProductId || prev.productId,
+        locationId: initialLocationId || prev.locationId,
+      }));
+    }
+  }, [initialProductId, initialLocationId]);
 
   const selectedProduct = products.find((p) => p.id === formData.productId);
 
@@ -116,6 +133,11 @@ export const UseInventoryForm = memo(function UseInventoryForm({
     try {
       await onSubmit(formData);
       setSuccess(true);
+
+      // Clear pre-filled data after successful submission
+      if (onClearPreFilled) {
+        onClearPreFilled();
+      }
 
       // Reset form after successful submission
       setTimeout(() => {
