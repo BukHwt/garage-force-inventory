@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, Location } from '../../types';
 import {
   ReceiveInventoryForm,
@@ -21,6 +21,10 @@ interface AddInventoryScreenProps {
   onReceive: (data: ReceiveInventoryData) => Promise<void>;
   onTransfer: (data: TransferInventoryData) => Promise<void>;
   onUse: (data: UseInventoryData) => Promise<void>;
+  initialMode?: InventoryMode;
+  initialProductId?: string;
+  initialLocationId?: string;
+  onClearPreFilled?: () => void;
 }
 
 /**
@@ -33,15 +37,26 @@ export function AddInventoryScreen({
   onReceive,
   onTransfer,
   onUse,
+  initialMode,
+  initialProductId,
+  initialLocationId,
+  onClearPreFilled,
 }: AddInventoryScreenProps) {
-  const [mode, setMode] = useState<InventoryMode>('receive');
+  const [mode, setMode] = useState<InventoryMode>(initialMode || 'receive');
+
+  // Update mode when initialMode changes
+  useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    }
+  }, [initialMode]);
 
   return (
     <div className="min-h-screen bg-dark-bg pb-20">
       {/* Header */}
       <div className="bg-dark-card border-b-2 border-gf-green p-4 sticky top-0 z-10">
         <h1 className="font-heading text-2xl font-bold text-dark-text-primary">
-          Inventory Management
+          Manage Inventory
         </h1>
         <p className="font-body text-sm text-dark-text-secondary mt-1">
           Receive, transfer, or track usage
@@ -121,6 +136,9 @@ export function AddInventoryScreen({
             products={products}
             locations={locations}
             onSubmit={onUse}
+            initialProductId={initialProductId}
+            initialLocationId={initialLocationId}
+            onClearPreFilled={onClearPreFilled}
           />
         )}
       </div>

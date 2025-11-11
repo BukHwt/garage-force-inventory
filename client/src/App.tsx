@@ -8,7 +8,7 @@ import { useInventory } from './hooks/useInventory';
 import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inventory';
 
 // API Services
-import { adjustInventory, receiveInventory, transferInventory, useInventory as useInventoryAPI } from './api/services/inventory';
+import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage } from './api/services/inventory';
 import type { ReceiveInventoryRequest, TransferInventoryRequest, UseInventoryRequest } from './api/services/inventory';
 
 // Types
@@ -39,6 +39,13 @@ function App() {
     inventoryItem: null,
     productName: '',
   });
+
+  // Pre-filled form state for quick actions from Dashboard
+  const [preFilledData, setPreFilledData] = useState<{
+    mode?: 'receive' | 'transfer' | 'use';
+    productId?: string;
+    locationId?: string;
+  }>({});
 
   // Memoized derived state - only recompute when dependencies change
   const filteredProducts = useMemo(
@@ -89,12 +96,27 @@ function App() {
   }, [refetch]);
 
   const handleUseInventory = useCallback(async (data: UseInventoryRequest) => {
-    await useInventoryAPI(data);
+    await recordInventoryUsage(data);
     await refetch();
   }, [refetch]);
 
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId);
+    // Clear pre-filled data when manually changing tabs
+    if (tabId !== 'add') {
+      setPreFilledData({});
+    }
+  }, []);
+
+  const handleUseOnJobClick = useCallback((productId: string, locationId: string) => {
+    // Set pre-filled data
+    setPreFilledData({
+      mode: 'use',
+      productId,
+      locationId,
+    });
+    // Navigate to Manage Inventory tab
+    setActiveTab('add');
   }, []);
 
   // Loading state
@@ -139,6 +161,7 @@ function App() {
               locations={locations}
               onProductClick={handleProductClick}
               onAdjustClick={handleAdjustClick}
+              onUseOnJobClick={handleUseOnJobClick}
             />
           </div>
         </>
@@ -152,6 +175,10 @@ function App() {
           onReceive={handleReceiveInventory}
           onTransfer={handleTransferInventory}
           onUse={handleUseInventory}
+          initialMode={preFilledData.mode}
+          initialProductId={preFilledData.productId}
+          initialLocationId={preFilledData.locationId}
+          onClearPreFilled={() => setPreFilledData({})}
         />
       )}
 
