@@ -55,7 +55,16 @@ export const QuantityInput = memo(function QuantityInput({
       </div>
 
       {/* Quick adjustment buttons */}
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-6 gap-2">
+        <button
+          type="button"
+          onClick={() => handleQuickAdjust(-1)}
+          disabled={disabled || isAtMin}
+          className="bg-alert-red border border-alert-red text-white font-semibold py-2 px-3 rounded-lg active:bg-red-700 transition-colors disabled:opacity-30 disabled:active:bg-alert-red"
+          style={{ minHeight: '44px' }}
+        >
+          -1
+        </button>
         <button
           type="button"
           onClick={() => handleQuickAdjust(1)}
