@@ -7,10 +7,11 @@ interface ProductCardProps {
   selectedLocation: string;
   onCardClick?: (productId: string) => void;
   onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
+  onUseOnJobClick?: (productId: string, locationId: string) => void;
 }
 
 // Memoized component - only re-renders when props actually change
-export const ProductCard = memo(function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick, onUseOnJobClick }: ProductCardProps) {
   const isReorderNeeded = needsReorder(product);
   const showingAllLocations = selectedLocation === 'all';
 
@@ -85,24 +86,42 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
         </div>
       )}
 
-      {/* Adjust button when viewing specific location */}
-      {!showingAllLocations && onAdjustClick && product.inventoryItems.length > 0 && (
+      {/* Action buttons when viewing specific location */}
+      {!showingAllLocations && product.inventoryItems.length > 0 && (
         <div className="mt-3 pt-3 border-t border-dark-border">
           {product.inventoryItems
             .filter(item => item.location.id === selectedLocation)
             .map(item => (
-              <button
-                key={item.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAdjustClick(item, product.name);
-                }}
-                className="w-full bg-gf-green border border-gf-green-600 text-white font-heading font-semibold py-3 px-4 rounded-lg active:bg-gf-green-700 transition-colors flex items-center justify-center gap-2"
-                style={{ minHeight: '44px' }}
-              >
-                <span className="text-lg">⚖️</span>
-                <span>Adjust Quantity</span>
-              </button>
+              <div key={item.id} className="flex gap-2">
+                {/* Use on Job button */}
+                {onUseOnJobClick && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUseOnJobClick(product.id, selectedLocation);
+                    }}
+                    className="flex-1 bg-gf-green border border-gf-green-600 text-white font-heading font-semibold py-3 px-4 rounded-lg active:bg-gf-green-700 transition-colors flex items-center justify-center gap-2"
+                    style={{ minHeight: '44px' }}
+                  >
+                    <span className="text-lg">🔧</span>
+                    <span>Use on Job</span>
+                  </button>
+                )}
+                {/* Adjust Quantity button */}
+                {onAdjustClick && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAdjustClick(item, product.name);
+                    }}
+                    className="flex-1 bg-gf-charcoal-600 border border-gf-charcoal-500 text-white font-heading font-semibold py-3 px-4 rounded-lg active:bg-gf-charcoal-700 transition-colors flex items-center justify-center gap-2"
+                    style={{ minHeight: '44px' }}
+                  >
+                    <span className="text-lg">⚖️</span>
+                    <span>Adjust</span>
+                  </button>
+                )}
+              </div>
             ))}
         </div>
       )}

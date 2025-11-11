@@ -72,3 +72,32 @@ export async function transferInventory(
 ): Promise<TransferInventoryResponse> {
   return apiPost<TransferInventoryResponse>('/api/inventory/transfer', data);
 }
+
+export interface UseInventoryRequest {
+  productId: string;
+  locationId: string;
+  quantity: number;
+  jobReference: string;
+  notes?: string;
+}
+
+export interface UseInventoryResponse {
+  inventoryItem: InventoryItem | null;
+  transaction: {
+    id: string;
+    transactionType: string;
+    quantity: number;
+    jobReference: string;
+    createdAt: string;
+  };
+}
+
+/**
+ * Use/consume inventory for a job
+ * Creates an inventory transaction (CONSUMPTION) and decreases quantity at location
+ */
+export async function useInventory(
+  data: UseInventoryRequest
+): Promise<UseInventoryResponse> {
+  return apiPost<UseInventoryResponse>('/api/inventory/use', data);
+}
