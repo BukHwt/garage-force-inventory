@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import './index.css';
 
 // Hooks
@@ -8,8 +8,8 @@ import { useInventory } from './hooks/useInventory';
 import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inventory';
 
 // API Services
-import { adjustInventory, receiveInventory, transferInventory } from './api/services/inventory';
-import type { ReceiveInventoryRequest, TransferInventoryRequest } from './api/services/inventory';
+import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage } from './api/services/inventory';
+import type { ReceiveInventoryRequest, TransferInventoryRequest, UseInventoryRequest } from './api/services/inventory';
 
 // Types
 import { InventoryItem } from './types';
@@ -39,6 +39,18 @@ function App() {
     inventoryItem: null,
     productName: '',
   });
+
+  // Pre-filled form state for quick actions from Dashboard
+  const [preFilledData, setPreFilledData] = useState<{
+    mode?: 'receive' | 'transfer' | 'use';
+    productId?: string;
+    locationId?: string;
+  }>({});
+
+  // Scroll position tracking for returning to Dashboard
+  const [savedScrollPosition, setSavedScrollPosition] = useState<number>(0);
+  const shouldRestoreScroll = useRef<boolean>(false);
+  const [previousTab, setPreviousTab] = useState<string>('dashboard');
 
   // Memoized derived state - only recompute when dependencies change
   const filteredProducts = useMemo(
@@ -88,9 +100,58 @@ function App() {
     await refetch();
   }, [refetch]);
 
+  const handleUseInventory = useCallback(async (data: UseInventoryRequest) => {
+    await recordInventoryUsage(data);
+    await refetch();
+    // Navigate back to Dashboard after successful usage
+    shouldRestoreScroll.current = true;
+    setActiveTab('dashboard');
+  }, [refetch]);
+
   const handleTabChange = useCallback((tabId: string) => {
+    setPreviousTab(activeTab);
     setActiveTab(tabId);
-  }, []);
+    // Clear pre-filled data when manually changing tabs
+    if (tabId !== 'add') {
+      setPreFilledData({});
+    }
+  }, [activeTab]);
+
+  const handleUseOnJobClick = useCallback((productId: string, locationId: string) => {
+    // Save current scroll position and tab
+    setSavedScrollPosition(window.scrollY || document.documentElement.scrollTop);
+    setPreviousTab(activeTab);
+    // Set pre-filled data
+    setPreFilledData({
+      mode: 'use',
+      productId,
+      locationId,
+    });
+    // Navigate to Manage Inventory tab
+    setActiveTab('add');
+  }, [activeTab]);
+
+  const handleCancelTransaction = useCallback(() => {
+    // Clear pre-filled data
+    setPreFilledData({});
+    // Return to previous tab
+    shouldRestoreScroll.current = previousTab === 'dashboard';
+    setActiveTab(previousTab);
+  }, [previousTab]);
+
+  // Restore scroll position when returning to Dashboard
+  useEffect(() => {
+    if (activeTab === 'dashboard' && shouldRestoreScroll.current) {
+      // Use setTimeout to ensure DOM is ready
+      setTimeout(() => {
+        window.scrollTo(0, savedScrollPosition);
+        shouldRestoreScroll.current = false;
+      }, 0);
+    } else if (activeTab === 'add') {
+      // Always scroll to top when entering Manage tab
+      window.scrollTo(0, 0);
+    }
+  }, [activeTab, savedScrollPosition]);
 
   // Loading state
   if (loading) {
@@ -134,6 +195,7 @@ function App() {
               locations={locations}
               onProductClick={handleProductClick}
               onAdjustClick={handleAdjustClick}
+              onUseOnJobClick={handleUseOnJobClick}
             />
           </div>
         </>
@@ -146,6 +208,12 @@ function App() {
           locations={locations}
           onReceive={handleReceiveInventory}
           onTransfer={handleTransferInventory}
+          onUse={handleUseInventory}
+          initialMode={preFilledData.mode}
+          initialProductId={preFilledData.productId}
+          initialLocationId={preFilledData.locationId}
+          onClearPreFilled={() => setPreFilledData({})}
+          onCancel={handleCancelTransaction}
         />
       )}
 

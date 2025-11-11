@@ -458,4 +458,108 @@ router.post('/receive', async (req: Request, res: Response) => {
   }
 });
 
+// Use/consume inventory (for job usage)
+router.post('/use', async (req: Request, res: Response) => {
+  try {
+    const { productId, locationId, quantity, jobReference, notes } = req.body;
+
+    // Validation
+    if (!productId || !locationId) {
+      return res.status(400).json({ error: 'Product and location are required' });
+    }
+
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ error: 'Quantity must be greater than zero' });
+    }
+
+    if (!jobReference) {
+      return res.status(400).json({ error: 'Job reference is required for usage tracking' });
+    }
+
+    // Verify product exists
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Verify location exists
+    const location = await prisma.location.findUnique({
+      where: { id: locationId },
+    });
+
+    if (!location) {
+      return res.status(404).json({ error: 'Location not found' });
+    }
+
+    // Check if inventory exists at this location
+    const inventoryItem = await prisma.inventoryItem.findFirst({
+      where: {
+        productId,
+        locationId,
+      },
+    });
+
+    if (!inventoryItem) {
+      return res.status(400).json({ error: 'No inventory available at this location' });
+    }
+
+    if (inventoryItem.quantity < quantity) {
+      return res.status(400).json({
+        error: `Insufficient quantity at location. Available: ${inventoryItem.quantity}, Requested: ${quantity}`,
+      });
+    }
+
+    // Use a transaction to ensure atomicity
+    const result = await prisma.$transaction(async (tx) => {
+      // Decrease quantity at location
+      const newQuantity = inventoryItem.quantity - quantity;
+
+      let updatedInventoryItem = null;
+
+      if (newQuantity > 0) {
+        // Update inventory item
+        updatedInventoryItem = await tx.inventoryItem.update({
+          where: { id: inventoryItem.id },
+          data: { quantity: newQuantity },
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            location: true,
+          },
+        });
+      } else {
+        // Remove inventory item (quantity becomes 0)
+        await tx.inventoryItem.delete({
+          where: { id: inventoryItem.id },
+        });
+      }
+
+      // Create CONSUMPTION transaction
+      const transaction = await tx.inventoryTransaction.create({
+        data: {
+          productId,
+          transactionType: 'CONSUMPTION',
+          fromLocationId: locationId,
+          quantity,
+          jobReference,
+          notes: notes || `Used ${quantity} ${product.unitSize || 'units'} for job ${jobReference}`,
+        },
+      });
+
+      return { inventoryItem: updatedInventoryItem, transaction };
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error using inventory:', error);
+    res.status(500).json({ error: 'Failed to use inventory' });
+  }
+});
+
 export default router;
