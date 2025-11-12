@@ -1,0 +1,1200 @@
+{
+  "products": [
+    {
+      "name": "1 Quart Bucket",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "bucket",
+      "description": "1 Quart Bucket",
+      "color": null,
+      "reorderPoint": 25,
+      "maxStockLevel": 45,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 50,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "1/4\" Squeegie Replacement Head",
+      "sku": null,
+      "category": "Replaceable Equipment",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "squeegie",
+      "description": "1/4\" Squeegie Replacement Head",
+      "color": null,
+      "reorderPoint": 1,
+      "maxStockLevel": 2,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "1/8\" Squeegie Replacement Head",
+      "sku": null,
+      "category": "Replaceable Equipment",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "squeegie",
+      "description": "1/8\" Squeegie Replacement Head",
+      "color": null,
+      "reorderPoint": 1,
+      "maxStockLevel": 2,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 0,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "10 Quart Bucket",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "bucket",
+      "description": "10 Quart Bucket",
+      "color": null,
+      "reorderPoint": 10,
+      "maxStockLevel": 25,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "18\" Paint Roller Tray",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "tray",
+      "description": "18\" Painter Roller Tray",
+      "color": null,
+      "reorderPoint": 4,
+      "maxStockLevel": 8,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 2,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "18\" Roller",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "roller",
+      "description": "18\" Roller",
+      "color": null,
+      "reorderPoint": 8,
+      "maxStockLevel": 16,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 3,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "18\" Sanding Disc",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "disc",
+      "description": "18\" Sanding Disc",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 5,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "2.5 Quart Bucket",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "bucket",
+      "description": "2.5 Quart Bucket",
+      "color": null,
+      "reorderPoint": 15,
+      "maxStockLevel": 40,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 4,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "44 Gallon Drum Liner",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "OPEN_SOURCE",
+      "productType": "simple",
+      "unitSize": "box",
+      "description": "44 Gallon Drum Liner",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 2,
+      "leadTimeDays": 3,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "5 Quart Bucket",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "bucket",
+      "description": "5 Quart Bucket",
+      "color": null,
+      "reorderPoint": 10,
+      "maxStockLevel": 35,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 25,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "9\" Paint Roller",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "roller",
+      "description": "9\" Paint Roller",
+      "color": null,
+      "reorderPoint": 5,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 4,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "9\" Paint Roller Tray",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "tray",
+      "description": "9\" Paint Roller Tray",
+      "color": null,
+      "reorderPoint": 4,
+      "maxStockLevel": 8,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 2,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Abrasion Resistance",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "1 bag",
+      "description": "Abrasion Resistance Additive",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 2,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "SEALED"
+        },
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Acetone",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "OPEN_SOURCE",
+      "productType": "simple",
+      "unitSize": "1 gallon",
+      "description": "Acetone",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 4,
+      "leadTimeDays": 3,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        },
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Base Coat Part A",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "5 gallon",
+      "description": "Base Coat Part A",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 2,
+          "status": "SEALED"
+        },
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Base Coat Part B - Gray",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "5 gallon",
+      "description": "Base Coat Part B - Gray",
+      "color": "Gray",
+      "reorderPoint": 2,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 2,
+          "status": "SEALED"
+        },
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Base Coat Part B - Tan",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "5 gallon",
+      "description": "Base Coat Part B - Tan",
+      "color": "Tan",
+      "reorderPoint": 2,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 2,
+          "status": "SEALED"
+        },
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Black Tint",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "1 quart",
+      "description": "Tint for basecoat",
+      "color": "Black",
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Cyclo-1",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "1 kit",
+      "description": "Cyclo-1 Kit",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Cyclospartic Crack Filler Part A",
+      "sku": null,
+      "category": "Repair",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "1 gallon",
+      "description": "Cyclospartic Crack Filler Part A",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        },
+        {
+          "location": "Warehouse",
+          "quantity": 3,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Cyclospartic Crack Filler Part B",
+      "sku": null,
+      "category": "Repair",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "1 gallon",
+      "description": "Cyclospartic Crack Filler Part B",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        },
+        {
+          "location": "Warehouse",
+          "quantity": 3,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Degreaser",
+      "sku": null,
+      "category": "Repair",
+      "supplierType": "OPEN_SOURCE",
+      "productType": "simple",
+      "unitSize": "1 gallon",
+      "description": "Degreaser",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 3,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Dixie Cups",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "OPEN_SOURCE",
+      "productType": "simple",
+      "unitSize": "cup",
+      "description": "Dixie Cups for mixing",
+      "color": null,
+      "reorderPoint": 100,
+      "maxStockLevel": 200,
+      "leadTimeDays": 3,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 30,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Dry Coat Part A",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "2.5 gallon",
+      "description": "Dry Coat Part A",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Dry Coat Part B",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "1 gallon",
+      "description": "Dry Coat Part B",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 2,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 2,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Dust Collector Liner",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "roll",
+      "description": "Dust Collector Liner",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 4,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Finish Squeegie",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "squeegie",
+      "description": "Finish Squeegie",
+      "color": null,
+      "reorderPoint": 6,
+      "maxStockLevel": 12,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 2,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Gravel Chip",
+      "sku": null,
+      "category": "Chip",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "40lb box",
+      "description": "Gravel Chip",
+      "color": "Gravel",
+      "reorderPoint": 0,
+      "maxStockLevel": 5,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Gray Tint",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "1 gallon",
+      "description": "Tint for basecoat",
+      "color": "Gray",
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Grinder Diamonds - Coating",
+      "sku": null,
+      "category": "Replaceable Equipment",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "set",
+      "description": "Grinder Diamonds - Coating",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Grinder Diamonds - Hard",
+      "sku": null,
+      "category": "Replaceable Equipment",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "set",
+      "description": "Grinder Diamonds - Hard",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Grinder Diamonds - Medium",
+      "sku": null,
+      "category": "Replaceable Equipment",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "set",
+      "description": "Grinder Diamonds - Medium",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Grinder Diamonds - Soft",
+      "sku": null,
+      "category": "Replaceable Equipment",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "set",
+      "description": "Grinder Diamonds - Soft",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Grit Additive",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "1 bucket",
+      "description": "Grit Additive",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "HEPA Filter",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "filter",
+      "description": "HEPA Filter",
+      "color": null,
+      "reorderPoint": 4,
+      "maxStockLevel": 8,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 2,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Large Gloves",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "box of 100",
+      "description": "Large Gloves",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 4,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Marketing Flyers",
+      "sku": null,
+      "category": "Marketing Materials",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "1 box",
+      "description": "Garage Force multipage flyers",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "SEALED"
+        },
+        {
+          "location": "Personal",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Moisture Test Kit",
+      "sku": null,
+      "category": "Testing",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "kit",
+      "description": "Moisture Test Kit",
+      "color": null,
+      "reorderPoint": 5,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 3,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Painter's Tape",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "OPEN_SOURCE",
+      "productType": "simple",
+      "unitSize": "roll",
+      "description": "Painter's Tape",
+      "color": null,
+      "reorderPoint": 3,
+      "maxStockLevel": 6,
+      "leadTimeDays": 3,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        },
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Patch Repar Putty Part A",
+      "sku": null,
+      "category": "Repair",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "1 quart",
+      "description": "Repair Putty",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": "Older product, not used often",
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "SEALED",
+          "notes": "Older product, not used often"
+        }
+      ]
+    },
+    {
+      "name": "Patch Repar Putty Part B",
+      "sku": null,
+      "category": "Repair",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "1 quart",
+      "description": "Repair Putty",
+      "color": null,
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": "Older product, not used often",
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "SEALED",
+          "notes": "Older product, not used often"
+        }
+      ]
+    },
+    {
+      "name": "Pumice Chip",
+      "sku": null,
+      "category": "Chip",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "40lb box",
+      "description": "Pumice Chip",
+      "color": "Pumice",
+      "reorderPoint": 0,
+      "maxStockLevel": 5,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 2,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Putty Knife",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "OPEN_SOURCE",
+      "productType": "simple",
+      "unitSize": "knife",
+      "description": "Putty Knife",
+      "color": null,
+      "reorderPoint": 8,
+      "maxStockLevel": 16,
+      "leadTimeDays": 3,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 3,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Rags",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "box",
+      "description": "Rags",
+      "color": null,
+      "reorderPoint": 1,
+      "maxStockLevel": 2,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Saddletan Chip",
+      "sku": null,
+      "category": "Chip",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "40lb box",
+      "description": "Saddletan Chip",
+      "color": "Saddletan",
+      "reorderPoint": 0,
+      "maxStockLevel": 5,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 4,
+          "status": "SEALED"
+        },
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Shotblast Shot",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "50lb bag",
+      "description": "Shotblast Shot",
+      "color": null,
+      "reorderPoint": 1,
+      "maxStockLevel": 4,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 2,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Silica Sand",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "50lb bag",
+      "description": "Silica Sand",
+      "color": null,
+      "reorderPoint": 1,
+      "maxStockLevel": 2,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Squeegie Head Holder",
+      "sku": null,
+      "category": "Replaceable Equipment",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "holder",
+      "description": "Squeegie Head Holder",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 4,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 0,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Stir Wand",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "wand",
+      "description": "Stir Wand",
+      "color": null,
+      "reorderPoint": 12,
+      "maxStockLevel": 64,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Tan Tint",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "1 gallon",
+      "description": "Tint for basecoat",
+      "color": "Tan",
+      "reorderPoint": 0,
+      "maxStockLevel": 1,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    },
+    {
+      "name": "Top Coat Part A",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "5 gallon",
+      "description": "Top Coat Part A",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Top Coat Part B",
+      "sku": null,
+      "category": "Coatings",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "component",
+      "unitSize": "5 gallon",
+      "description": "Top Coat Part B",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 10,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "Wombat Chip",
+      "sku": null,
+      "category": "Chip",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "productType": "simple",
+      "unitSize": "40lb box",
+      "description": "Wombat Chip",
+      "color": "Wombat",
+      "reorderPoint": 0,
+      "maxStockLevel": 5,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Warehouse",
+          "quantity": 4,
+          "status": "SEALED"
+        },
+        {
+          "location": "Warehouse",
+          "quantity": 1,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "name": "XXL Gloves",
+      "sku": null,
+      "category": "Disposable",
+      "supplierType": "GARAGE_FORCE_OPTIONAL",
+      "productType": "simple",
+      "unitSize": "box of 50",
+      "description": "XXL Gloves",
+      "color": null,
+      "reorderPoint": 2,
+      "maxStockLevel": 4,
+      "leadTimeDays": 7,
+      "notes": null,
+      "inventory": [
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "OPEN"
+        },
+        {
+          "location": "Trailer",
+          "quantity": 1,
+          "status": "SEALED"
+        }
+      ]
+    }
+  ]
+}

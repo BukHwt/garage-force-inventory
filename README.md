@@ -14,7 +14,7 @@ Mobile-first inventory management system for SD Concrete Coating Inc / Garage Fo
 
 - **Frontend**: React, TypeScript, Tailwind CSS
 - **Backend**: Node.js, Express, TypeScript
-- **Database**: SQLite with Prisma ORM
+- **Database**: PostgreSQL + Prisma ORM
 - **Testing**: Playwright (mobile-first E2E tests)
 
 ## Project Structure
@@ -47,14 +47,13 @@ cd garage-force-inventory
 npm run install-all
 ```
 
-3. Set up the database
+3. Set up and seed the database
 ```bash
-cd server
-cp .env.example .env
-npx prisma migrate deploy
-npm run seed
-cd ..
+cp server/.env.example server/.env
+npm run db:up        # starts Postgres via Docker Compose
+npm run db:init      # runs migrations + seed script
 ```
+- Seed data lives in `server/prisma/data/inventory.json` (generated from `inventory.csv`). Update those files and rerun `npm run seed` whenever your real-world inventory changes.
 
 4. Start the development servers
 ```bash
@@ -71,6 +70,10 @@ The app will be available at:
 - `npm run dev` - Start both client and server
 - `npm run client` - Start frontend only
 - `npm run server` - Start backend only
+- `npm run db:up` - Start the local Postgres container
+- `npm run db:down` - Stop/remove the local Postgres container
+- `npm run db:logs` - Tail the Postgres logs
+- `npm run db:init` - Apply migrations and seed data (delegates to `server/`)
 - `npm test` - Run Playwright tests
 - `npm run test:mobile` - Run mobile-specific tests
 - `npm run install-all` - Install all dependencies
@@ -78,7 +81,10 @@ The app will be available at:
 ### Server directory
 - `npm run dev` - Start server with hot reload
 - `npm run seed` - Seed database with sample data
+- `npm run db:init` - Prisma migrate deploy + seed (used in CI/CD)
 - `npx prisma studio` - Open Prisma Studio database viewer
+
+> Need a deeper dive into environment setup or hosting? See `docs/deployment.md`.
 
 ## Database Schema
 
@@ -88,6 +94,7 @@ The app will be available at:
 - Name, SKU, description, category
 - Reorder management (reorder point, max stock, lead time)
 - Supplier type (Garage Force required/optional/open source)
+- Consumable type (reusable vs single-use items)
 - Average usage per job
 
 **InventoryItem** - Actual stock at locations
