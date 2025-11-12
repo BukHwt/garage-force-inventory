@@ -46,6 +46,18 @@ export const UseInventoryForm = memo(function UseInventoryForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // Get available quantity at a specific location for the selected product by status
+  const getAvailableQuantity = useCallback((productId: string, locationId: string, status?: 'OPEN' | 'SEALED'): number => {
+    if (!productId || !locationId) return 0;
+    const product = products.find((p) => p.id === productId);
+    if (!product) return 0;
+
+    const inventoryItems = product.inventoryItems.filter(
+      (item) => item.location.id === locationId && (!status || item.status === status)
+    );
+    return inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
+  }, [products]);
+
   // Update form data when initial values change
   useEffect(() => {
     if (initialProductId || initialLocationId) {
@@ -75,18 +87,6 @@ export const UseInventoryForm = memo(function UseInventoryForm({
   }, [formData.locationId, formData.productId, preferredStatus, getAvailableQuantity]);
 
   const selectedProduct = products.find((p) => p.id === formData.productId);
-
-  // Get available quantity at a specific location for the selected product by status
-  const getAvailableQuantity = useCallback((productId: string, locationId: string, status?: 'OPEN' | 'SEALED'): number => {
-    if (!productId || !locationId) return 0;
-    const product = products.find((p) => p.id === productId);
-    if (!product) return 0;
-
-    const inventoryItems = product.inventoryItems.filter(
-      (item) => item.location.id === locationId && (!status || item.status === status)
-    );
-    return inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
-  }, [products]);
 
   // Calculate available quantity at selected location for preferred status
   const availableQuantity = useMemo(

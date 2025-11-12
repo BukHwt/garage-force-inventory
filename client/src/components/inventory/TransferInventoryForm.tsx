@@ -74,7 +74,7 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
   const disabledToLocations = useMemo(() => {
     if (!formData.fromLocationId) return locations.map((l) => l.id);
     return [formData.fromLocationId]; // Can't transfer to the same location
-  }, [formData.fromLocationId]);
+  }, [formData.fromLocationId, locations]);
 
   const handleProductChange = (productId: string) => {
     // Reset locations when product changes
