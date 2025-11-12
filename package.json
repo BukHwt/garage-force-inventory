@@ -1,6 +1,6 @@
 {
   "name": "garage-force-inventory",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,9 @@
     "test:mobile": "playwright test --project='Mobile Chrome'",
     "test:headed": "playwright test --headed",
     "db:init": "npm --prefix server run db:init",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f db",
     "client": "cd client && npm start",
     "server": "cd server && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",

@@ -43,6 +43,7 @@ model Product {
   notes              String?
   // Product structure fields
   productType        String                 @default("simple") // simple, kit, component, variant_parent
+  consumableType     ProductConsumableType  @default(REUSABLE)
   parentProductId    String? // For variants: links to parent product
   parentProduct      Product?               @relation("ProductVariants", fields: [parentProductId], references: [id], onDelete: Cascade)
   variants           Product[]              @relation("ProductVariants")
@@ -59,6 +60,11 @@ model Product {
   // Kit relationships
   kitComponents      ProductComponent[]     @relation("KitProduct")
   componentOf        ProductComponent[]     @relation("ComponentProduct")
+}
+
+enum ProductConsumableType {
+  REUSABLE
+  SINGLE_USE
 }
 
 model InventoryItem {
