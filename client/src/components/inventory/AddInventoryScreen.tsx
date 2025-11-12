@@ -124,7 +124,7 @@ export function AddInventoryScreen({
             <div className="text-2xl mb-1">🔧</div>
             <div className="text-sm">Use</div>
             <div className="text-xs font-body font-normal opacity-80">
-              On job
+              Record usage
             </div>
           </button>
         </div>
