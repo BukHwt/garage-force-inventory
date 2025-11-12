@@ -14,10 +14,38 @@ router.get('/', async (req: Request, res: Response) => {
         ...(locationId && { locationId: locationId as string }),
         ...(search && {
           OR: [
-            { product: { name: { contains: search as string, mode: 'insensitive' } } },
-            { product: { description: { contains: search as string, mode: 'insensitive' } } },
-            { product: { sku: { contains: search as string, mode: 'insensitive' } } },
-            { batchNumber: { contains: search as string, mode: 'insensitive' } },
+            {
+              product: {
+                is: {
+                  name: {
+                    contains: search as string,
+                  },
+                },
+              },
+            },
+            {
+              product: {
+                is: {
+                  description: {
+                    contains: search as string,
+                  },
+                },
+              },
+            },
+            {
+              product: {
+                is: {
+                  sku: {
+                    contains: search as string,
+                  },
+                },
+              },
+            },
+            {
+              batchNumber: {
+                contains: search as string,
+              },
+            },
           ],
         }),
       },
