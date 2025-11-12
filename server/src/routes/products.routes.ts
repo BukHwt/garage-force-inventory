@@ -13,10 +13,10 @@ router.get('/', async (req: Request, res: Response) => {
         ...(categoryId && { categoryId: categoryId as string }),
         ...(search && {
           OR: [
-            { name: { contains: search as string, mode: 'insensitive' } },
-            { description: { contains: search as string, mode: 'insensitive' } },
-            { sku: { contains: search as string, mode: 'insensitive' } },
-            { color: { contains: search as string, mode: 'insensitive' } },
+            { name: { contains: search as string } },
+            { description: { contains: search as string } },
+            { sku: { contains: search as string } },
+            { color: { contains: search as string } },
           ],
         }),
       },

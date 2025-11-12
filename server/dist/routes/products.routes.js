@@ -1,0 +1,150 @@
+import { Router } from 'express';
+import prisma from '../lib/prisma.js';
+const router = Router();
+// Get all products with optional filters
+router.get('/', async (req, res) => {
+    try {
+        const { categoryId, search } = req.query;
+        const products = await prisma.product.findMany({
+            where: {
+                ...(categoryId && { categoryId: categoryId }),
+                ...(search && {
+                    OR: [
+                        { name: { contains: search } },
+                        { description: { contains: search } },
+                        { sku: { contains: search } },
+                        { color: { contains: search } },
+                    ],
+                }),
+            },
+            include: {
+                category: true,
+                inventoryItems: {
+                    include: {
+                        location: true,
+                    },
+                },
+            },
+            orderBy: {
+                updatedAt: 'desc',
+            },
+        });
+        res.json(products);
+    }
+    catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ error: 'Failed to fetch products' });
+    }
+});
+// Get a single product by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await prisma.product.findUnique({
+            where: { id },
+            include: {
+                category: true,
+                inventoryItems: {
+                    include: {
+                        location: true,
+                    },
+                },
+            },
+        });
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        res.json(product);
+    }
+    catch (error) {
+        console.error('Error fetching product:', error);
+        res.status(500).json({ error: 'Failed to fetch product' });
+    }
+});
+// Create a new product
+router.post('/', async (req, res) => {
+    try {
+        const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes } = req.body;
+        if (!name) {
+            return res.status(400).json({ error: 'Name is required' });
+        }
+        const product = await prisma.product.create({
+            data: {
+                name,
+                description,
+                sku,
+                color,
+                unitSize,
+                manufacturer,
+                categoryId,
+                imageUrl,
+                notes,
+            },
+            include: {
+                category: true,
+                inventoryItems: {
+                    include: {
+                        location: true,
+                    },
+                },
+            },
+        });
+        res.status(201).json(product);
+    }
+    catch (error) {
+        console.error('Error creating product:', error);
+        res.status(500).json({ error: 'Failed to create product' });
+    }
+});
+// Update a product
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes, reorderPoint, supplierType } = req.body;
+        const product = await prisma.product.update({
+            where: { id },
+            data: {
+                ...(name && { name }),
+                ...(description !== undefined && { description }),
+                ...(sku !== undefined && { sku }),
+                ...(color !== undefined && { color }),
+                ...(unitSize !== undefined && { unitSize }),
+                ...(manufacturer !== undefined && { manufacturer }),
+                ...(categoryId !== undefined && { categoryId }),
+                ...(imageUrl !== undefined && { imageUrl }),
+                ...(notes !== undefined && { notes }),
+                ...(reorderPoint !== undefined && { reorderPoint }),
+                ...(supplierType !== undefined && { supplierType }),
+            },
+            include: {
+                category: true,
+                inventoryItems: {
+                    include: {
+                        location: true,
+                    },
+                },
+            },
+        });
+        res.json(product);
+    }
+    catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).json({ error: 'Failed to update product' });
+    }
+});
+// Delete a product (will cascade delete inventory items)
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await prisma.product.delete({
+            where: { id },
+        });
+        res.status(204).send();
+    }
+    catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ error: 'Failed to delete product' });
+    }
+});
+export default router;
+//# sourceMappingURL=products.routes.js.map

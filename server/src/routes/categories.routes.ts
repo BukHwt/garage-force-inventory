@@ -9,7 +9,7 @@ router.get('/', async (req: Request, res: Response) => {
     const categories = await prisma.category.findMany({
       include: {
         _count: {
-          select: { items: true },
+          select: { products: true },
         },
       },
       orderBy: {
@@ -32,9 +32,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     const category = await prisma.category.findUnique({
       where: { id },
       include: {
-        items: {
+        products: {
           include: {
-            location: true,
+            inventoryItems: {
+              include: {
+                location: true,
+              },
+            },
           },
         },
       },
@@ -100,14 +104,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    // Check if category has items
-    const itemCount = await prisma.item.count({
+    // Check if category has any products before deletion
+    const productCount = await prisma.product.count({
       where: { categoryId: id },
     });
 
-    if (itemCount > 0) {
+    if (productCount > 0) {
       return res.status(400).json({
-        error: 'Cannot delete category with existing items. Please reassign or delete the items first.'
+        error: 'Cannot delete category with existing products. Please reassign or delete the products first.'
       });
     }
 
