@@ -71,7 +71,20 @@ router.get('/:id', async (req: Request, res: Response) => {
 // Create a new product
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes } = req.body;
+    const {
+      name,
+      description,
+      sku,
+      color,
+      unitSize,
+      manufacturer,
+      categoryId,
+      imageUrl,
+      notes,
+      consumableType,
+      supplierType,
+      reorderPoint,
+    } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Name is required' });
@@ -88,6 +101,9 @@ router.post('/', async (req: Request, res: Response) => {
         categoryId,
         imageUrl,
         notes,
+        consumableType,
+        supplierType,
+        reorderPoint,
       },
       include: {
         category: true,
@@ -110,7 +126,20 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes, reorderPoint, supplierType } = req.body;
+    const {
+      name,
+      description,
+      sku,
+      color,
+      unitSize,
+      manufacturer,
+      categoryId,
+      imageUrl,
+      notes,
+      reorderPoint,
+      supplierType,
+      consumableType,
+    } = req.body;
 
     const product = await prisma.product.update({
       where: { id },
@@ -126,6 +155,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         ...(notes !== undefined && { notes }),
         ...(reorderPoint !== undefined && { reorderPoint }),
         ...(supplierType !== undefined && { supplierType }),
+        ...(consumableType !== undefined && { consumableType }),
       },
       include: {
         category: true,
