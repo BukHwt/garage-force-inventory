@@ -11,7 +11,8 @@
     "client": "cd client && npm start",
     "server": "cd server && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "install-all": "npm install && cd client && npm install && cd ../server && npm install"
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install",
+    "docker": "docker run --name garage-force-db -e POSTGRES_DB=garageforce -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -v garage-force-db:/var/lib/postgresql/data -d postgres (line 16)"
   },
   "keywords": [],
   "author": "",
