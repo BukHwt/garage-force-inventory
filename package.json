@@ -8,6 +8,7 @@
     "test:ui": "playwright test --ui",
     "test:mobile": "playwright test --project='Mobile Chrome'",
     "test:headed": "playwright test --headed",
+    "db:init": "npm --prefix server run db:init",
     "client": "cd client && npm start",
     "server": "cd server && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
