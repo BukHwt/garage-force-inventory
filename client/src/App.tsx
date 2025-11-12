@@ -103,13 +103,32 @@ function App() {
   }, [products]);
 
   // Stable callback references - prevent unnecessary re-renders of child components
+  const handleUseFromOpen = useCallback((productId: string, locationId: string) => {
+    // Save current scroll position and tab
+    setSavedScrollPosition(window.scrollY || document.documentElement.scrollTop);
+    setPreviousTab(activeTab);
+    // Set pre-filled data
+    setPreFilledData({
+      mode: 'use',
+      productId,
+      locationId,
+    });
+    // Navigate to Manage Inventory tab
+    setActiveTab('add');
+  }, [activeTab]);
+
   const handleProductClick = useCallback((product: Product, locationId: string) => {
+    if (product.consumableType === 'SINGLE_USE') {
+      handleUseFromOpen(product.id, locationId);
+      return;
+    }
+
     setActionModal({
       isOpen: true,
       product,
       locationId,
     });
-  }, []);
+  }, [handleUseFromOpen]);
 
   const handleAdjustClick = useCallback((inventoryItem: InventoryItem, productName: string) => {
     setAdjustmentModal({
@@ -157,20 +176,6 @@ function App() {
     if (tabId !== 'add') {
       setPreFilledData({});
     }
-  }, [activeTab]);
-
-  const handleUseFromOpen = useCallback((productId: string, locationId: string) => {
-    // Save current scroll position and tab
-    setSavedScrollPosition(window.scrollY || document.documentElement.scrollTop);
-    setPreviousTab(activeTab);
-    // Set pre-filled data
-    setPreFilledData({
-      mode: 'use',
-      productId,
-      locationId,
-    });
-    // Navigate to Manage Inventory tab
-    setActiveTab('add');
   }, [activeTab]);
 
   const handleOpenSealed = useCallback((product: Product, locationId: string) => {

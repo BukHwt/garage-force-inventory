@@ -25,6 +25,7 @@ export interface Product {
   unitSize?: string;
   reorderPoint?: number;
   supplierType: 'GARAGE_FORCE_REQUIRED' | 'GARAGE_FORCE_OPTIONAL' | 'OPEN_SOURCE';
+  consumableType?: 'REUSABLE' | 'SINGLE_USE';
   category?: Category;
   inventoryItems: InventoryItem[];
 }

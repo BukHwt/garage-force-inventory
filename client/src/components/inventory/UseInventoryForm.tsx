@@ -87,6 +87,14 @@ export const UseInventoryForm = memo(function UseInventoryForm({
   }, [formData.locationId, formData.productId, preferredStatus, getAvailableQuantity]);
 
   const selectedProduct = products.find((p) => p.id === formData.productId);
+  const isSingleUse = selectedProduct?.consumableType === 'SINGLE_USE';
+
+  // Single-use items should always be treated as sealed usage
+  useEffect(() => {
+    if (isSingleUse && preferredStatus !== 'SEALED') {
+      setPreferredStatus('SEALED');
+    }
+  }, [isSingleUse, preferredStatus]);
 
   // Calculate available quantity at selected location for preferred status
   const availableQuantity = useMemo(
@@ -238,7 +246,7 @@ export const UseInventoryForm = memo(function UseInventoryForm({
       />
 
       {/* Container Status Selection - Only show when location is selected */}
-      {formData.locationId && (openQuantity > 0 || sealedQuantity > 0) && (
+      {formData.locationId && !isSingleUse && (openQuantity > 0 || sealedQuantity > 0) && (
         <div>
           <label className="block text-sm font-semibold text-dark-text-primary mb-2">
             Use From:
@@ -282,6 +290,7 @@ export const UseInventoryForm = memo(function UseInventoryForm({
           )}
         </div>
       )}
+
 
       {/* Quantity Input - Only show when location is selected */}
       {formData.locationId && (

@@ -19,6 +19,7 @@ export interface CreateProductRequest {
   unitSize?: string;
   reorderPoint?: number;
   supplierType?: 'GARAGE_FORCE_REQUIRED' | 'GARAGE_FORCE_OPTIONAL' | 'OPEN_SOURCE';
+  consumableType?: 'REUSABLE' | 'SINGLE_USE';
   categoryId?: string;
 }
 
@@ -39,6 +40,7 @@ export interface UpdateProductRequest {
   unitSize?: string;
   reorderPoint?: number;
   supplierType?: 'GARAGE_FORCE_REQUIRED' | 'GARAGE_FORCE_OPTIONAL' | 'OPEN_SOURCE';
+  consumableType?: 'REUSABLE' | 'SINGLE_USE';
   categoryId?: string;
 }
 

@@ -29,6 +29,10 @@ garage-force-inventory/
 
 ## Getting Started
 
+### Branding
+- Title: Garage Force Inventory
+- Favicon: Garage Force PNG (32px/192px)
+
 ### Prerequisites
 
 - Node.js 16+
