@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { Prisma } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 
 const router = Router();
@@ -293,7 +294,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
     }
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Update or delete from source location
       let updatedFromItem = null;
       const newFromQuantity = fromItem.quantity - quantity;
@@ -419,7 +420,7 @@ router.post('/receive', async (req: Request, res: Response) => {
     }
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Check if inventory item already exists for this product at this location
       const existingItem = await tx.inventoryItem.findFirst({
         where: {
@@ -544,7 +545,7 @@ router.post('/unseal', async (req: Request, res: Response) => {
     }
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Reduce sealed inventory by specified quantity
       let updatedSealedItem = null;
       const newSealedQuantity = sealedItem.quantity - quantity;
@@ -694,7 +695,7 @@ router.post('/use', async (req: Request, res: Response) => {
     }
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Decrease quantity at location
       const newQuantity = inventoryItem.quantity - quantity;
 
