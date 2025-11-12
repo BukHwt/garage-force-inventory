@@ -1,4 +1,4 @@
-import React, { useState, memo, useMemo, useEffect } from 'react';
+import React, { useState, memo, useMemo, useEffect, useCallback } from 'react';
 import { Product, Location } from '../../types';
 import { QuantityInput } from './shared/QuantityInput';
 import { LocationPicker } from './shared/LocationPicker';
@@ -72,12 +72,12 @@ export const UseInventoryForm = memo(function UseInventoryForm({
         setPreferredStatus('OPEN');
       }
     }
-  }, [formData.locationId, formData.productId, preferredStatus]);
+  }, [formData.locationId, formData.productId, preferredStatus, getAvailableQuantity]);
 
   const selectedProduct = products.find((p) => p.id === formData.productId);
 
   // Get available quantity at a specific location for the selected product by status
-  const getAvailableQuantity = (productId: string, locationId: string, status?: 'OPEN' | 'SEALED'): number => {
+  const getAvailableQuantity = useCallback((productId: string, locationId: string, status?: 'OPEN' | 'SEALED'): number => {
     if (!productId || !locationId) return 0;
     const product = products.find((p) => p.id === productId);
     if (!product) return 0;
@@ -86,23 +86,23 @@ export const UseInventoryForm = memo(function UseInventoryForm({
       (item) => item.location.id === locationId && (!status || item.status === status)
     );
     return inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
-  };
+  }, [products]);
 
   // Calculate available quantity at selected location for preferred status
   const availableQuantity = useMemo(
     () => getAvailableQuantity(formData.productId, formData.locationId, preferredStatus),
-    [formData.productId, formData.locationId, preferredStatus]
+    [formData.productId, formData.locationId, preferredStatus, getAvailableQuantity]
   );
 
   // Calculate quantities for both statuses to show in UI
   const openQuantity = useMemo(
     () => getAvailableQuantity(formData.productId, formData.locationId, 'OPEN'),
-    [formData.productId, formData.locationId]
+    [formData.productId, formData.locationId, getAvailableQuantity]
   );
 
   const sealedQuantity = useMemo(
     () => getAvailableQuantity(formData.productId, formData.locationId, 'SEALED'),
-    [formData.productId, formData.locationId]
+    [formData.productId, formData.locationId, getAvailableQuantity]
   );
 
   // Get inventory items for the selected product (for LocationPicker)
@@ -121,7 +121,7 @@ export const UseInventoryForm = memo(function UseInventoryForm({
         return totalQty === 0;
       })
       .map((l) => l.id);
-  }, [formData.productId, locations]);
+  }, [formData.productId, locations, getAvailableQuantity]);
 
   const handleProductChange = (productId: string) => {
     // Reset location and preferred status when product changes
