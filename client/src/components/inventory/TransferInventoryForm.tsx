@@ -1,7 +1,7 @@
-import React, { useState, memo, useMemo, useCallback } from 'react';
-import { Product, Location } from '../../types';
-import { QuantityInput } from './shared/QuantityInput';
-import { LocationPicker } from './shared/LocationPicker';
+import React, { useState, memo, useMemo, useCallback } from "react";
+import { Product, Location } from "../../types";
+import { QuantityInput } from "./shared/QuantityInput";
+import { LocationPicker } from "./shared/LocationPicker";
 
 export interface TransferInventoryData {
   productId: string;
@@ -10,7 +10,6 @@ export interface TransferInventoryData {
   quantity: number;
   notes?: string;
 }
-
 interface TransferInventoryFormProps {
   products: Product[];
   locations: Location[];
@@ -27,11 +26,11 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
   onSubmit,
 }: TransferInventoryFormProps) {
   const [formData, setFormData] = useState<TransferInventoryData>({
-    productId: '',
-    fromLocationId: '',
-    toLocationId: '',
+    productId: "",
+    fromLocationId: "",
+    toLocationId: "",
     quantity: 1,
-    notes: '',
+    notes: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,15 +39,18 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
   const selectedProduct = products.find((p) => p.id === formData.productId);
 
   // Get available quantity at a specific location for the selected product
-  const getAvailableQuantity = useCallback((productId: string, locationId: string): number => {
-    if (!productId || !locationId) return 0;
-    const product = products.find((p) => p.id === productId);
-    if (!product) return 0;
-    const inventoryItem = product.inventoryItems.find(
-      (item) => item.location.id === locationId
-    );
-    return inventoryItem?.quantity || 0;
-  }, [products]);
+  const getAvailableQuantity = useCallback(
+    (productId: string, locationId: string): number => {
+      if (!productId || !locationId) return 0;
+      const product = products.find((p) => p.id === productId);
+      if (!product) return 0;
+      const inventoryItem = product.inventoryItems.find(
+        (item) => item.location.id === locationId
+      );
+      return inventoryItem?.quantity || 0;
+    },
+    [products]
+  );
 
   // Calculate available quantity at source location
   const availableQuantity = useMemo(
@@ -66,7 +68,10 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
   const disabledFromLocations = useMemo(() => {
     if (!formData.productId) return locations.map((l) => l.id);
     return locations
-      .filter((location) => getAvailableQuantity(formData.productId, location.id) === 0)
+      .filter(
+        (location) =>
+          getAvailableQuantity(formData.productId, location.id) === 0
+      )
       .map((l) => l.id);
   }, [formData.productId, locations, getAvailableQuantity]);
 
@@ -81,8 +86,8 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
     setFormData({
       ...formData,
       productId,
-      fromLocationId: '',
-      toLocationId: '',
+      fromLocationId: "",
+      toLocationId: "",
       quantity: 1,
     });
   };
@@ -94,27 +99,27 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
 
     // Validation
     if (!formData.productId) {
-      setError('Please select a product');
+      setError("Please select a product");
       return;
     }
 
     if (!formData.fromLocationId) {
-      setError('Please select a source location');
+      setError("Please select a source location");
       return;
     }
 
     if (!formData.toLocationId) {
-      setError('Please select a destination location');
+      setError("Please select a destination location");
       return;
     }
 
     if (formData.fromLocationId === formData.toLocationId) {
-      setError('Source and destination must be different');
+      setError("Source and destination must be different");
       return;
     }
 
     if (formData.quantity <= 0) {
-      setError('Quantity must be greater than zero');
+      setError("Quantity must be greater than zero");
       return;
     }
 
@@ -132,16 +137,18 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
       // Reset form after successful submission
       setTimeout(() => {
         setFormData({
-          productId: '',
-          fromLocationId: '',
-          toLocationId: '',
+          productId: "",
+          fromLocationId: "",
+          toLocationId: "",
           quantity: 1,
-          notes: '',
+          notes: "",
         });
         setSuccess(false);
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to transfer inventory');
+      setError(
+        err instanceof Error ? err.message : "Failed to transfer inventory"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -158,13 +165,13 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
           value={formData.productId}
           onChange={(e) => handleProductChange(e.target.value)}
           className="w-full bg-dark-bg border border-dark-border text-dark-text-primary px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-gf-green"
-          style={{ minHeight: '44px' }}
+          style={{ minHeight: "44px" }}
           disabled={isSubmitting}
         >
           <option value="">Select a product...</option>
           {products.map((product) => (
             <option key={product.id} value={product.id}>
-              {product.name} {product.sku ? `(${product.sku})` : ''} -{' '}
+              {product.name} {product.sku ? `(${product.sku})` : ""} -{" "}
               {product.unitSize}
             </option>
           ))}
@@ -181,7 +188,11 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
         locations={locations}
         selectedLocationId={formData.fromLocationId}
         onLocationChange={(locationId) =>
-          setFormData({ ...formData, fromLocationId: locationId, toLocationId: '' })
+          setFormData({
+            ...formData,
+            fromLocationId: locationId,
+            toLocationId: "",
+          })
         }
         label="From Location *"
         inventoryItems={productInventoryItems}
@@ -259,9 +270,9 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
         type="submit"
         disabled={isSubmitting}
         className="w-full bg-gf-green border-2 border-gf-green-600 text-white font-heading font-bold text-lg py-4 rounded-lg active:bg-gf-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-        style={{ minHeight: '44px' }}
+        style={{ minHeight: "44px" }}
       >
-        {isSubmitting ? 'Transferring...' : '🔄 Transfer Inventory'}
+        {isSubmitting ? "Transferring..." : "🔄 Transfer Inventory"}
       </button>
     </form>
   );
