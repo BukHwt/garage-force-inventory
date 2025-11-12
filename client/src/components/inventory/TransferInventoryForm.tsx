@@ -1,4 +1,4 @@
-import React, { useState, memo, useMemo } from 'react';
+import React, { useState, memo, useMemo, useCallback } from 'react';
 import { Product, Location } from '../../types';
 import { QuantityInput } from './shared/QuantityInput';
 import { LocationPicker } from './shared/LocationPicker';
@@ -40,7 +40,7 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
   const selectedProduct = products.find((p) => p.id === formData.productId);
 
   // Get available quantity at a specific location for the selected product
-  const getAvailableQuantity = (productId: string, locationId: string): number => {
+  const getAvailableQuantity = useCallback((productId: string, locationId: string): number => {
     if (!productId || !locationId) return 0;
     const product = products.find((p) => p.id === productId);
     if (!product) return 0;
@@ -48,12 +48,12 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
       (item) => item.location.id === locationId
     );
     return inventoryItem?.quantity || 0;
-  };
+  }, [products]);
 
   // Calculate available quantity at source location
   const availableQuantity = useMemo(
     () => getAvailableQuantity(formData.productId, formData.fromLocationId),
-    [formData.productId, formData.fromLocationId]
+    [formData.productId, formData.fromLocationId, getAvailableQuantity]
   );
 
   // Get inventory items for the selected product (for LocationPicker)
@@ -68,7 +68,7 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
     return locations
       .filter((location) => getAvailableQuantity(formData.productId, location.id) === 0)
       .map((l) => l.id);
-  }, [formData.productId, locations]);
+  }, [formData.productId, locations, getAvailableQuantity]);
 
   // Determine which locations should be disabled for "To" selection
   const disabledToLocations = useMemo(() => {
