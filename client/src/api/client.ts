@@ -2,6 +2,7 @@
  * API client configuration
  */
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+export const AUTH_TOKEN_STORAGE_KEY = 'gf_auth_token';
 
 /**
  * Custom error class for API errors
@@ -28,11 +29,17 @@ export async function apiClient<T>(
   const url = `${API_BASE_URL}${endpoint}`;
 
   try {
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem(AUTH_TOKEN_STORAGE_KEY)
+        : null;
+
     const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers,
+        ...(options?.headers || {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
 

@@ -1,8 +1,16 @@
 import { Router, Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import prisma from '../lib/prisma.js';
+import { requireEditor } from '../middleware/auth.js';
 
 const router = Router();
+
+router.use((req, res, next) => {
+  if (req.method === 'GET') {
+    return next();
+  }
+  return requireEditor(req, res, next);
+});
 
 // Get all inventory items with optional filters
 router.get('/', async (req: Request, res: Response) => {
@@ -374,6 +382,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
           toLocationId,
           quantity,
           notes: notes || `Transferred ${quantity} ${product.unitSize || 'units'} from ${fromLocation.name} to ${toLocation.name}`,
+          performedByUserId: req.user?.id,
         },
       });
 
@@ -480,6 +489,7 @@ router.post('/receive', async (req: Request, res: Response) => {
           toLocationId: locationId,
           quantity,
           notes: notes || `Received ${quantity} ${product.unitSize || 'units'}`,
+          performedByUserId: req.user?.id,
         },
       });
 
@@ -627,6 +637,7 @@ router.post('/unseal', async (req: Request, res: Response) => {
           toLocationId: locationId,
           quantity,
           notes: `Unsealed ${quantity} ${product.unitSize || 'unit'}${quantity > 1 ? 's' : ''} at ${location.name}`,
+          performedByUserId: req.user?.id,
         },
       });
 
@@ -731,6 +742,7 @@ router.post('/use', async (req: Request, res: Response) => {
           quantity,
           jobReference,
           notes: notes || `Used ${quantity} ${product.unitSize || 'units'} for job ${jobReference}`,
+          performedByUserId: req.user?.id,
         },
       });
 

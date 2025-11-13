@@ -95,9 +95,12 @@ model InventoryTransaction {
   jobReference    String? // Simple text field for job name/ID
   notes           String?
   createdAt       DateTime  @default(now())
+  performedByUserId String?
+  performedBy       User?    @relation(fields: [performedByUserId], references: [id])
 
   @@index([productId, createdAt])
   @@index([transactionType])
+  @@index([performedByUserId])
 }
 
 model ProductComponent {
@@ -116,4 +119,21 @@ model ProductComponent {
   @@unique([kitProductId, componentProductId])
   @@index([kitProductId])
   @@index([componentProductId])
+}
+
+model User {
+  id          String        @id @default(uuid())
+  name        String
+  role        UserRole      @default(TECH)
+  pinHash     String
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  transactions InventoryTransaction[]
+}
+
+enum UserRole {
+  OWNER
+  TECH
+  VIEWER
 }
