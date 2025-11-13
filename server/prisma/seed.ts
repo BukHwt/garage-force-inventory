@@ -1,6 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client';
 import fs from 'node:fs';
 import path from 'node:path';
+import bcrypt from 'bcryptjs';
 
 type InventorySeedFile = {
   products: Array<{
@@ -82,6 +83,28 @@ async function resetTables() {
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.location.deleteMany();
+  await prisma.user.deleteMany();
+}
+
+const defaultUsers: Array<{ name: string; role: UserRole; pin: string }> = [
+  { name: 'Steve', role: 'OWNER', pin: '9143' },
+  { name: 'Alex', role: 'TECH', pin: '7995' },
+  { name: 'Dan', role: 'OWNER', pin: '7770' },
+  { name: 'Adam', role: 'VIEWER', pin: '5185' },
+];
+
+async function seedUsers() {
+  console.log('Creating default users...');
+  for (const user of defaultUsers) {
+    const pinHash = await bcrypt.hash(user.pin, 10);
+    await prisma.user.create({
+      data: {
+        name: user.name,
+        role: user.role,
+        pinHash,
+      },
+    });
+  }
 }
 
 async function seedLocations() {
@@ -172,6 +195,7 @@ async function seedProducts(
 async function main() {
   console.log('Seeding database with real inventory snapshot...');
   await resetTables();
+  await seedUsers();
 
   const locationMap = await seedLocations();
   console.log(`✓ Created ${locationMap.size} locations`);

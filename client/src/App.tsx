@@ -3,6 +3,7 @@ import './index.css';
 
 // Hooks
 import { useInventory } from './hooks/useInventory';
+import { useAuth } from './context/AuthContext';
 
 // Utils
 import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inventory';
@@ -27,11 +28,21 @@ import { InventoryActionModal } from './components/inventory/InventoryActionModa
 import { UnsealModal } from './components/inventory/UnsealModal';
 import { AddInventoryScreen } from './components/inventory/AddInventoryScreen';
 import { ProductCatalogScreen } from './components/products/ProductCatalogScreen';
+import { LoginModal } from './components/auth/LoginModal';
 
 function App() {
-  const { products, locations, loading, error, refetch } = useInventory();
+  const { user, isReady: authReady } = useAuth();
+  const isAuthenticated = Boolean(user);
+  const isViewer = user?.role === 'VIEWER';
+  const { products, locations, loading, error, refetch } = useInventory({ enabled: isAuthenticated });
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<string>('dashboard');
+
+  useEffect(() => {
+    if (isViewer && activeTab === 'add') {
+      setActiveTab('dashboard');
+    }
+  }, [isViewer, activeTab]);
 
   // Modal state for inventory adjustments
   const [adjustmentModal, setAdjustmentModal] = useState<{
@@ -117,26 +128,38 @@ function App() {
     setActiveTab('add');
   }, [activeTab]);
 
-  const handleProductClick = useCallback((product: Product, locationId: string) => {
-    if (product.consumableType === 'SINGLE_USE') {
-      handleUseFromOpen(product.id, locationId);
-      return;
-    }
+  const handleProductClick = useCallback(
+    (product: Product, locationId: string) => {
+      if (isViewer) {
+        return;
+      }
+      if (product.consumableType === 'SINGLE_USE') {
+        handleUseFromOpen(product.id, locationId);
+        return;
+      }
 
-    setActionModal({
-      isOpen: true,
-      product,
-      locationId,
-    });
-  }, [handleUseFromOpen]);
+      setActionModal({
+        isOpen: true,
+        product,
+        locationId,
+      });
+    },
+    [handleUseFromOpen, isViewer]
+  );
 
-  const handleAdjustClick = useCallback((inventoryItem: InventoryItem, productName: string) => {
-    setAdjustmentModal({
-      isOpen: true,
-      inventoryItem,
-      productName,
-    });
-  }, []);
+  const handleAdjustClick = useCallback(
+    (inventoryItem: InventoryItem, productName: string) => {
+      if (isViewer) {
+        return;
+      }
+      setAdjustmentModal({
+        isOpen: true,
+        inventoryItem,
+        productName,
+      });
+    },
+    [isViewer]
+  );
 
   const handleCloseModal = useCallback(() => {
     setAdjustmentModal({
@@ -170,13 +193,15 @@ function App() {
   }, [refetch]);
 
   const handleTabChange = useCallback((tabId: string) => {
+    if (tabId === 'add' && isViewer) {
+      return;
+    }
     setPreviousTab(activeTab);
     setActiveTab(tabId);
-    // Clear pre-filled data when manually changing tabs
     if (tabId !== 'add') {
       setPreFilledData({});
     }
-  }, [activeTab]);
+  }, [activeTab, isViewer]);
 
   const handleOpenSealed = useCallback((product: Product, locationId: string) => {
     // Calculate max sealed quantity at this location
@@ -285,6 +310,18 @@ function App() {
   }, [activeTab, savedScrollPosition]);
 
   // Loading state
+  if (!authReady) {
+    return <LoadingSpinner />;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-dark-bg">
+        <LoginModal />
+      </div>
+    );
+  }
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -324,15 +361,15 @@ function App() {
               products={filteredProducts}
               selectedLocation={selectedLocation}
               locations={locations}
-              onProductClick={handleProductClick}
-              onAdjustClick={handleAdjustClick}
+              onProductClick={isViewer ? undefined : handleProductClick}
+              onAdjustClick={isViewer ? undefined : handleAdjustClick}
             />
           </div>
         </>
       )}
 
       {/* Add Inventory View */}
-      {activeTab === 'add' && (
+      {activeTab === 'add' && !isViewer && (
         <AddInventoryScreen
           products={products}
           locations={locations}
@@ -345,6 +382,12 @@ function App() {
           onClearPreFilled={() => setPreFilledData({})}
           onCancel={handleCancelTransaction}
         />
+      )}
+
+      {activeTab === 'add' && isViewer && (
+        <div className="p-6 text-center text-dark-text-secondary">
+          You are signed in with view-only access. Please contact an admin to make changes.
+        </div>
       )}
 
       {/* Products View */}
@@ -372,6 +415,7 @@ function App() {
       <BottomNavigation
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        disableManage={isViewer}
       />
 
       {/* Inventory Adjustment Modal */}
