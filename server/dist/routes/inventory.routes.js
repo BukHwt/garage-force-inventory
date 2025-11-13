@@ -1,6 +1,13 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma.js';
+import { requireEditor } from '../middleware/auth.js';
 const router = Router();
+router.use((req, res, next) => {
+    if (req.method === 'GET') {
+        return next();
+    }
+    return requireEditor(req, res, next);
+});
 // Get all inventory items with optional filters
 router.get('/', async (req, res) => {
     try {
@@ -336,6 +343,7 @@ router.post('/transfer', async (req, res) => {
                     toLocationId,
                     quantity,
                     notes: notes || `Transferred ${quantity} ${product.unitSize || 'units'} from ${fromLocation.name} to ${toLocation.name}`,
+                    performedByUserId: req.user?.id,
                 },
             });
             return { fromItem: updatedFromItem, toItem, transaction };
@@ -431,6 +439,7 @@ router.post('/receive', async (req, res) => {
                     toLocationId: locationId,
                     quantity,
                     notes: notes || `Received ${quantity} ${product.unitSize || 'units'}`,
+                    performedByUserId: req.user?.id,
                 },
             });
             return { inventoryItem, transaction };
@@ -563,6 +572,7 @@ router.post('/unseal', async (req, res) => {
                     toLocationId: locationId,
                     quantity,
                     notes: `Unsealed ${quantity} ${product.unitSize || 'unit'}${quantity > 1 ? 's' : ''} at ${location.name}`,
+                    performedByUserId: req.user?.id,
                 },
             });
             return { sealedItem: updatedSealedItem, openItem, transaction };
@@ -652,6 +662,7 @@ router.post('/use', async (req, res) => {
                     quantity,
                     jobReference,
                     notes: notes || `Used ${quantity} ${product.unitSize || 'units'} for job ${jobReference}`,
+                    performedByUserId: req.user?.id,
                 },
             });
             return { inventoryItem: updatedInventoryItem, transaction };

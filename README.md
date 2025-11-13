@@ -33,6 +33,19 @@ garage-force-inventory/
 - Title: Garage Force Inventory
 - Favicon: Garage Force PNG (32px/192px)
 
+### Authentication
+- The app now requires signing in with a PIN so every transaction is attributed to a teammate.
+- Default users (seeded locally and on staging):
+
+| Name  | Role   | PIN  |
+| ----- | ------ | ---- |
+| Steve | OWNER  | 9143 |
+| Alex  | TECH   | 7995 |
+| Dan   | TECH   | 7770 |
+| Adam  | VIEWER | 5185 |
+
+- Set `JWT_SECRET` in each environment. View-only users can browse data but cannot access the Manage tab.
+
 ### Prerequisites
 
 - Node.js 16+

@@ -12,17 +12,26 @@ interface UseInventoryResult {
   refetch: () => Promise<void>;
 }
 
+interface UseInventoryOptions {
+  enabled?: boolean;
+}
+
 /**
  * Custom hook to manage inventory data fetching and state
  * Encapsulates all data fetching logic for inventory management
  */
-export function useInventory(): UseInventoryResult {
+export function useInventory(options: UseInventoryOptions = {}): UseInventoryResult {
+  const { enabled = true } = options;
   const [products, setProducts] = useState<Product[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
@@ -45,7 +54,7 @@ export function useInventory(): UseInventoryResult {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
   // Fetch data on mount
   useEffect(() => {

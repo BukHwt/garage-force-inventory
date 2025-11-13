@@ -1,6 +1,13 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma.js';
+import { requireEditor } from '../middleware/auth.js';
 const router = Router();
+router.use((req, res, next) => {
+    if (req.method === 'GET') {
+        return next();
+    }
+    return requireEditor(req, res, next);
+});
 // Get all products with optional filters
 router.get('/', async (req, res) => {
     try {
@@ -64,7 +71,7 @@ router.get('/:id', async (req, res) => {
 // Create a new product
 router.post('/', async (req, res) => {
     try {
-        const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes } = req.body;
+        const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes, consumableType, supplierType, reorderPoint, } = req.body;
         if (!name) {
             return res.status(400).json({ error: 'Name is required' });
         }
@@ -79,6 +86,9 @@ router.post('/', async (req, res) => {
                 categoryId,
                 imageUrl,
                 notes,
+                consumableType,
+                supplierType,
+                reorderPoint,
             },
             include: {
                 category: true,
@@ -100,7 +110,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes, reorderPoint, supplierType } = req.body;
+        const { name, description, sku, color, unitSize, manufacturer, categoryId, imageUrl, notes, reorderPoint, supplierType, consumableType, } = req.body;
         const product = await prisma.product.update({
             where: { id },
             data: {
@@ -115,6 +125,7 @@ router.put('/:id', async (req, res) => {
                 ...(notes !== undefined && { notes }),
                 ...(reorderPoint !== undefined && { reorderPoint }),
                 ...(supplierType !== undefined && { supplierType }),
+                ...(consumableType !== undefined && { consumableType }),
             },
             include: {
                 category: true,
