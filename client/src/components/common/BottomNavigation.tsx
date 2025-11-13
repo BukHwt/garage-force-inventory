@@ -10,9 +10,10 @@ interface NavItem {
 interface BottomNavigationProps {
   activeTab?: string;
   onTabChange?: (tabId: string) => void;
+  disableManage?: boolean;
 }
 
-export function BottomNavigation({ activeTab = 'dashboard', onTabChange }: BottomNavigationProps) {
+export function BottomNavigation({ activeTab = 'dashboard', onTabChange, disableManage = false }: BottomNavigationProps) {
   const navItems: NavItem[] = [
     { id: 'dashboard', icon: '📊', label: 'Dashboard', active: true },
     { id: 'add', icon: '📋', label: 'Manage' },
@@ -21,6 +22,9 @@ export function BottomNavigation({ activeTab = 'dashboard', onTabChange }: Botto
   ];
 
   const handleClick = (tabId: string) => {
+    if (tabId === 'add' && disableManage) {
+      return;
+    }
     if (onTabChange) {
       onTabChange(tabId);
     }
@@ -29,7 +33,9 @@ export function BottomNavigation({ activeTab = 'dashboard', onTabChange }: Botto
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-dark-card border-t-2 border-gf-green shadow-lg">
       <div className="grid grid-cols-4 gap-1 p-2">
-        {navItems.map(item => (
+        {navItems.map(item => {
+          const isDisabled = item.id === 'add' && disableManage;
+          return (
           <button
             key={item.id}
             onClick={() => handleClick(item.id)}
@@ -37,15 +43,17 @@ export function BottomNavigation({ activeTab = 'dashboard', onTabChange }: Botto
               item.id === activeTab
                 ? 'text-gf-green'
                 : 'text-dark-text-muted hover:text-gf-green'
-            }`}
+            } ${isDisabled ? 'opacity-40 cursor-not-allowed hover:text-dark-text-muted' : ''}`}
             style={{ minHeight: '44px' }}
+            disabled={isDisabled}
           >
             <span className="text-2xl mb-1">{item.icon}</span>
             <span className={`text-xs font-body ${item.id === activeTab ? 'font-semibold' : ''}`}>
               {item.label}
             </span>
           </button>
-        ))}
+        );
+        })}
       </div>
     </nav>
   );

@@ -1,7 +1,15 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma.js';
+import { requireEditor } from '../middleware/auth.js';
 
 const router = Router();
+
+router.use((req, res, next) => {
+  if (req.method === 'GET') {
+    return next();
+  }
+  return requireEditor(req, res, next);
+});
 
 // Get all categories
 router.get('/', async (req: Request, res: Response) => {

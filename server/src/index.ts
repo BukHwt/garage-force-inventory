@@ -5,6 +5,8 @@ import productsRouter from './routes/products.routes.js';
 import inventoryRouter from './routes/inventory.routes.js';
 import locationsRouter from './routes/locations.routes.js';
 import categoriesRouter from './routes/categories.routes.js';
+import authRouter from './routes/auth.routes.js';
+import { authenticate } from './middleware/auth.js';
 
 dotenv.config();
 
@@ -21,6 +23,8 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRouter);
+app.use(authenticate);
 app.use('/api/products', productsRouter);
 app.use('/api/inventory', inventoryRouter);
 app.use('/api/locations', locationsRouter);
