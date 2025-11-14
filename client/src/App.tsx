@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import './index.css';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 
 // Hooks
 import { useInventory } from './hooks/useInventory';
@@ -31,19 +32,90 @@ import { AddInventoryScreen } from './components/inventory/AddInventoryScreen';
 import { ProductCatalogScreen } from './components/products/ProductCatalogScreen';
 import { LoginModal } from './components/auth/LoginModal';
 
+type TabId = 'dashboard' | 'add' | 'products' | 'settings';
+type ManagePrefill = {
+  mode?: 'receive' | 'transfer' | 'use';
+  productId?: string;
+  locationId?: string;
+};
+
+const TAB_TO_PATH: Record<TabId, string> = {
+  dashboard: '/dashboard',
+  add: '/manage',
+  products: '/products',
+  settings: '/settings',
+};
+
+const getTabFromPath = (pathname: string): TabId => {
+  const normalizedPath = pathname.split('?')[0].replace(/\/+$/, '') || '/';
+  if (normalizedPath === '/' || normalizedPath === '') {
+    return 'dashboard';
+  }
+  if (normalizedPath.startsWith('/manage')) {
+    return 'add';
+  }
+  if (normalizedPath.startsWith('/products')) {
+    return 'products';
+  }
+  if (normalizedPath.startsWith('/settings')) {
+    return 'settings';
+  }
+  return 'dashboard';
+};
+
+const buildManagePath = (prefill?: ManagePrefill) => {
+  const params = new URLSearchParams();
+  if (prefill?.mode) {
+    params.set('mode', prefill.mode);
+  }
+  if (prefill?.productId) {
+    params.set('productId', prefill.productId);
+  }
+  if (prefill?.locationId) {
+    params.set('locationId', prefill.locationId);
+  }
+  const query = params.toString();
+  return query ? `${TAB_TO_PATH.add}?${query}` : TAB_TO_PATH.add;
+};
+
+const parseManageSearch = (search: string): ManagePrefill => {
+  if (!search) {
+    return {};
+  }
+  const params = new URLSearchParams(search);
+  const modeParam = params.get('mode');
+  const allowedModes: ManagePrefill['mode'][] = ['receive', 'transfer', 'use'];
+  const mode = allowedModes.includes(modeParam as ManagePrefill['mode'])
+    ? (modeParam as ManagePrefill['mode'])
+    : undefined;
+  const productId = params.get('productId') || undefined;
+  const locationId = params.get('locationId') || undefined;
+  const next: ManagePrefill = {};
+  if (mode) next.mode = mode;
+  if (productId) next.productId = productId;
+  if (locationId) next.locationId = locationId;
+  return next;
+};
+
+const isSamePrefill = (a: ManagePrefill, b: ManagePrefill) =>
+  a.mode === b.mode && a.productId === b.productId && a.locationId === b.locationId;
+
 function App() {
   const { user, isReady: authReady } = useAuth();
   const isAuthenticated = Boolean(user);
   const isViewer = user?.role === 'VIEWER';
   const { products, locations, loading, error, refetch } = useInventory({ enabled: isAuthenticated });
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
-
-  useEffect(() => {
-    if (isViewer && activeTab === 'add') {
-      setActiveTab('dashboard');
-    }
-  }, [isViewer, activeTab]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentTab = getTabFromPath(location.pathname);
+  const navigateToManage = useCallback(
+    (prefill?: ManagePrefill, options?: { replace?: boolean }) => {
+      const path = buildManagePath(prefill);
+      navigate(path, { replace: options?.replace });
+    },
+    [navigate]
+  );
 
   // Modal state for inventory adjustments
   const [adjustmentModal, setAdjustmentModal] = useState<{
@@ -81,27 +153,51 @@ function App() {
   });
 
   // Pre-filled form state for quick actions from Dashboard
-  const [preFilledData, setPreFilledData] = useState<{
-    mode?: 'receive' | 'transfer' | 'use';
-    productId?: string;
-    locationId?: string;
-  }>({});
+  const [preFilledData, setPreFilledData] = useState<ManagePrefill>({});
 
   // Scroll position tracking for returning to Dashboard
   const [savedScrollPosition, setSavedScrollPosition] = useState<number>(0);
   const shouldRestoreScroll = useRef<boolean>(false);
-  const [previousTab, setPreviousTab] = useState<string>('dashboard');
+  const [previousTab, setPreviousTab] = useState<TabId>('dashboard');
+  const lastTabRef = useRef<TabId>(currentTab);
   const [quickReceiveProduct, setQuickReceiveProduct] = useState<Product | null>(null);
   const [reorderAlertsCollapsed, setReorderAlertsCollapsed] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('gf_reorder_collapsed') === 'true';
   });
+  const handleClearPreFilled = useCallback(() => {
+    setPreFilledData({});
+    if (location.pathname.startsWith(TAB_TO_PATH.add) && location.search) {
+      navigateToManage(undefined, { replace: true });
+    }
+  }, [location.pathname, location.search, navigateToManage]);
+
+  useEffect(() => {
+    if (lastTabRef.current === 'add' && currentTab !== 'add') {
+      setPreFilledData({});
+    }
+    lastTabRef.current = currentTab;
+  }, [currentTab]);
+
+  useEffect(() => {
+    if (currentTab !== 'add') {
+      return;
+    }
+    const nextPrefill = parseManageSearch(location.search);
+    setPreFilledData(prev => (isSamePrefill(prev, nextPrefill) ? prev : nextPrefill));
+  }, [currentTab, location.search]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('gf_reorder_collapsed', reorderAlertsCollapsed ? 'true' : 'false');
     }
   }, [reorderAlertsCollapsed]);
+
+  useEffect(() => {
+    if (isViewer && currentTab === 'add') {
+      navigate(TAB_TO_PATH.dashboard, { replace: true });
+    }
+  }, [isViewer, currentTab, navigate]);
 
   // Memoized derived state - only recompute when dependencies change
   const filteredProducts = useMemo(
@@ -129,16 +225,15 @@ function App() {
   const handleUseFromOpen = useCallback((productId: string, locationId: string) => {
     // Save current scroll position and tab
     setSavedScrollPosition(window.scrollY || document.documentElement.scrollTop);
-    setPreviousTab(activeTab);
-    // Set pre-filled data
-    setPreFilledData({
+    setPreviousTab(currentTab);
+    const nextPrefill: ManagePrefill = {
       mode: 'use',
       productId,
       locationId,
-    });
-    // Navigate to Manage Inventory tab
-    setActiveTab('add');
-  }, [activeTab]);
+    };
+    setPreFilledData(nextPrefill);
+    navigateToManage(nextPrefill);
+  }, [currentTab, navigateToManage]);
 
   const handleProductClick = useCallback(
     (product: Product, locationId: string) => {
@@ -201,19 +296,30 @@ function App() {
     await refetch();
     // Navigate back to Dashboard after successful usage
     shouldRestoreScroll.current = true;
-    setActiveTab('dashboard');
-  }, [refetch]);
+    navigate(TAB_TO_PATH.dashboard);
+  }, [navigate, refetch]);
 
-  const handleTabChange = useCallback((tabId: string) => {
-    if (tabId === 'add' && isViewer) {
-      return;
-    }
-    setPreviousTab(activeTab);
-    setActiveTab(tabId);
-    if (tabId !== 'add') {
-      setPreFilledData({});
-    }
-  }, [activeTab, isViewer]);
+  const handleTabChange = useCallback(
+    (tabId: string) => {
+      if (tabId === 'add' && isViewer) {
+        return;
+      }
+      const typedTab = (['dashboard', 'add', 'products', 'settings'].includes(tabId)
+        ? (tabId as TabId)
+        : 'dashboard');
+      if (typedTab === currentTab) {
+        return;
+      }
+      setPreviousTab(currentTab);
+      if (typedTab === 'add') {
+        navigateToManage();
+        return;
+      }
+      const targetPath = TAB_TO_PATH[typedTab] ?? TAB_TO_PATH.dashboard;
+      navigate(targetPath);
+    },
+    [currentTab, isViewer, navigate, navigateToManage]
+  );
 
   const handleReceiveFromAlert = useCallback((product: Product) => {
     if (isViewer || !locations.length) {
@@ -295,11 +401,12 @@ function App() {
 
   const handleCancelTransaction = useCallback(() => {
     // Clear pre-filled data
-    setPreFilledData({});
+    handleClearPreFilled();
     // Return to previous tab
     shouldRestoreScroll.current = previousTab === 'dashboard';
-    setActiveTab(previousTab);
-  }, [previousTab]);
+    const targetPath = TAB_TO_PATH[previousTab] ?? TAB_TO_PATH.dashboard;
+    navigate(targetPath);
+  }, [handleClearPreFilled, navigate, previousTab]);
 
   const handleUpdateProduct = useCallback(async (productId: string, updates: UpdateProductRequest) => {
     await updateProduct(productId, updates);
@@ -324,17 +431,17 @@ function App() {
 
   // Restore scroll position when returning to Dashboard
   useEffect(() => {
-    if (activeTab === 'dashboard' && shouldRestoreScroll.current) {
+    if (currentTab === 'dashboard' && shouldRestoreScroll.current) {
       // Use setTimeout to ensure DOM is ready
       setTimeout(() => {
         window.scrollTo(0, savedScrollPosition);
         shouldRestoreScroll.current = false;
       }, 0);
-    } else if (activeTab === 'add') {
+    } else if (currentTab === 'add') {
       // Always scroll to top when entering Manage tab
       window.scrollTo(0, 0);
     }
-  }, [activeTab, savedScrollPosition]);
+  }, [currentTab, savedScrollPosition]);
 
   // Loading state
   if (!authReady) {
@@ -367,100 +474,106 @@ function App() {
 
   return (
     <div className="min-h-screen bg-dark-bg pb-20">
-      {/* Dashboard View */}
-      {activeTab === 'dashboard' && (
-        <>
-          <Header />
+      <Routes>
+        <Route path="/" element={<Navigate to={TAB_TO_PATH.dashboard} replace />} />
+        <Route
+          path={TAB_TO_PATH.dashboard}
+          element={
+            <>
+              <Header />
+              <div className="p-4 space-y-4">
+                {reorderAlerts.length > 0 && (
+                  <ReorderAlerts
+                    products={reorderAlerts}
+                    onReceiveProduct={handleReceiveFromAlert}
+                    disableReceive={isViewer || locations.length === 0}
+                    collapsed={reorderAlertsCollapsed}
+                    onToggleCollapsed={() => setReorderAlertsCollapsed((prev) => !prev)}
+                  />
+                )}
 
-          <div className="p-4 space-y-4">
-            {/* Reorder Alerts */}
-            {reorderAlerts.length > 0 && (
-              <ReorderAlerts
-                products={reorderAlerts}
-                onReceiveProduct={handleReceiveFromAlert}
-                disableReceive={isViewer || locations.length === 0}
-                collapsed={reorderAlertsCollapsed}
-                onToggleCollapsed={() => setReorderAlertsCollapsed((prev) => !prev)}
-              />
-            )}
+                <LocationFilter
+                  locations={locations}
+                  selectedLocation={selectedLocation}
+                  onLocationChange={setSelectedLocation}
+                />
 
-            {/* Location Filter */}
-            <LocationFilter
-              locations={locations}
-              selectedLocation={selectedLocation}
-              onLocationChange={setSelectedLocation}
-            />
-
-            {/* Product List */}
-            <ProductList
-              products={filteredProducts}
-              selectedLocation={selectedLocation}
-              locations={locations}
-              onProductClick={
-                isViewer
-                  ? undefined
-                  : selectedLocation === 'all'
+                <ProductList
+                  products={filteredProducts}
+                  selectedLocation={selectedLocation}
+                  locations={locations}
+                  onProductClick={
+                    isViewer
+                      ? undefined
+                      : selectedLocation === 'all'
                   ? (product, _locationId) => {
-                      setPreFilledData({
+                      setPreviousTab(currentTab);
+                      const nextPrefill: ManagePrefill = {
                         mode: 'receive',
                         productId: product.id,
-                      });
-                      setActiveTab('add');
+                      };
+                      setPreFilledData(nextPrefill);
+                      navigateToManage(nextPrefill);
                     }
                   : handleProductClick
-              }
-              onAdjustClick={isViewer ? undefined : handleAdjustClick}
+                  }
+                  onAdjustClick={isViewer ? undefined : handleAdjustClick}
+                />
+              </div>
+            </>
+          }
+        />
+        <Route
+          path={TAB_TO_PATH.add}
+          element={
+            isViewer ? (
+              <div className="p-6 text-center text-dark-text-secondary">
+                You are signed in with view-only access. Please contact an admin to make changes.
+              </div>
+            ) : (
+              <AddInventoryScreen
+                products={products}
+                locations={locations}
+                onReceive={handleReceiveInventory}
+                onTransfer={handleTransferInventory}
+                onUse={handleUseInventory}
+                initialMode={preFilledData.mode}
+                initialProductId={preFilledData.productId}
+                initialLocationId={preFilledData.locationId || selectedLocation}
+                onClearPreFilled={handleClearPreFilled}
+                onCancel={handleCancelTransaction}
+              />
+            )
+          }
+        />
+        <Route
+          path={TAB_TO_PATH.products}
+          element={
+            <ProductCatalogScreen
+              products={products}
+              categories={categories}
+              onUpdateProduct={handleUpdateProduct}
+              onCreateProduct={handleCreateProduct}
             />
-          </div>
-        </>
-      )}
-
-      {/* Add Inventory View */}
-      {activeTab === 'add' && !isViewer && (
-        <AddInventoryScreen
-          products={products}
-          locations={locations}
-          onReceive={handleReceiveInventory}
-          onTransfer={handleTransferInventory}
-          onUse={handleUseInventory}
-          initialMode={preFilledData.mode}
-          initialProductId={preFilledData.productId}
-          initialLocationId={preFilledData.locationId || selectedLocation}
-          onClearPreFilled={() => setPreFilledData({})}
-          onCancel={handleCancelTransaction}
+          }
         />
-      )}
-
-      {activeTab === 'add' && isViewer && (
-        <div className="p-6 text-center text-dark-text-secondary">
-          You are signed in with view-only access. Please contact an admin to make changes.
-        </div>
-      )}
-
-      {/* Products View */}
-      {activeTab === 'products' && (
-        <ProductCatalogScreen
-          products={products}
-          categories={categories}
-          onUpdateProduct={handleUpdateProduct}
-          onCreateProduct={handleCreateProduct}
+        <Route
+          path={TAB_TO_PATH.settings}
+          element={
+            <>
+              <Header />
+              <div className="p-4">
+                <h2 className="font-heading text-xl font-bold text-dark-text-primary">Settings</h2>
+                <p className="font-body text-dark-text-secondary mt-2">Settings coming soon...</p>
+              </div>
+            </>
+          }
         />
-      )}
+        <Route path="*" element={<Navigate to={TAB_TO_PATH.dashboard} replace />} />
+      </Routes>
 
-      {/* Settings View (placeholder) */}
-      {activeTab === 'settings' && (
-        <div className="min-h-screen bg-dark-bg">
-          <Header />
-          <div className="p-4">
-            <h2 className="font-heading text-xl font-bold text-dark-text-primary">Settings</h2>
-            <p className="font-body text-dark-text-secondary mt-2">Settings coming soon...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Bottom Navigation */}
       <BottomNavigation
-        activeTab={activeTab}
+        activeTab={currentTab}
         onTabChange={handleTabChange}
         disableManage={isViewer}
       />
