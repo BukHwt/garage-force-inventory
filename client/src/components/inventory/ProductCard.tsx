@@ -32,8 +32,7 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
     .reduce((sum, item) => sum + item.quantity, 0);
 
   const handleClick = () => {
-    // Only make card clickable when viewing a specific location (not "all")
-    if (onCardClick && !showingAllLocations) {
+    if (onCardClick) {
       onCardClick(product, selectedLocation);
     }
   };
@@ -59,7 +58,7 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
       onClick={handleClick}
       className={`bg-dark-card p-4 rounded-lg shadow-lg border ${
         isReorderNeeded ? 'border-l-4 border-alert-red' : 'border-dark-border'
-      } ${onCardClick && !showingAllLocations ? 'cursor-pointer active:bg-gf-charcoal-700 transition-colors duration-150' : ''}`}
+      } ${onCardClick ? 'cursor-pointer active:bg-gf-charcoal-700 transition-colors duration-150' : ''}`}
       style={{ minHeight: '44px' }}
     >
       <div className="flex justify-between items-start mb-2">
@@ -127,11 +126,40 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
       {showingAllLocations && product.inventoryItems.length > 0 && (
         <div className="mt-3 pt-3 border-t border-dark-border">
           <div className="text-xs text-dark-text-muted font-semibold mb-1">By Location:</div>
-          <div className="grid grid-cols-3 gap-2">
-            {product.inventoryItems.map(item => (
-              <div key={item.id} className="text-xs">
-                <div className="font-semibold text-dark-text-secondary">{item.location.name}</div>
-                <div className="text-dark-text-muted">{item.quantity}</div>
+          <div className="space-y-2 text-xs">
+            {Array.from(
+              product.inventoryItems.reduce((map, item) => {
+                const key = item.location.id;
+                const summary = map.get(key) ?? {
+                  locationName: item.location.name,
+                  open: 0,
+                  sealed: 0,
+                };
+                if (item.status === 'OPEN') {
+                  summary.open += item.quantity;
+                } else {
+                  summary.sealed += item.quantity;
+                }
+                map.set(key, summary);
+                return map;
+              }, new Map<string, { locationName: string; open: number; sealed: number }>())
+            ).map(([key, summary]) => (
+              <div key={key} className="flex items-center justify-between">
+                <span className="font-semibold text-dark-text-secondary">{summary.locationName}</span>
+                <span className="text-dark-text-muted">
+                  {summary.open > 0 && (
+                    <span className="text-amber-400">
+                      {summary.open} open
+                      {summary.sealed > 0 ? ' / ' : ''}
+                    </span>
+                  )}
+                  {summary.sealed > 0 && (
+                    <span className="text-gf-green">
+                      {summary.sealed} sealed
+                    </span>
+                  )}
+                  {summary.open === 0 && summary.sealed === 0 && <span>0</span>}
+                </span>
               </div>
             ))}
           </div>

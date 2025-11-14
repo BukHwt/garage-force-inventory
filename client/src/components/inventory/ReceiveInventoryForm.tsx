@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Product, Location } from '../../types';
 import { QuantityInput } from './shared/QuantityInput';
 import { LocationPicker } from './shared/LocationPicker';
@@ -16,6 +16,9 @@ interface ReceiveInventoryFormProps {
   products: Product[];
   locations: Location[];
   onSubmit: (data: ReceiveInventoryData) => Promise<void>;
+  initialProductId?: string;
+  initialLocationId?: string;
+  onClearPreFilled?: () => void;
 }
 
 /**
@@ -26,6 +29,9 @@ export const ReceiveInventoryForm = memo(function ReceiveInventoryForm({
   products,
   locations,
   onSubmit,
+  initialProductId,
+  initialLocationId,
+  onClearPreFilled,
 }: ReceiveInventoryFormProps) {
   const [formData, setFormData] = useState<ReceiveInventoryData>({
     productId: '',
@@ -40,6 +46,32 @@ export const ReceiveInventoryForm = memo(function ReceiveInventoryForm({
   const [success, setSuccess] = useState(false);
 
   const selectedProduct = products.find((p) => p.id === formData.productId);
+
+  useEffect(() => {
+    if (!initialProductId && !initialLocationId) {
+      return;
+    }
+
+    setFormData((prev) => {
+      const next = { ...prev };
+      if (initialProductId) {
+        next.productId = initialProductId;
+        const product = products.find((p) => p.id === initialProductId);
+        if (!initialLocationId || initialLocationId === 'all') {
+          const preferredLocation =
+            product?.inventoryItems?.[0]?.location.id ?? locations[0]?.id ?? '';
+          next.locationId = preferredLocation;
+        } else {
+          next.locationId = initialLocationId;
+        }
+      } else if (initialLocationId && initialLocationId !== 'all') {
+        next.locationId = initialLocationId;
+      } else if (!next.locationId) {
+        next.locationId = locations[0]?.id ?? '';
+      }
+      return next;
+    });
+  }, [initialProductId, initialLocationId, locations, products]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

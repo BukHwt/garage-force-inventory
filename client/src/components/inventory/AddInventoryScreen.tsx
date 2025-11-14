@@ -45,6 +45,10 @@ export function AddInventoryScreen({
   onCancel,
 }: AddInventoryScreenProps) {
   const [mode, setMode] = useState<InventoryMode>(initialMode || 'receive');
+  const [prefill, setPrefill] = useState<{
+    productId?: string;
+    locationId?: string;
+  }>();
 
   // Update mode when initialMode changes
   useEffect(() => {
@@ -52,6 +56,12 @@ export function AddInventoryScreen({
       setMode(initialMode);
     }
   }, [initialMode]);
+
+  useEffect(() => {
+    if (initialProductId || initialLocationId) {
+      setPrefill({ productId: initialProductId, locationId: initialLocationId });
+    }
+  }, [initialProductId, initialLocationId]);
 
   return (
     <div className="min-h-screen bg-dark-bg pb-20">
@@ -135,6 +145,9 @@ export function AddInventoryScreen({
             products={products}
             locations={locations}
             onSubmit={onReceive}
+            initialProductId={prefill?.productId}
+            initialLocationId={prefill?.locationId}
+            onClearPreFilled={() => setPrefill(undefined)}
           />
         )}
         {mode === 'transfer' && (

@@ -21,6 +21,7 @@ import { Header } from './components/layout/Header';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { BottomNavigation } from './components/common/BottomNavigation';
 import { ReorderAlerts } from './components/inventory/ReorderAlerts';
+import { QuickReceiveModal } from './components/inventory/QuickReceiveModal';
 import { LocationFilter } from './components/inventory/LocationFilter';
 import { ProductList } from './components/inventory/ProductList';
 import { InventoryAdjustmentModal } from './components/common/InventoryAdjustmentModal';
@@ -90,6 +91,17 @@ function App() {
   const [savedScrollPosition, setSavedScrollPosition] = useState<number>(0);
   const shouldRestoreScroll = useRef<boolean>(false);
   const [previousTab, setPreviousTab] = useState<string>('dashboard');
+  const [quickReceiveProduct, setQuickReceiveProduct] = useState<Product | null>(null);
+  const [reorderAlertsCollapsed, setReorderAlertsCollapsed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('gf_reorder_collapsed') === 'true';
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('gf_reorder_collapsed', reorderAlertsCollapsed ? 'true' : 'false');
+    }
+  }, [reorderAlertsCollapsed]);
 
   // Memoized derived state - only recompute when dependencies change
   const filteredProducts = useMemo(
@@ -202,6 +214,21 @@ function App() {
       setPreFilledData({});
     }
   }, [activeTab, isViewer]);
+
+  const handleReceiveFromAlert = useCallback((product: Product) => {
+    if (isViewer || !locations.length) {
+      return;
+    }
+    setQuickReceiveProduct(product);
+  }, [isViewer, locations.length]);
+
+  const handleCloseQuickReceive = useCallback(() => {
+    setQuickReceiveProduct(null);
+  }, []);
+
+  const handleQuickReceiveSuccess = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
   const handleOpenSealed = useCallback((product: Product, locationId: string) => {
     // Calculate max sealed quantity at this location
@@ -347,7 +374,15 @@ function App() {
 
           <div className="p-4 space-y-4">
             {/* Reorder Alerts */}
-            <ReorderAlerts products={reorderAlerts} />
+            {reorderAlerts.length > 0 && (
+              <ReorderAlerts
+                products={reorderAlerts}
+                onReceiveProduct={handleReceiveFromAlert}
+                disableReceive={isViewer || locations.length === 0}
+                collapsed={reorderAlertsCollapsed}
+                onToggleCollapsed={() => setReorderAlertsCollapsed((prev) => !prev)}
+              />
+            )}
 
             {/* Location Filter */}
             <LocationFilter
@@ -361,7 +396,19 @@ function App() {
               products={filteredProducts}
               selectedLocation={selectedLocation}
               locations={locations}
-              onProductClick={isViewer ? undefined : handleProductClick}
+              onProductClick={
+                isViewer
+                  ? undefined
+                  : selectedLocation === 'all'
+                  ? (product, _locationId) => {
+                      setPreFilledData({
+                        mode: 'receive',
+                        productId: product.id,
+                      });
+                      setActiveTab('add');
+                    }
+                  : handleProductClick
+              }
               onAdjustClick={isViewer ? undefined : handleAdjustClick}
             />
           </div>
@@ -378,7 +425,7 @@ function App() {
           onUse={handleUseInventory}
           initialMode={preFilledData.mode}
           initialProductId={preFilledData.productId}
-          initialLocationId={preFilledData.locationId}
+          initialLocationId={preFilledData.locationId || selectedLocation}
           onClearPreFilled={() => setPreFilledData({})}
           onCancel={handleCancelTransaction}
         />
@@ -450,6 +497,16 @@ function App() {
           isOpen={unsealModal.isOpen}
           onClose={handleCloseUnsealModal}
           onConfirm={handleConfirmUnseal}
+        />
+      )}
+
+      {quickReceiveProduct && (
+        <QuickReceiveModal
+          product={quickReceiveProduct}
+          locations={locations}
+          isOpen
+          onClose={handleCloseQuickReceive}
+          onSuccess={handleQuickReceiveSuccess}
         />
       )}
     </div>
