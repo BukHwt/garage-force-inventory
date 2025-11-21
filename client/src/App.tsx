@@ -31,8 +31,10 @@ import { UnsealModal } from './components/inventory/UnsealModal';
 import { AddInventoryScreen } from './components/inventory/AddInventoryScreen';
 import { ProductCatalogScreen } from './components/products/ProductCatalogScreen';
 import { LoginModal } from './components/auth/LoginModal';
+import { MoreScreen } from './components/more/MoreScreen';
+import { TransactionLogScreen } from './components/more/TransactionLogScreen';
 
-type TabId = 'dashboard' | 'add' | 'products' | 'settings';
+type TabId = 'dashboard' | 'add' | 'products' | 'more';
 type ManagePrefill = {
   mode?: 'receive' | 'transfer' | 'use';
   productId?: string;
@@ -43,7 +45,7 @@ const TAB_TO_PATH: Record<TabId, string> = {
   dashboard: '/dashboard',
   add: '/manage',
   products: '/products',
-  settings: '/settings',
+  more: '/more',
 };
 
 const getTabFromPath = (pathname: string): TabId => {
@@ -57,8 +59,8 @@ const getTabFromPath = (pathname: string): TabId => {
   if (normalizedPath.startsWith('/products')) {
     return 'products';
   }
-  if (normalizedPath.startsWith('/settings')) {
-    return 'settings';
+  if (normalizedPath.startsWith('/more') || normalizedPath.startsWith('/transactions')) {
+    return 'more';
   }
   return 'dashboard';
 };
@@ -304,7 +306,7 @@ function App() {
       if (tabId === 'add' && isViewer) {
         return;
       }
-      const typedTab = (['dashboard', 'add', 'products', 'settings'].includes(tabId)
+      const typedTab = (['dashboard', 'add', 'products', 'more'].includes(tabId)
         ? (tabId as TabId)
         : 'dashboard');
       if (typedTab === currentTab) {
@@ -557,18 +559,8 @@ function App() {
             />
           }
         />
-        <Route
-          path={TAB_TO_PATH.settings}
-          element={
-            <>
-              <Header />
-              <div className="p-4">
-                <h2 className="font-heading text-xl font-bold text-dark-text-primary">Settings</h2>
-                <p className="font-body text-dark-text-secondary mt-2">Settings coming soon...</p>
-              </div>
-            </>
-          }
-        />
+        <Route path={TAB_TO_PATH.more} element={<MoreScreen />} />
+        <Route path="/transactions" element={<TransactionLogScreen />} />
         <Route path="*" element={<Navigate to={TAB_TO_PATH.dashboard} replace />} />
       </Routes>
 

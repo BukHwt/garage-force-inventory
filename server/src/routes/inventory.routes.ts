@@ -430,22 +430,23 @@ router.post('/receive', async (req: Request, res: Response) => {
 
     // Use a transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      // Check if inventory item already exists for this product at this location
-      const existingItem = await tx.inventoryItem.findFirst({
+      // Check if sealed inventory already exists for this product at this location
+      const existingSealedItem = await tx.inventoryItem.findFirst({
         where: {
           productId,
           locationId,
+          status: 'SEALED',
         },
       });
 
       let inventoryItem;
 
-      if (existingItem) {
-        // Update existing inventory item
+      if (existingSealedItem) {
+        // Update existing sealed inventory item
         inventoryItem = await tx.inventoryItem.update({
-          where: { id: existingItem.id },
+          where: { id: existingSealedItem.id },
           data: {
-            quantity: existingItem.quantity + quantity,
+            quantity: existingSealedItem.quantity + quantity,
             ...(batchNumber && { batchNumber }),
             ...(expiresAt && { expiresAt: new Date(expiresAt) }),
             ...(notes && { notes }),
@@ -460,12 +461,13 @@ router.post('/receive', async (req: Request, res: Response) => {
           },
         });
       } else {
-        // Create new inventory item
+        // Create new sealed inventory item
         inventoryItem = await tx.inventoryItem.create({
           data: {
             productId,
             locationId,
             quantity,
+            status: 'SEALED',
             batchNumber,
             expiresAt: expiresAt ? new Date(expiresAt) : undefined,
             notes,

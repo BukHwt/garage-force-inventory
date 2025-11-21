@@ -30,5 +30,39 @@ export interface Product {
   inventoryItems: InventoryItem[];
 }
 
+export interface ProductSummary {
+  id: string;
+  name: string;
+  unitSize?: string;
+  sku?: string;
+}
+
+export interface LocationSummary {
+  id: string;
+  name: string;
+}
+
+export interface TransactionUserSummary {
+  id: string;
+  name: string;
+}
+
+export interface InventoryTransactionRecord {
+  id: string;
+  transactionType: 'RECEIPT' | 'CONSUMPTION' | 'TRANSFER' | 'ADJUSTMENT';
+  quantity: number;
+  jobReference?: string | null;
+  notes?: string | null;
+  createdAt: string;
+  isReverted: boolean;
+  revertedAt?: string | null;
+  rollbackEligible: boolean;
+  product: ProductSummary;
+  fromLocation?: LocationSummary | null;
+  toLocation?: LocationSummary | null;
+  performedBy?: TransactionUserSummary | null;
+  revertedBy?: TransactionUserSummary | null;
+}
+
 // Helper type for filtering
 export type LocationFilterOption = 'all' | string;

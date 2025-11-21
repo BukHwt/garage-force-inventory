@@ -41,6 +41,11 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     req.user = user;
     next();
   } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      console.warn('Auth error: token expired', { expiredAt: error.expiredAt });
+      return res.status(401).json({ error: 'Session expired. Please log in again.' });
+    }
+
     console.error('Auth error:', error);
     return res.status(401).json({ error: 'Invalid token' });
   }
