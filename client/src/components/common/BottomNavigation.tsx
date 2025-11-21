@@ -18,7 +18,7 @@ export function BottomNavigation({ activeTab = 'dashboard', onTabChange, disable
     { id: 'dashboard', icon: '📊', label: 'Dashboard', active: true },
     { id: 'add', icon: '📋', label: 'Manage' },
     { id: 'products', icon: '📦', label: 'Products' },
-    { id: 'settings', icon: '⚙️', label: 'Settings' },
+    { id: 'more', icon: '➕', label: 'More' },
   ];
 
   const handleClick = (tabId: string) => {
@@ -31,7 +31,10 @@ export function BottomNavigation({ activeTab = 'dashboard', onTabChange, disable
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-dark-card border-t-2 border-gf-green shadow-lg">
+    <nav
+      className="fixed inset-x-0 bottom-0 z-40 bg-dark-card border-t-2 border-gf-green"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
       <div className="grid grid-cols-4 gap-1 p-2">
         {navItems.map(item => {
           const isDisabled = item.id === 'add' && disableManage;

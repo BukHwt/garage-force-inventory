@@ -7,7 +7,7 @@ Mobile-first inventory management system for SD Concrete Coating Inc / Garage Fo
 - **Multi-location inventory tracking** - Warehouse, Trailer, Personal
 - **Smart reorder alerts** - Never run out of critical materials
 - **Supplier management** - Track Garage Force required/optional vs locally sourced items
-- **Transaction history** - Full audit trail of receipts, consumption, and transfers
+- **Transaction history & rollback** - Full audit trail of receipts, consumption, transfers with rollback safeguards
 - **Mobile-optimized UI** - Designed for Android Chrome for on-the-go inventory updates
 
 ## Tech Stack
@@ -102,6 +102,13 @@ The app will be available at:
 - `npx prisma studio` - Open Prisma Studio database viewer
 
 > Need a deeper dive into environment setup or hosting? See `docs/deployment.md`.
+
+## Transaction Log & Rollbacks
+
+- Open the **More** tab in the bottom navigation and tap **Transaction Log** to review recent activity.
+- Each entry shows product, locations, user, and whether the action is eligible for rollback.
+- Rollbacks are disabled automatically when newer activity exists for the same product/location or when reversing the move would create negative inventory.
+- Only non-viewer roles can trigger rollbacks, and every rollback captures who performed it for auditing.
 
 ## Database Schema
 

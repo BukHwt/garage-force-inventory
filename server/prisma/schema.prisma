@@ -83,24 +83,29 @@ model InventoryItem {
 }
 
 model InventoryTransaction {
-  id              String    @id @default(uuid())
-  productId       String
-  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  transactionType String // RECEIPT, CONSUMPTION, TRANSFER, ADJUSTMENT
-  fromLocationId  String?
-  fromLocation    Location? @relation("FromLocation", fields: [fromLocationId], references: [id])
-  toLocationId    String?
-  toLocation      Location? @relation("ToLocation", fields: [toLocationId], references: [id])
-  quantity        Float // Using Float to support decimal quantities
-  jobReference    String? // Simple text field for job name/ID
-  notes           String?
-  createdAt       DateTime  @default(now())
+  id                String    @id @default(uuid())
+  productId         String
+  product           Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  transactionType   String // RECEIPT, CONSUMPTION, TRANSFER, ADJUSTMENT
+  fromLocationId    String?
+  fromLocation      Location? @relation("FromLocation", fields: [fromLocationId], references: [id])
+  toLocationId      String?
+  toLocation        Location? @relation("ToLocation", fields: [toLocationId], references: [id])
+  quantity          Float // Using Float to support decimal quantities
+  jobReference      String? // Simple text field for job name/ID
+  notes             String?
+  createdAt         DateTime  @default(now())
   performedByUserId String?
-  performedBy       User?    @relation(fields: [performedByUserId], references: [id])
+  performedBy       User?    @relation("TransactionPerformedBy", fields: [performedByUserId], references: [id])
+  isReverted        Boolean   @default(false)
+  revertedAt        DateTime?
+  revertedByUserId  String?
+  revertedBy        User?     @relation("TransactionRevertedBy", fields: [revertedByUserId], references: [id])
 
   @@index([productId, createdAt])
   @@index([transactionType])
   @@index([performedByUserId])
+  @@index([isReverted])
 }
 
 model ProductComponent {
@@ -122,14 +127,15 @@ model ProductComponent {
 }
 
 model User {
-  id          String        @id @default(uuid())
-  name        String
-  role        UserRole      @default(TECH)
-  pinHash     String
-  isActive    Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  transactions InventoryTransaction[]
+  id                   String                  @id @default(uuid())
+  name                 String
+  role                 UserRole                @default(TECH)
+  pinHash              String
+  isActive             Boolean                 @default(true)
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  transactions         InventoryTransaction[]  @relation("TransactionPerformedBy")
+  revertedTransactions InventoryTransaction[]  @relation("TransactionRevertedBy")
 }
 
 enum UserRole {

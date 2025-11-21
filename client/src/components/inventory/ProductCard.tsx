@@ -13,6 +13,7 @@ interface ProductCardProps {
 export const ProductCard = memo(function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick }: ProductCardProps) {
   const isReorderNeeded = needsReorder(product);
   const showingAllLocations = selectedLocation === 'all';
+  const unitLabel = product.unitSize || 'units';
 
   const displayQuantity = showingAllLocations
     ? getTotalQuantity(product)
@@ -83,7 +84,7 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
                     {openQuantity}
                   </div>
                   <div className="text-xs font-body text-amber-400/80">
-                    open
+                    open {unitLabel}
                   </div>
                 </div>
                 <div className="text-dark-text-muted">+</div>
@@ -92,12 +93,9 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
                     {sealedQuantity}
                   </div>
                   <div className="text-xs font-body text-gf-green-400">
-                    sealed
+                    sealed {unitLabel}
                   </div>
                 </div>
-              </div>
-              <div className="text-xs font-body text-dark-text-secondary mt-1">
-                {product.unitSize || 'units'}
               </div>
             </>
           ) : openQuantity > 0 ? (
@@ -106,7 +104,7 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
                 {openQuantity}
               </div>
               <div className="text-xs font-body text-amber-400/80">
-                open {product.unitSize || 'units'}
+                open {unitLabel}
               </div>
             </>
           ) : (
@@ -115,7 +113,7 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
                 {displayQuantity}
               </div>
               <div className="text-xs font-body text-dark-text-secondary">
-                {product.unitSize || 'units'}
+                {unitLabel}
               </div>
             </>
           )}
