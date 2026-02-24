@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-type TenantKey = 'main' | 'adam' | (string & {});
+type TenantKey = string;
 
 const mainUrl = process.env.DATABASE_URL_MAIN ?? process.env.DATABASE_URL;
 const adamUrl = process.env.DATABASE_URL_ADAM;
@@ -41,7 +41,7 @@ export function getPrismaClient(tenant?: TenantKey): PrismaClient {
 }
 
 export function getTenantKeys() {
-  return Object.keys(prismaTenants) as TenantKey[];
+  return Object.keys(prismaTenants);
 }
 
 export const DEFAULT_TENANT = defaultTenant;
