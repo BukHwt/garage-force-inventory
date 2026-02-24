@@ -19,18 +19,15 @@ function extractSchema(url: string) {
 function createSchemaIfMissing(schema: string, envUrl: string, label: string) {
   // Use stdin because Prisma 6 does not support --script.
   const sql = `CREATE SCHEMA IF NOT EXISTS "${schema}";\n`;
-  execSync(
-    `npx prisma db execute --stdin`,
-    {
-      stdio: ['pipe', 'inherit', 'inherit'],
-      env: {
-        ...process.env,
-        DATABASE_URL: envUrl,
-      },
-      input: sql,
-      shell: true,
-    } as any,
-  );
+  execSync(`npx prisma db execute --stdin --url "${envUrl}"`, {
+    stdio: ['pipe', 'inherit', 'inherit'],
+    env: {
+      ...process.env,
+      DATABASE_URL: envUrl,
+    },
+    input: sql,
+    shell: true,
+  } as any);
   console.log(`Ensured schema for ${label}: ${schema}`);
 }
 
