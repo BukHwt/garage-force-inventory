@@ -1,4 +1,4 @@
-import { UserRole } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client';
 
 declare global {
   namespace Express {
@@ -10,6 +10,8 @@ declare global {
 
     interface Request {
       user?: UserContext;
+      prisma: PrismaClient;
+      tenant: string;
     }
   }
 }

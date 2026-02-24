@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
@@ -12,9 +11,9 @@ if (!JWT_SECRET) {
   console.warn('JWT_SECRET environment variable is not set. Auth routes will fail until configured.');
 }
 
-router.get('/users', async (_req: Request, res: Response) => {
+router.get('/users', async (req: Request, res: Response) => {
   try {
-    const users = await prisma.user.findMany({
+    const users = await req.prisma.user.findMany({
       where: { isActive: true },
       select: { id: true, name: true, role: true },
       orderBy: { name: 'asc' },
@@ -39,7 +38,7 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await prisma.user.findFirst({
+    const user = await req.prisma.user.findFirst({
       where: { id: userId, isActive: true },
     });
 
