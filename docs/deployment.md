@@ -39,6 +39,13 @@ npm run db:down   # stop and remove the local database container
    Seed production manually only when you intentionally reset the data.
 5. Keep your normal start command (`npm run dev` for combined dev servers, or `cd server && npm run start` in production).
 
+### Multi-tenant schemas on a single Postgres
+
+- Create the extra schema once (example): `psql "$DATABASE_URL_MAIN" -c "CREATE SCHEMA IF NOT EXISTS adam;"`.
+- Set `DATABASE_URL_MAIN=...schema=public` and `DATABASE_URL_ADAM=...schema=adam` on the backend service.
+- Run `npm run db:init:tenants` (add `-- --with-seed` only if you want to seed each schema).
+- The API selects the tenant per request via `x-tenant` header (`main` default, `adam` optional).
+
 ## 3. CI / preview deployments
 
 - Reuse the same `npm run db:init` command in any pipeline stage that provisions a temporary database.

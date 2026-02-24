@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { Prisma } from '@prisma/client';
-import prisma from '../lib/prisma.js';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { requireEditor } from '../middleware/auth.js';
 
 type InventoryStatus = 'SEALED' | 'OPEN';
@@ -58,6 +57,7 @@ class RollbackError extends Error {
 }
 
 router.get('/', async (req: Request, res: Response) => {
+  const prisma = req.prisma;
   try {
     const limitParam = parseInt((req.query.limit as string) ?? '', 10);
     const take = Number.isFinite(limitParam)
@@ -73,7 +73,7 @@ router.get('/', async (req: Request, res: Response) => {
     const enriched = await Promise.all(
       transactions.map(async (transaction) => ({
         ...transaction,
-        rollbackEligible: await canRollbackTransaction(transaction),
+        rollbackEligible: await canRollbackTransaction(prisma, transaction),
       }))
     );
 
@@ -86,6 +86,7 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.post('/:id/rollback', requireEditor, async (req: Request, res: Response) => {
   const { id } = req.params;
+  const prisma = req.prisma;
 
   try {
     const transaction = await prisma.inventoryTransaction.findUnique({
@@ -102,7 +103,7 @@ router.post('/:id/rollback', requireEditor, async (req: Request, res: Response) 
     }
 
     const relevantLocationIds = getRelevantLocationIds(transaction);
-    await assertNoSubsequentActivity(transaction.productId, transaction.createdAt, relevantLocationIds);
+    await assertNoSubsequentActivity(prisma, transaction.productId, transaction.createdAt, relevantLocationIds);
 
     const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const quantity = Math.abs(transaction.quantity);
@@ -194,12 +195,17 @@ router.post('/:id/rollback', requireEditor, async (req: Request, res: Response) 
   }
 });
 
-async function assertNoSubsequentActivity(productId: string, createdAt: Date, locationIds: string[]) {
+async function assertNoSubsequentActivity(
+  prisma: PrismaClient,
+  productId: string,
+  createdAt: Date,
+  locationIds: string[],
+) {
   if (!locationIds.length) {
     return;
   }
 
-  const hasConflict = await hasSubsequentActivity(productId, createdAt, locationIds);
+  const hasConflict = await hasSubsequentActivity(prisma, productId, createdAt, locationIds);
 
   if (hasConflict) {
     throw new RollbackError(
@@ -289,7 +295,7 @@ function getRelevantLocationIds(transaction: TransactionWithRelations) {
   }
 }
 
-async function canRollbackTransaction(transaction: TransactionWithRelations) {
+async function canRollbackTransaction(prisma: PrismaClient, transaction: TransactionWithRelations) {
   if (transaction.isReverted) {
     return false;
   }
@@ -310,7 +316,7 @@ async function canRollbackTransaction(transaction: TransactionWithRelations) {
     return false;
   }
 
-  if (await hasSubsequentActivity(transaction.productId, transaction.createdAt, relevantLocations)) {
+  if (await hasSubsequentActivity(prisma, transaction.productId, transaction.createdAt, relevantLocations)) {
     return false;
   }
 
@@ -319,17 +325,17 @@ async function canRollbackTransaction(transaction: TransactionWithRelations) {
     case 'RECEIPT': {
       const destination = transaction.toLocationId;
       if (!destination) return false;
-      return hasSufficientInventory(transaction.productId, destination, 'SEALED', quantity);
+      return hasSufficientInventory(prisma, transaction.productId, destination, 'SEALED', quantity);
     }
     case 'TRANSFER': {
       const destination = transaction.toLocationId;
       if (!destination) return false;
-      return hasSufficientInventory(transaction.productId, destination, 'SEALED', quantity);
+      return hasSufficientInventory(prisma, transaction.productId, destination, 'SEALED', quantity);
     }
     case 'ADJUSTMENT': {
       const locationId = transaction.fromLocationId;
       if (!locationId) return false;
-      return hasSufficientInventory(transaction.productId, locationId, 'OPEN', quantity);
+      return hasSufficientInventory(prisma, transaction.productId, locationId, 'OPEN', quantity);
     }
     case 'CONSUMPTION':
     default:
@@ -338,6 +344,7 @@ async function canRollbackTransaction(transaction: TransactionWithRelations) {
 }
 
 async function hasSufficientInventory(
+  prisma: PrismaClient,
   productId: string,
   locationId: string,
   status: InventoryStatus,
@@ -362,7 +369,7 @@ async function hasSufficientInventory(
   return available >= quantity;
 }
 
-async function hasSubsequentActivity(productId: string, createdAt: Date, locationIds: string[]) {
+async function hasSubsequentActivity(prisma: PrismaClient, productId: string, createdAt: Date, locationIds: string[]) {
   if (!locationIds.length) {
     return false;
   }

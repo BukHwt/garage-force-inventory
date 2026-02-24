@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import prisma from '../lib/prisma.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -29,7 +28,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   try {
     const payload = jwt.verify(token, JWT_SECRET) as TokenPayload;
 
-    const user = await prisma.user.findFirst({
+    const user = await req.prisma.user.findFirst({
       where: { id: payload.sub, isActive: true },
       select: { id: true, name: true, role: true },
     });

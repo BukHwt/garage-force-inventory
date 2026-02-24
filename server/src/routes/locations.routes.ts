@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import prisma from '../lib/prisma.js';
 import { requireEditor } from '../middleware/auth.js';
 
 const router = Router();
@@ -14,7 +13,7 @@ router.use((req, res, next) => {
 // Get all locations
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const locations = await prisma.location.findMany({
+    const locations = await req.prisma.location.findMany({
       include: {
         _count: {
           select: { inventoryItems: true },
@@ -37,7 +36,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const location = await prisma.location.findUnique({
+    const location = await req.prisma.location.findUnique({
       where: { id },
       include: {
         inventoryItems: {
@@ -72,7 +71,7 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Name is required' });
     }
 
-    const location = await prisma.location.create({
+    const location = await req.prisma.location.create({
       data: {
         name,
         description,
@@ -92,7 +91,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, description } = req.body;
 
-    const location = await prisma.location.update({
+    const location = await req.prisma.location.update({
       where: { id },
       data: {
         ...(name && { name }),
@@ -113,7 +112,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     // Check if location has inventory items
-    const itemCount = await prisma.inventoryItem.count({
+    const itemCount = await req.prisma.inventoryItem.count({
       where: { locationId: id },
     });
 
@@ -123,7 +122,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    await prisma.location.delete({
+    await req.prisma.location.delete({
       where: { id },
     });
 

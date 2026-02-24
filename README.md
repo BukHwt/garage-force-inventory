@@ -81,6 +81,14 @@ The app will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000
 
+## Multi-tenant (one Postgres, separate schemas)
+
+- Model: one Postgres database (the binder) with per-tenant schemas (folders). Default tenant uses `public`, Adam uses `adam`.
+- Env: set `DATABASE_URL_MAIN` (or `DATABASE_URL`) to `...schema=public` and `DATABASE_URL_ADAM` to `...schema=adam` on the backend.
+- Create the extra schema once: `psql "$DATABASE_URL_MAIN" -c "CREATE SCHEMA IF NOT EXISTS adam;"`.
+- Migrations: `npm run db:init:tenants` (runs `prisma migrate deploy` for each configured schema). Add `-- --with-seed` if you want to seed each schema; skip seeding to preserve existing data.
+- Routing: the backend picks the schema per request via header `x-tenant: adam` (defaults to `main`). Use the same backend URL for all tenants.
+
 ## Available Scripts
 
 ### Root directory

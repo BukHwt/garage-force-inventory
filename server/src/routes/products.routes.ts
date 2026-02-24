@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import prisma from '../lib/prisma.js';
 import { requireEditor } from '../middleware/auth.js';
 
 const router = Router();
@@ -16,7 +15,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { categoryId, search } = req.query;
 
-    const products = await prisma.product.findMany({
+    const products = await req.prisma.product.findMany({
       where: {
         ...(categoryId && { categoryId: categoryId as string }),
         ...(search && {
@@ -53,7 +52,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const product = await prisma.product.findUnique({
+    const product = await req.prisma.product.findUnique({
       where: { id },
       include: {
         category: true,
@@ -98,7 +97,7 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Name is required' });
     }
 
-    const product = await prisma.product.create({
+    const product = await req.prisma.product.create({
       data: {
         name,
         description,
@@ -149,7 +148,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       consumableType,
     } = req.body;
 
-    const product = await prisma.product.update({
+    const product = await req.prisma.product.update({
       where: { id },
       data: {
         ...(name && { name }),
@@ -187,7 +186,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    await prisma.product.delete({
+    await req.prisma.product.delete({
       where: { id },
     });
 

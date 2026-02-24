@@ -2,14 +2,17 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, tenant } = useAuth();
+
+  const franchiseLabel =
+    tenant === 'adam' ? 'Garage Force of Mid-Michigan' : 'Garage Force of Metro Detroit';
 
   return (
     <header className="bg-dark-card text-dark-text-primary p-4 shadow-lg sticky top-0 z-10 border-b-2 border-gf-green">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-heading font-bold tracking-tight">Garage Force Inventory</h1>
-          <p className="text-sm font-body text-dark-text-secondary">SD Concrete Coating</p>
+          <p className="text-sm font-body text-dark-text-secondary">{franchiseLabel}</p>
         </div>
         {user && (
           <div className="text-right">
