@@ -1,4 +1,4 @@
-import { apiClient, apiGet, apiPost, TENANT_STORAGE_KEY } from '../client';
+import { apiClient, apiGet, TENANT_STORAGE_KEY } from '../client';
 
 export type AuthUserRole = 'OWNER' | 'TECH' | 'VIEWER';
 
