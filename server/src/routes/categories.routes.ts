@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import prisma from '../lib/prisma.js';
 import { requireEditor } from '../middleware/auth.js';
 
 const router = Router();
@@ -14,7 +13,7 @@ router.use((req, res, next) => {
 // Get all categories
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const categories = await prisma.category.findMany({
+    const categories = await req.prisma.category.findMany({
       include: {
         _count: {
           select: { products: true },
@@ -37,7 +36,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const category = await prisma.category.findUnique({
+    const category = await req.prisma.category.findUnique({
       where: { id },
       include: {
         products: {
@@ -72,7 +71,7 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Name is required' });
     }
 
-    const category = await prisma.category.create({
+    const category = await req.prisma.category.create({
       data: {
         name,
       },
@@ -95,7 +94,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Name is required' });
     }
 
-    const category = await prisma.category.update({
+    const category = await req.prisma.category.update({
       where: { id },
       data: { name },
     });
@@ -113,7 +112,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     // Check if category has any products before deletion
-    const productCount = await prisma.product.count({
+    const productCount = await req.prisma.product.count({
       where: { categoryId: id },
     });
 
@@ -123,7 +122,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    await prisma.category.delete({
+    await req.prisma.category.delete({
       where: { id },
     });
 

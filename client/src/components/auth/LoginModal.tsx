@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export function LoginModal() {
   const { availableUsers, login, isReady, refreshUsers } = useAuth();
-  const [selectedUserId, setSelectedUserId] = useState('');
+  const [selectedUserKey, setSelectedUserKey] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -18,16 +18,18 @@ export function LoginModal() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!selectedUserId || !pin) {
+    if (!selectedUserKey || !pin) {
       setError('Please select a user and enter PIN');
       return;
     }
+
+    const [tenant, userId] = selectedUserKey.split(':');
 
     setSubmitting(true);
     setError(null);
 
     try {
-      await login({ userId: selectedUserId, pin });
+      await login({ userId, pin }, tenant);
       setPin('');
     } catch (err) {
       setError('Invalid PIN. Please try again.');
@@ -56,17 +58,20 @@ export function LoginModal() {
               Team Member
             </label>
             <select
-              value={selectedUserId}
-              onChange={(event) => setSelectedUserId(event.target.value)}
+              value={selectedUserKey}
+              onChange={(event) => setSelectedUserKey(event.target.value)}
               className="w-full bg-dark-bg border border-dark-border text-dark-text-primary px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-gf-green"
               disabled={submitting}
             >
               <option value="">Select your name</option>
-              {availableUsers.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} {user.role === 'VIEWER' ? '(View Only)' : ''}
-                </option>
-              ))}
+              {availableUsers.map((user) => {
+                const key = `${user.tenant}:${user.id}`;
+                return (
+                  <option key={key} value={key}>
+                    {user.name}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -95,7 +100,7 @@ export function LoginModal() {
 
           <button
             type="submit"
-            disabled={submitting || !selectedUserId || !pin}
+            disabled={submitting || !selectedUserKey || !pin}
             className="w-full bg-gf-green border-2 border-gf-green-600 text-white font-heading font-bold text-lg py-3 rounded-lg active:bg-gf-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? 'Signing In...' : 'Sign In'}

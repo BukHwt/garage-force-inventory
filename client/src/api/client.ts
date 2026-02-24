@@ -3,6 +3,7 @@
  */
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 export const AUTH_TOKEN_STORAGE_KEY = 'gf_auth_token';
+export const TENANT_STORAGE_KEY = 'gf_active_tenant';
 
 /**
  * Custom error class for API errors
@@ -33,14 +34,28 @@ export async function apiClient<T>(
       typeof window !== 'undefined'
         ? localStorage.getItem(AUTH_TOKEN_STORAGE_KEY)
         : null;
+    const tenant =
+      typeof window !== 'undefined'
+        ? localStorage.getItem(TENANT_STORAGE_KEY)
+        : null;
+
+    const providedHeaders = options?.headers || {};
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(typeof providedHeaders === 'object' ? (providedHeaders as Record<string, string>) : {}),
+    };
+
+    if (token && !headers.Authorization) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    if (tenant && !('x-tenant' in headers)) {
+      headers['x-tenant'] = tenant;
+    }
 
     const response = await fetch(url, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options?.headers || {}),
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers,
     });
 
     // Handle non-OK responses

@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
-import prisma from '../lib/prisma.js';
 import { requireEditor } from '../middleware/auth.js';
 
 const router = Router();
@@ -17,7 +16,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { productId, locationId, search } = req.query;
 
-    const inventoryItems = await prisma.inventoryItem.findMany({
+    const inventoryItems = await req.prisma.inventoryItem.findMany({
       where: {
         ...(productId && { productId: productId as string }),
         ...(locationId && { locationId: locationId as string }),
@@ -83,7 +82,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const inventoryItem = await prisma.inventoryItem.findUnique({
+    const inventoryItem = await req.prisma.inventoryItem.findUnique({
       where: { id },
       include: {
         product: {
@@ -115,7 +114,7 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Product and location are required' });
     }
 
-    const inventoryItem = await prisma.inventoryItem.create({
+    const inventoryItem = await req.prisma.inventoryItem.create({
       data: {
         productId,
         locationId,
@@ -147,7 +146,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const { productId, locationId, quantity, batchNumber, expiresAt, notes } = req.body;
 
-    const inventoryItem = await prisma.inventoryItem.update({
+    const inventoryItem = await req.prisma.inventoryItem.update({
       where: { id },
       data: {
         ...(productId && { productId }),
@@ -179,7 +178,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    await prisma.inventoryItem.delete({
+    await req.prisma.inventoryItem.delete({
       where: { id },
     });
 
@@ -205,7 +204,7 @@ router.patch('/:id/adjust', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Status must be either SEALED or OPEN' });
     }
 
-    const currentItem = await prisma.inventoryItem.findUnique({
+    const currentItem = await req.prisma.inventoryItem.findUnique({
       where: { id },
     });
 
@@ -219,7 +218,7 @@ router.patch('/:id/adjust', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Adjustment would result in negative quantity' });
     }
 
-    const inventoryItem = await prisma.inventoryItem.update({
+    const inventoryItem = await req.prisma.inventoryItem.update({
       where: { id },
       data: {
         quantity: newQuantity,
@@ -261,7 +260,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
     }
 
     // Verify product exists
-    const product = await prisma.product.findUnique({
+    const product = await req.prisma.product.findUnique({
       where: { id: productId },
     });
 
@@ -271,8 +270,8 @@ router.post('/transfer', async (req: Request, res: Response) => {
 
     // Verify both locations exist
     const [fromLocation, toLocation] = await Promise.all([
-      prisma.location.findUnique({ where: { id: fromLocationId } }),
-      prisma.location.findUnique({ where: { id: toLocationId } }),
+      req.prisma.location.findUnique({ where: { id: fromLocationId } }),
+      req.prisma.location.findUnique({ where: { id: toLocationId } }),
     ]);
 
     if (!fromLocation) {
@@ -284,7 +283,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
     }
 
     // Check if source has inventory
-    const fromItem = await prisma.inventoryItem.findFirst({
+    const fromItem = await req.prisma.inventoryItem.findFirst({
       where: {
         productId,
         locationId: fromLocationId,
@@ -302,7 +301,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
     }
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const result = await req.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Update or delete from source location
       let updatedFromItem = null;
       const newFromQuantity = fromItem.quantity - quantity;
@@ -411,7 +410,7 @@ router.post('/receive', async (req: Request, res: Response) => {
     }
 
     // Verify product exists
-    const product = await prisma.product.findUnique({
+    const product = await req.prisma.product.findUnique({
       where: { id: productId },
     });
 
@@ -420,7 +419,7 @@ router.post('/receive', async (req: Request, res: Response) => {
     }
 
     // Verify location exists
-    const location = await prisma.location.findUnique({
+    const location = await req.prisma.location.findUnique({
       where: { id: locationId },
     });
 
@@ -429,7 +428,7 @@ router.post('/receive', async (req: Request, res: Response) => {
     }
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const result = await req.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Check if sealed inventory already exists for this product at this location
       const existingSealedItem = await tx.inventoryItem.findFirst({
         where: {
@@ -520,7 +519,7 @@ router.post('/unseal', async (req: Request, res: Response) => {
     }
 
     // Verify product exists
-    const product = await prisma.product.findUnique({
+    const product = await req.prisma.product.findUnique({
       where: { id: productId },
     });
 
@@ -529,7 +528,7 @@ router.post('/unseal', async (req: Request, res: Response) => {
     }
 
     // Verify location exists
-    const location = await prisma.location.findUnique({
+    const location = await req.prisma.location.findUnique({
       where: { id: locationId },
     });
 
@@ -538,7 +537,7 @@ router.post('/unseal', async (req: Request, res: Response) => {
     }
 
     // Find sealed inventory at this location
-    const sealedItem = await prisma.inventoryItem.findFirst({
+    const sealedItem = await req.prisma.inventoryItem.findFirst({
       where: {
         productId,
         locationId,
@@ -557,7 +556,7 @@ router.post('/unseal', async (req: Request, res: Response) => {
     }
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const result = await req.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Reduce sealed inventory by specified quantity
       let updatedSealedItem = null;
       const newSealedQuantity = sealedItem.quantity - quantity;
@@ -672,7 +671,7 @@ router.post('/use', async (req: Request, res: Response) => {
     }
 
     // Verify product exists
-    const product = await prisma.product.findUnique({
+    const product = await req.prisma.product.findUnique({
       where: { id: productId },
     });
 
@@ -681,7 +680,7 @@ router.post('/use', async (req: Request, res: Response) => {
     }
 
     // Verify location exists
-    const location = await prisma.location.findUnique({
+    const location = await req.prisma.location.findUnique({
       where: { id: locationId },
     });
 
@@ -690,7 +689,7 @@ router.post('/use', async (req: Request, res: Response) => {
     }
 
     // Check if inventory exists at this location
-    const inventoryItem = await prisma.inventoryItem.findFirst({
+    const inventoryItem = await req.prisma.inventoryItem.findFirst({
       where: {
         productId,
         locationId,
@@ -708,7 +707,7 @@ router.post('/use', async (req: Request, res: Response) => {
     }
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const result = await req.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Decrease quantity at location
       const newQuantity = inventoryItem.quantity - quantity;
 

@@ -1,6 +1,6 @@
+import './env.js';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import productsRouter from './routes/products.routes.js';
 import inventoryRouter from './routes/inventory.routes.js';
 import locationsRouter from './routes/locations.routes.js';
@@ -8,8 +8,7 @@ import categoriesRouter from './routes/categories.routes.js';
 import authRouter from './routes/auth.routes.js';
 import { authenticate } from './middleware/auth.js';
 import transactionsRouter from './routes/transactions.routes.js';
-
-dotenv.config();
+import { tenantMiddleware } from './middleware/tenant.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,6 +16,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(tenantMiddleware);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -10,7 +10,8 @@
     "start": "node dist/index.js",
     "seed": "tsx prisma/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "db:init": "npx prisma migrate deploy && npm run seed"
+    "db:init": "npx prisma migrate deploy && npm run seed",
+    "db:init:tenants": "tsx scripts/dbInitTenants.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
