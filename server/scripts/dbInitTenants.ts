@@ -11,6 +11,11 @@ const tenants: TenantConfig[] = [
   { name: 'adam', url: process.env.DATABASE_URL_ADAM },
 ].filter((tenant) => Boolean(tenant.url));
 
+function extractSchema(url: string) {
+  const match = url.match(/schema=([^&]+)/);
+  return match?.[1];
+}
+
 const withSeed = process.argv.includes('--with-seed');
 
 if (!tenants.length) {
@@ -31,6 +36,13 @@ function run(cmd: string, envUrl: string, label: string) {
 
 for (const tenant of tenants) {
   if (!tenant.url) continue;
+
+  const schema = extractSchema(tenant.url);
+  if (schema) {
+    console.log(`\n=== Ensuring schema exists for tenant: ${tenant.name} (${schema}) ===`);
+    run(`npx prisma db execute --script "CREATE SCHEMA IF NOT EXISTS \\"${schema}\\";"`, tenant.url, `${tenant.name} schema`);
+  }
+
   console.log(`\n=== Migrating tenant: ${tenant.name} (${tenant.url}) ===`);
   run('npx prisma migrate deploy', tenant.url, `${tenant.name} migrate`);
 
