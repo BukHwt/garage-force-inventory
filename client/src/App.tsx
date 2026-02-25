@@ -7,7 +7,7 @@ import { useInventory } from './hooks/useInventory';
 import { useAuth } from './context/AuthContext';
 
 // Utils
-import { filterProductsByLocation, getProductsNeedingReorder } from './utils/inventory';
+import { filterProductsByLocation, getProductsNeedingReorder, getTotalQuantity } from './utils/inventory';
 
 // API Services
 import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage, unsealInventory } from './api/services/inventory';
@@ -202,14 +202,24 @@ function App() {
   }, [isViewer, currentTab, navigate]);
 
   // Memoized derived state - only recompute when dependencies change
+  const dashboardVisibleProducts = useMemo(
+    () =>
+      products.filter((product) => {
+        const hasInventory = getTotalQuantity(product) > 0;
+        const hasReorderPoint = product.reorderPoint !== null && product.reorderPoint !== undefined;
+        return Boolean(product.isTracked || hasInventory || hasReorderPoint);
+      }),
+    [products]
+  );
+
   const filteredProducts = useMemo(
-    () => filterProductsByLocation(products, selectedLocation),
-    [products, selectedLocation]
+    () => filterProductsByLocation(dashboardVisibleProducts, selectedLocation),
+    [dashboardVisibleProducts, selectedLocation]
   );
 
   const reorderAlerts = useMemo(
-    () => getProductsNeedingReorder(products),
-    [products]
+    () => getProductsNeedingReorder(dashboardVisibleProducts),
+    [dashboardVisibleProducts]
   );
 
   // Extract unique categories from products
