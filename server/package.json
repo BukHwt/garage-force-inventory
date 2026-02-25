@@ -12,6 +12,7 @@
     "seed:adam:csv": "tsx scripts/seedAdamFromCsv.ts",
     "report:main-vs-adam": "tsx scripts/reportMainVsAdam.ts",
     "apply:main-from-adam": "tsx scripts/applyMainFromAdam.ts",
+    "reconcile:main-adam:report": "tsx scripts/reconcileMainAdamFromReport.ts",
     "flag:main:tracked": "tsx scripts/flagTrackedByUsage.ts",
     "flag:adam:tracked": "tsx scripts/flagTrackedByUsage.ts",
     "sync:tracked:to-adam": "tsx scripts/syncTrackedToAdam.ts",
