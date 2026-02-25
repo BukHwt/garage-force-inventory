@@ -49,14 +49,17 @@ export function ProductCatalogScreen({
   const groupedProducts = useMemo(() => {
     const groups = new Map<
       string,
-      { key: string; name: string; products: Product[] }
+      { key: string; name: string; products: Product[]; trackedCount: number }
     >();
 
     for (const product of filteredProducts) {
       const key = product.category?.id || "__uncategorized__";
       const name = product.category?.name || "Uncategorized";
-      const existing = groups.get(key) ?? { key, name, products: [] };
+      const existing = groups.get(key) ?? { key, name, products: [], trackedCount: 0 };
       existing.products.push(product);
+      if (product.isTracked) {
+        existing.trackedCount += 1;
+      }
       groups.set(key, existing);
     }
 
@@ -101,6 +104,23 @@ export function ProductCatalogScreen({
       [key]: !prev[key],
     }));
   }, []);
+
+  const getCategoryAccentClasses = (categoryName: string) => {
+    const name = categoryName.toLowerCase();
+    if (name.includes("coating")) {
+      return "border-l-category-coatings-text";
+    }
+    if (name.includes("chip")) {
+      return "border-l-category-chips-text";
+    }
+    if (name.includes("disposable")) {
+      return "border-l-category-disposables-text";
+    }
+    if (name.includes("equipment")) {
+      return "border-l-category-equipment-text";
+    }
+    return "border-l-gf-green";
+  };
 
   return (
     <div className="min-h-screen bg-dark-bg pb-20">
@@ -170,12 +190,19 @@ export function ProductCatalogScreen({
                     <button
                       type="button"
                       onClick={() => toggleSection(group.key)}
-                      className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-gf-charcoal-700 transition-colors duration-150"
+                      className={`w-full px-3 py-2 flex items-center justify-between text-left border-l-4 hover:bg-gf-charcoal-700 transition-colors duration-150 ${getCategoryAccentClasses(group.name)}`}
                       aria-expanded={!collapsedSections[group.key]}
                     >
-                      <h3 className="font-heading font-semibold text-sm text-dark-text-primary truncate pr-2">
-                        {group.name}
-                      </h3>
+                      <div className="pr-2">
+                        <h3 className="font-heading font-semibold text-sm text-dark-text-primary truncate">
+                          {group.name}
+                        </h3>
+                        {group.trackedCount > 0 && (
+                          <p className="text-xs text-gf-green mt-0.5">
+                            {group.trackedCount} tracked
+                          </p>
+                        )}
+                      </div>
                       <span
                         className="text-dark-text-secondary text-xs whitespace-nowrap"
                         aria-hidden="true"
@@ -191,14 +218,25 @@ export function ProductCatalogScreen({
                           <div
                             key={product.id}
                             onClick={() => handleProductClick(product)}
-                            className="bg-dark-card p-3 rounded-lg shadow-lg border border-dark-border cursor-pointer active:bg-gf-charcoal-700 transition-colors"
+                            className={`bg-dark-card p-3 rounded-lg shadow-lg border cursor-pointer active:bg-gf-charcoal-700 transition-colors ${
+                              product.isTracked
+                                ? "border-l-4 border-l-gf-green border-dark-border"
+                                : "border-dark-border"
+                            }`}
                             style={{ minHeight: "44px" }}
                           >
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
-                                <h3 className="font-heading font-semibold text-sm text-dark-text-primary">
-                                  {product.name}
-                                </h3>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-heading font-semibold text-sm text-dark-text-primary">
+                                    {product.name}
+                                  </h3>
+                                  {product.isTracked && (
+                                    <span className="inline-block px-2 py-0.5 text-[10px] rounded font-semibold bg-gf-green-900 text-gf-green-200 border border-gf-green-700">
+                                      Tracked
+                                    </span>
+                                  )}
+                                </div>
                                 {product.sku && (
                                   <p className="text-xs text-dark-text-muted mt-1">
                                     SKU: {product.sku}
