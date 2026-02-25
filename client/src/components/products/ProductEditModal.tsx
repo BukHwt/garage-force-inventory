@@ -11,6 +11,7 @@ interface ProductEditModalProps {
 }
 
 export interface ProductUpdateData {
+  isTracked: boolean;
   name: string;
   description: string;
   sku: string;
@@ -33,12 +34,13 @@ export function ProductEditModal({
   onSave,
 }: ProductEditModalProps) {
   const [formData, setFormData] = useState<ProductUpdateData>({
+    isTracked: Boolean(product.isTracked),
     name: product.name,
     description: product.description || '',
     sku: product.sku || '',
     color: product.color || '',
     unitSize: product.unitSize || '',
-    reorderPoint: product.reorderPoint || null,
+    reorderPoint: product.reorderPoint ?? null,
     supplierType: product.supplierType,
     categoryId: product.category?.id || '',
   });
@@ -48,12 +50,13 @@ export function ProductEditModal({
   // Reset form when product changes
   useEffect(() => {
     setFormData({
+      isTracked: Boolean(product.isTracked),
       name: product.name,
       description: product.description || '',
       sku: product.sku || '',
       color: product.color || '',
       unitSize: product.unitSize || '',
-      reorderPoint: product.reorderPoint || null,
+      reorderPoint: product.reorderPoint ?? null,
       supplierType: product.supplierType,
       categoryId: product.category?.id || '',
     });
@@ -74,6 +77,7 @@ export function ProductEditModal({
 
     try {
       await onSave({
+        isTracked: formData.isTracked,
         name: formData.name.trim(),
         description: formData.description.trim() || undefined,
         sku: formData.sku.trim() || undefined,
@@ -94,10 +98,29 @@ export function ProductEditModal({
 
   const handleChange = (
     field: keyof ProductUpdateData,
-    value: string | number | null
+    value: string | number | boolean | null
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  const hasInventory = product.inventoryItems.some((item) => item.quantity > 0);
+  const hasReorderPoint = (formData.reorderPoint ?? 0) > 0;
+  const cannotUntrack = hasInventory || hasReorderPoint;
+  const trackGuardReason = hasInventory
+    ? 'Cannot untrack while inventory exists.'
+    : hasReorderPoint
+      ? 'Cannot untrack while reorder point is set.'
+      : '';
+  const isDirty =
+    formData.isTracked !== Boolean(product.isTracked) ||
+    formData.name !== product.name ||
+    formData.description !== (product.description || '') ||
+    formData.sku !== (product.sku || '') ||
+    formData.color !== (product.color || '') ||
+    formData.unitSize !== (product.unitSize || '') ||
+    formData.reorderPoint !== (product.reorderPoint ?? null) ||
+    formData.supplierType !== product.supplierType ||
+    formData.categoryId !== (product.category?.id || '');
 
   if (!isOpen) return null;
 
@@ -121,6 +144,30 @@ export function ProductEditModal({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {/* Tracking toggle */}
+          <div className="bg-dark-bg border border-dark-border rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-dark-text-primary">Track this product</p>
+                {cannotUntrack && (
+                  <p className="text-xs text-dark-text-muted mt-1">{trackGuardReason}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => handleChange('isTracked', !formData.isTracked)}
+                disabled={isSubmitting || (cannotUntrack && formData.isTracked)}
+                className={`px-3 py-1.5 rounded border text-sm font-semibold transition-colors ${
+                  formData.isTracked
+                    ? 'border-gf-green text-gf-green'
+                    : 'border-dark-border text-dark-text-muted'
+                } ${(cannotUntrack && formData.isTracked) ? 'opacity-50 cursor-not-allowed' : 'active:bg-gf-charcoal-700'}`}
+              >
+                {formData.isTracked ? 'Tracked' : 'Untracked'}
+              </button>
+            </div>
+          </div>
+
           {/* Error Message */}
           {error && (
             <div className="bg-alert-red bg-opacity-20 border-l-4 border-alert-red p-3 rounded">
@@ -238,7 +285,11 @@ export function ProductEditModal({
               value={formData.reorderPoint ?? ''}
               onChange={(e) => {
                 const val = e.target.value;
-                handleChange('reorderPoint', val === '' ? null : parseInt(val, 10));
+                const nextReorderPoint = val === '' ? null : parseInt(val, 10);
+                handleChange('reorderPoint', nextReorderPoint);
+                if (nextReorderPoint !== null && nextReorderPoint > 0) {
+                  handleChange('isTracked', true);
+                }
               }}
               disabled={isSubmitting}
               min={0}
@@ -276,7 +327,7 @@ export function ProductEditModal({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className={`${isDirty ? 'sticky bottom-0 bg-dark-card border-t border-dark-border pt-3 pb-1' : 'pt-4'} flex gap-3`}>
             <button
               type="button"
               onClick={onClose}
@@ -288,7 +339,7 @@ export function ProductEditModal({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isDirty}
               className="flex-1 bg-gf-green border border-gf-green-600 text-white font-heading font-semibold py-3 rounded-lg active:bg-gf-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ minHeight: '44px' }}
             >
@@ -300,3 +351,4 @@ export function ProductEditModal({
     </div>
   );
 }
+

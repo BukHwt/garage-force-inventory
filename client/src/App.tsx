@@ -206,7 +206,7 @@ function App() {
     () =>
       products.filter((product) => {
         const hasInventory = getTotalQuantity(product) > 0;
-        const hasReorderPoint = product.reorderPoint !== null && product.reorderPoint !== undefined;
+        const hasReorderPoint = (product.reorderPoint ?? 0) > 0;
         return Boolean(product.isTracked || hasInventory || hasReorderPoint);
       }),
     [products]
@@ -629,3 +629,4 @@ function App() {
 }
 
 export default App;
+

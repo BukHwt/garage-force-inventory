@@ -14,6 +14,12 @@ The current Prisma schema (`server/prisma/schema.prisma`) captures the core enti
 
 The seed script provisions Warehouse, Trailer, and Personal locations plus a representative catalog of coatings, kits, repair products, flakes, tools, and disposables.
 
+### Current tracking semantics
+
+- `Product.isTracked` controls explicit inclusion in tracked inventory workflows.
+- A reorder point above `0` implicitly forces a product to be tracked.
+- Reorder point `0`/`null` does not force tracking.
+
 ## 2. Next iteration ideas
 
 | Area                | Proposed additions                                                                                                   | Rationale |
