@@ -59,7 +59,7 @@ export function ProductCreateForm({
         sku: formData.sku.trim() || '',
         color: formData.color.trim() || '',
         unitSize: formData.unitSize.trim() || '',
-        reorderPoint: formData.reorderPoint,
+        reorderPoint: formData.reorderPoint === null ? null : formData.reorderPoint,
         supplierType: formData.supplierType,
         categoryId: formData.categoryId || '',
       });
@@ -215,11 +215,11 @@ export function ProductCreateForm({
           </label>
           <input
             type="number"
-            value={formData.reorderPoint || ''}
+            value={formData.reorderPoint ?? ''}
             onChange={(e) =>
               handleChange(
                 'reorderPoint',
-                e.target.value ? parseInt(e.target.value) : null
+                e.target.value === '' ? null : parseInt(e.target.value, 10)
               )
             }
             disabled={isSubmitting}

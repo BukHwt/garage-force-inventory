@@ -47,6 +47,7 @@ model Product {
   parentProductId    String? // For variants: links to parent product
   parentProduct      Product?               @relation("ProductVariants", fields: [parentProductId], references: [id], onDelete: Cascade)
   variants           Product[]              @relation("ProductVariants")
+  isTracked          Boolean                @default(false)
   // Reorder management fields
   reorderPoint       Int? // Trigger reorder alert when total qty falls below this
   maxStockLevel      Int? // Optional maximum to prevent over-ordering
