@@ -26,6 +26,7 @@ export interface CreateProductRequest {
   supplierType?: 'GARAGE_FORCE_REQUIRED' | 'GARAGE_FORCE_OPTIONAL' | 'OPEN_SOURCE';
   consumableType?: 'REUSABLE' | 'SINGLE_USE';
   categoryId?: string;
+  isTracked?: boolean;
 }
 
 export async function createProduct(
@@ -47,6 +48,7 @@ export interface UpdateProductRequest {
   supplierType?: 'GARAGE_FORCE_REQUIRED' | 'GARAGE_FORCE_OPTIONAL' | 'OPEN_SOURCE';
   consumableType?: 'REUSABLE' | 'SINGLE_USE';
   categoryId?: string;
+  isTracked?: boolean;
 }
 
 export async function updateProduct(
@@ -55,3 +57,4 @@ export async function updateProduct(
 ): Promise<Product> {
   return apiPut<Product>(`/api/products/${productId}`, updates);
 }
+

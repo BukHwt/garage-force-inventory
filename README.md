@@ -89,6 +89,18 @@ The app will be available at:
 - Migrations: `npm run db:init:tenants` (runs `prisma migrate deploy` for each configured schema). Add `-- --with-seed` if you want to seed each schema; skip seeding to preserve existing data.
 - Routing: the backend picks the schema per request via header `x-tenant: adam` (defaults to `main`). Use the same backend URL for all tenants.
 
+## Product Tracking Rules
+
+- Products can be organized in collapsible category groups on both Dashboard and Products tabs (mobile-first scrolling behavior).
+- Tracking is edited in the Product Edit modal.
+- Untracking is blocked when:
+  - inventory quantity exists for that product, or
+  - reorder point is above `0`.
+- Reorder behavior:
+  - setting reorder point to a value above `0` automatically sets `isTracked = true`,
+  - reorder point `0` (or cleared/null) does not force tracking.
+- The same API rules apply per tenant schema (`main`, `adam`) since both use the same backend route logic.
+
 ## Available Scripts
 
 ### Root directory
