@@ -24,6 +24,7 @@ export interface Product {
   color?: string;
   unitSize?: string;
   reorderPoint?: number | null;
+  isTracked?: boolean;
   supplierType: 'GARAGE_FORCE_REQUIRED' | 'GARAGE_FORCE_OPTIONAL' | 'OPEN_SOURCE';
   consumableType?: 'REUSABLE' | 'SINGLE_USE';
   category?: Category;

@@ -1,182 +1,6 @@
 {
   "mapped": [
     {
-      "mainName": "1/4\" Gravel Blend",
-      "canonicalSku": "35060B",
-      "canonicalName": "1/4\" Gravel Blend",
-      "unitSize": "40 lb box",
-      "category": "HYBRID Series",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Lavina Quick Change PCD",
-      "canonicalSku": "X-PCD",
-      "canonicalName": "Lavina Quick Change PCD",
-      "unitSize": "Set of 9",
-      "category": "Lavina",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Abrasion Resistance Additive",
-      "canonicalSku": "GF-ABRRESADD",
-      "canonicalName": "Abrasion Resistance Additive",
-      "unitSize": "Pouch",
-      "category": "Cyclo-1 (Single Component)",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/4\" Notched Squeegee (Rubber Blade Only)",
-      "canonicalSku": "45415",
-      "canonicalName": "1/4\" Notched Squeegee (Rubber Blade Only)",
-      "unitSize": "Each",
-      "category": "Squeegees and Scrapers",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/8\" Notched Squeegee (Rubber Blade Only)",
-      "canonicalSku": "45420",
-      "canonicalName": "1/8\" Notched Squeegee (Rubber Blade Only)",
-      "unitSize": "Each",
-      "category": "Squeegees and Scrapers",
-      "confidence": "high"
-    },
-    {
-      "mainName": "18\" Paint Tray - Heavy Duty",
-      "canonicalSku": "45265",
-      "canonicalName": "18\" Paint Tray - Heavy Duty",
-      "unitSize": "Tray",
-      "category": "Brushes and Rollers",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Universal Color Tint - Black",
-      "canonicalSku": "15105",
-      "canonicalName": "Universal Color Tint - Black",
-      "unitSize": "1 Quart",
-      "category": "Liquid Color Tints (Universal Color Tints) - Quarts",
-      "confidence": "high"
-    },
-    {
-      "mainName": "16\" Sanding Pad - 80 Grit",
-      "canonicalSku": "36701",
-      "canonicalName": "16\" Sanding Pad - 80 Grit",
-      "unitSize": "Pad",
-      "category": "Sanding and Scuffing",
-      "confidence": "high"
-    },
-    {
-      "mainName": "24\" Gray Rubber Squeegee Replacement Blade",
-      "canonicalSku": "45440",
-      "canonicalName": "24\" Gray Rubber Squeegee Replacement Blade",
-      "unitSize": "Each",
-      "category": "Squeegees and Scrapers",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Universal Color Tint - Bulk - Gray",
-      "canonicalSku": "15122",
-      "canonicalName": "Universal Color Tint - Bulk - Gray",
-      "unitSize": "1 Gallon",
-      "category": "Liquid Color Tints (Universal Color Tints) -Gallons",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - Tan - B Side - 5 Gallon",
-      "canonicalSku": "GF-CYCLO-BASE-BTX5",
-      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - Tan - B Side - 5 Gallon",
-      "unitSize": "5 Gallon",
-      "category": "CycloSpartic Base Coat",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Cyclo-1 Single Component",
-      "canonicalSku": "GF-CYCLO-1",
-      "canonicalName": "Cyclo-1 Single Component",
-      "unitSize": "2 Gallon Kit",
-      "category": "Cyclo-1 (Single Component)",
-      "confidence": "high"
-    },
-    {
-      "mainName": "24\" Gray Rubber Squeegee Bracket",
-      "canonicalSku": "S-00-BBRA00",
-      "canonicalName": "24\" Gray Rubber Squeegee Bracket",
-      "unitSize": "Each",
-      "category": "Squeegees and Scrapers",
-      "confidence": "high"
-    },
-    {
-      "mainName": "GF Grip Large",
-      "canonicalSku": "GFG02",
-      "canonicalName": "GF Grip Large",
-      "unitSize": "15 lb Bucket (Openable)",
-      "category": "Anti-Slip Aggregate",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Cyclospartic Top Coat (ORIGINAL SLOW) A Side - 5 Gallon",
-      "canonicalSku": "GF-CYCLO-TOP-A5",
-      "canonicalName": "Cyclospartic Top Coat (ORIGINAL SLOW) A Side - 5 Gallon",
-      "unitSize": "5 Gallon",
-      "category": "CycloSpartic Top Coat",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - B - Clear - 2 Gallon",
-      "canonicalSku": "GF-CYCLO-BASE-BCX2",
-      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - B - Clear - 2 Gallon",
-      "unitSize": "2 Gallon",
-      "category": "CycloSpartic Base Coat",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Lavina Quick Change Single Segment -Medium 14 Grit",
-      "canonicalSku": "X1S-MC-0014",
-      "canonicalName": "Lavina Quick Change Single Segment -Medium 14 Grit",
-      "unitSize": "Set of 9",
-      "category": "Lavina",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Calcium Chloride Moisture Test",
-      "canonicalSku": "41005",
-      "canonicalName": "Calcium Chloride Moisture Test",
-      "unitSize": "Kit",
-      "category": "Testing Supplies",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Rags - 10 Lb. Box",
-      "canonicalSku": "45915",
-      "canonicalName": "Rags - 10 Lb. Box",
-      "unitSize": "10 lb",
-      "category": "Safety and Protection",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - Grey - B Side - 2 Gallon",
-      "canonicalSku": "GF-CYCLO-BASE-BGX2",
-      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - Grey - B Side - 2 Gallon",
-      "unitSize": "2 Gallon",
-      "category": "CycloSpartic Base Coat",
-      "confidence": "high"
-    },
-    {
-      "mainName": "480 Aggregate Silica Sand",
-      "canonicalSku": "314759",
-      "canonicalName": "480 Aggregate Silica Sand",
-      "unitSize": "50 lb bag",
-      "category": "Anti-Slip Aggregate",
-      "confidence": "high"
-    },
-    {
-      "mainName": "12 Page Catalog",
-      "canonicalSku": "GARAFL-00",
-      "canonicalName": "12 Page Catalog",
-      "unitSize": "Each",
-      "category": "Marketing Materials",
-      "confidence": "high"
-    },
-    {
       "mainName": "Anchor Coat CycloSpartic Base Coat - Clear - B Side",
       "canonicalSku": "GF00203B",
       "canonicalName": "Anchor Coat CycloSpartic Base Coat - Clear - B Side",
@@ -233,147 +57,67 @@
       "confidence": "high"
     },
     {
-      "mainName": "Cyclospartic Top Coat (SUPER SLOW) B Side - 2 Gallon",
-      "canonicalSku": "GF-CYCLO-TOP-SS-B2",
-      "canonicalName": "Cyclospartic Top Coat (SUPER SLOW) B Side - 2 Gallon",
-      "unitSize": "2 Gallon",
-      "category": "CycloSpartic Top Coat",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Cyclospartic Top Coat (SUPER SLOW) B Side - 5 Gallon",
-      "canonicalSku": "GF-CYCLO-TOP-SS-B5",
-      "canonicalName": "Cyclospartic Top Coat (SUPER SLOW) B Side - 5 Gallon",
-      "unitSize": "5 Gallon",
-      "category": "CycloSpartic Top Coat",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Cyclospartic Crack Repair (4 Gallon Kit)",
-      "canonicalSku": "GF-CYCLO-CR",
-      "canonicalName": "Cyclospartic Crack Repair (4 Gallon Kit)",
-      "unitSize": "4 Gallon",
-      "category": "CycloSpartic Crack Repair",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Level Coat: HIGH FLOW Clear",
-      "canonicalSku": "GFLC0002",
-      "canonicalName": "Level Coat: HIGH FLOW Clear",
-      "unitSize": "3 Gallon Kit",
-      "category": "Self Leveling Epoxy",
-      "confidence": "high"
-    },
-    {
-      "mainName": "DRY COAT PRO - 3 Gallon Kit (2A:1B)",
-      "canonicalSku": "GFDRYPRO3G",
-      "canonicalName": "DRY COAT PRO - 3 Gallon Kit (2A:1B)",
-      "unitSize": "3 Gallon",
-      "category": "Moisture Mitigation Systems",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Ultra-Hydro Stop H2o Primer Kit (1A:2B) (Custom Order - Longer Ship Times)",
-      "canonicalSku": "10302",
-      "canonicalName": "Ultra-Hydro Stop H2o Primer Kit (1A:2B) (Custom Order - Longer Ship Times)",
-      "unitSize": "Kit",
-      "category": "Moisture Mitigation Systems",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Lavina Quick Change Single Segment -Soft 14 Grit",
-      "canonicalSku": "X1S-SC-0014",
-      "canonicalName": "Lavina Quick Change Single Segment -Soft 14 Grit",
-      "unitSize": "Set of 9",
-      "category": "Lavina",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - Tan - B Side - 2 Gallon",
-      "canonicalSku": "GF-CYCLO-BASE-BTX2",
-      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - Tan - B Side - 2 Gallon",
-      "unitSize": "2 Gallon",
-      "category": "CycloSpartic Base Coat",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Anchor Coat CycloSpartic Base Coat - A Side - 1 Gallon",
-      "canonicalSku": "GF-CYCLO-BASE-A1",
-      "canonicalName": "Anchor Coat CycloSpartic Base Coat - A Side - 1 Gallon",
-      "unitSize": "1 Gallon",
-      "category": "CycloSpartic Base Coat",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/4\" Pumice Stone Blend",
-      "canonicalSku": "35100",
-      "canonicalName": "1/4\" Pumice Stone Blend",
-      "unitSize": "40 lb box",
-      "category": "1/4\" Stone Series",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Shot - S390 - 50 Lbs of Steel Shot",
-      "canonicalSku": "40505",
-      "canonicalName": "Shot - S390 - 50 Lbs of Steel Shot",
-      "unitSize": "50 lb",
-      "category": "Shot Blast - Other Items",
-      "confidence": "high"
-    },
-    {
-      "mainName": "GF Patch - Repair Paste",
-      "canonicalSku": "GF-PATCH",
-      "canonicalName": "GF Patch - Repair Paste",
-      "unitSize": "64 oz Box (Openable)",
-      "category": "Repair / Remedy / Cleaning Products",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Fortification Formula - Crack/Spall Repair (1a:1b)(Gray) (Custom Order - Longer Ship Times)",
-      "canonicalSku": "390097",
-      "canonicalName": "Fortification Formula - Crack/Spall Repair (1a:1b)(Gray) (Custom Order - Longer Ship Times)",
-      "unitSize": "Kit",
-      "category": "Repair / Remedy / Cleaning Products",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Dual Cartridge Caulk Gun (22 Oz.)",
-      "canonicalSku": "25305",
-      "canonicalName": "Dual Cartridge Caulk Gun (22 Oz.)",
-      "unitSize": "22 oz",
-      "category": "Repair / Remedy / Cleaning Products",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Dual Cartridge Caulk Gun Tip",
-      "canonicalSku": "25310",
-      "canonicalName": "Dual Cartridge Caulk Gun Tip",
+      "mainName": "Stone Series Display Board",
+      "canonicalSku": "GFA-StnDB",
+      "canonicalName": "Stone Series Display Board",
       "unitSize": "Each",
-      "category": "Repair / Remedy / Cleaning Products",
+      "category": "Finished Sample Sets",
       "confidence": "high"
     },
     {
-      "mainName": "Universal Color Tint - Antonio Silver",
-      "canonicalSku": "15254",
-      "canonicalName": "Universal Color Tint - Antonio Silver",
-      "unitSize": "1 Quart",
-      "category": "Liquid Color Tints (Universal Color Tints) - Quarts",
+      "mainName": "STONEBRIDGE SERIES Display Board",
+      "canonicalSku": "GFA-STBDIS",
+      "canonicalName": "STONEBRIDGE SERIES Display Board",
+      "unitSize": "Each",
+      "category": "Finished Sample Sets",
       "confidence": "high"
     },
     {
-      "mainName": "Universal Color Tint - Best Bronze",
-      "canonicalSku": "15206",
-      "canonicalName": "Universal Color Tint - Best Bronze",
-      "unitSize": "1 Quart",
-      "category": "Liquid Color Tints (Universal Color Tints) - Quarts",
+      "mainName": "CycloSpartic Full Chip System 4-Page Brochure",
+      "canonicalSku": "GFA-CCFCcat4",
+      "canonicalName": "CycloSpartic Full Chip System 4-Page Brochure",
+      "unitSize": "Case",
+      "category": "Marketing Materials",
       "confidence": "high"
     },
     {
-      "mainName": "Universal Color Tint - Brick Red",
-      "canonicalSku": "15210",
-      "canonicalName": "Universal Color Tint - Brick Red",
-      "unitSize": "1 Quart",
-      "category": "Liquid Color Tints (Universal Color Tints) - Quarts",
+      "mainName": "Replacement Front and Rear Brushes for Blast Pro Bp 9",
+      "canonicalSku": "40510",
+      "canonicalName": "Replacement Front and Rear Brushes for Blast Pro Bp 9",
+      "unitSize": "Each",
+      "category": "Blast Pro",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Copperplate Stonebridge Series Chip Blend",
+      "canonicalSku": "FB-COPPER",
+      "canonicalName": "Copperplate Stonebridge Series Chip Blend",
+      "unitSize": "40 lb box",
+      "category": "STONEBRIDGE SERIES",
+      "confidence": "high"
+    },
+    {
+      "mainName": "24\" Gray Rubber Squeegee W/ 6' Wooden Handle",
+      "canonicalSku": "45455",
+      "canonicalName": "24\" Gray Rubber Squeegee W/ 6' Wooden Handle",
+      "unitSize": "Each",
+      "category": "Squeegees and Scrapers",
+      "confidence": "high"
+    },
+    {
+      "mainName": "CASE -18\" Contractor Grade 3/8\" Nap Roller Covers (12/Case)",
+      "canonicalSku": "CA386038",
+      "canonicalName": "CASE -18\" Contractor Grade 3/8\" Nap Roller Covers (12/Case)",
+      "unitSize": "Case",
+      "category": "Brushes and Rollers",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Crystal Polyaspartic Top Coat: 4 Gallon Kit (2a :2b) - Slow (50-100 F)",
+      "canonicalSku": "10406B",
+      "canonicalName": "Crystal Polyaspartic Top Coat: 4 Gallon Kit (2a :2b) - Slow (50-100 F)",
+      "unitSize": "4 Gallon",
+      "category": "Polyaspartic Top Coat (Special Order - Expect Longer Lead Times)",
       "confidence": "high"
     },
     {
@@ -505,6 +249,22 @@
       "confidence": "high"
     },
     {
+      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - Tan - B Side - 5 Gallon",
+      "canonicalSku": "GF-CYCLO-BASE-BTX5",
+      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - Tan - B Side - 5 Gallon",
+      "unitSize": "5 Gallon",
+      "category": "CycloSpartic Base Coat",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Cyclo-1 Single Component",
+      "canonicalSku": "GF-CYCLO-1",
+      "canonicalName": "Cyclo-1 Single Component",
+      "unitSize": "2 Gallon Kit",
+      "category": "Cyclo-1 (Single Component)",
+      "confidence": "high"
+    },
+    {
       "mainName": "Universal Color Tint - Bulk - Black",
       "canonicalSku": "15205",
       "canonicalName": "Universal Color Tint - Bulk - Black",
@@ -518,22 +278,6 @@
       "canonicalName": "Universal Color Tint - Bulk - Mocha",
       "unitSize": "1 Gallon",
       "category": "Liquid Color Tints (Universal Color Tints) -Gallons",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Universal Color Tint - Bulk - Tan",
-      "canonicalSku": "15123",
-      "canonicalName": "Universal Color Tint - Bulk - Tan",
-      "unitSize": "1 Gallon",
-      "category": "Liquid Color Tints (Universal Color Tints) -Gallons",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Baskerville Stonebridge Series Chip Blend",
-      "canonicalSku": "FB-BASKER",
-      "canonicalName": "Baskerville Stonebridge Series Chip Blend",
-      "unitSize": "40 lb box",
-      "category": "STONEBRIDGE SERIES",
       "confidence": "high"
     },
     {
@@ -577,35 +321,19 @@
       "confidence": "high"
     },
     {
-      "mainName": "1/4\" Northwoods Blend",
-      "canonicalSku": "CHP30NTHW1-4",
-      "canonicalName": "1/4\" Northwoods Blend",
-      "unitSize": "40 lb box",
-      "category": "HYBRID Series",
+      "mainName": "Fortification Formula - Crack/Spall Repair (1a:1b)(Gray) (Custom Order - Longer Ship Times)",
+      "canonicalSku": "390097",
+      "canonicalName": "Fortification Formula - Crack/Spall Repair (1a:1b)(Gray) (Custom Order - Longer Ship Times)",
+      "unitSize": "Kit",
+      "category": "Repair / Remedy / Cleaning Products",
       "confidence": "high"
     },
     {
-      "mainName": "Blue Granite Hybrid Series Chip Blend",
-      "canonicalSku": "FB-4101",
-      "canonicalName": "Blue Granite Hybrid Series Chip Blend",
-      "unitSize": "40 lb box",
-      "category": "HYBRID Series",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Denali Hybrid Series Chip Blend",
-      "canonicalSku": "FB-4214",
-      "canonicalName": "Denali Hybrid Series Chip Blend",
-      "unitSize": "40 lb box",
-      "category": "HYBRID Series",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Limestone Hybrid Series Chip Blend",
-      "canonicalSku": "FB-4111",
-      "canonicalName": "Limestone Hybrid Series Chip Blend",
-      "unitSize": "40 lb box",
-      "category": "HYBRID Series",
+      "mainName": "GF Patch - Repair Paste",
+      "canonicalSku": "GF-PATCH",
+      "canonicalName": "GF Patch - Repair Paste",
+      "unitSize": "64 oz Box (Openable)",
+      "category": "Repair / Remedy / Cleaning Products",
       "confidence": "high"
     },
     {
@@ -625,14 +353,6 @@
       "confidence": "high"
     },
     {
-      "mainName": "1/4\" Autumn Blend",
-      "canonicalSku": "35011",
-      "canonicalName": "1/4\" Autumn Blend",
-      "unitSize": "40 lb box",
-      "category": "HYBRID Series",
-      "confidence": "high"
-    },
-    {
       "mainName": "1/4\" Sagebrush Chip Blend",
       "canonicalSku": "CHP30SAGE1-4",
       "canonicalName": "1/4\" Sagebrush Chip Blend",
@@ -644,14 +364,6 @@
       "mainName": "1/4\" Birch Bark Blend (FB-1005)",
       "canonicalSku": "FB-1005",
       "canonicalName": "1/4\" Birch Bark Blend (FB-1005)",
-      "unitSize": "40 lb box",
-      "category": "HYBRID Series",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/4\" Dolphin Blend",
-      "canonicalSku": "2001B",
-      "canonicalName": "1/4\" Dolphin Blend",
       "unitSize": "40 lb box",
       "category": "HYBRID Series",
       "confidence": "high"
@@ -737,14 +449,6 @@
       "confidence": "high"
     },
     {
-      "mainName": "1/4\" Saddle Tan Blend",
-      "canonicalSku": "35087B",
-      "canonicalName": "1/4\" Saddle Tan Blend",
-      "unitSize": "40 lb box",
-      "category": "HYBRID Series",
-      "confidence": "high"
-    },
-    {
       "mainName": "Port Rush Stonebridge Series Chip Blend",
       "canonicalSku": "GF-PORTRUSH",
       "canonicalName": "Port Rush Stonebridge Series Chip Blend",
@@ -758,14 +462,6 @@
       "canonicalName": "1/4\" Garnet Stone Blend",
       "unitSize": "40 lb box",
       "category": "1/4\" Stone Series",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/4\" Wombat Blend",
-      "canonicalSku": "35032",
-      "canonicalName": "1/4\" Wombat Blend",
-      "unitSize": "40 lb box",
-      "category": "HYBRID Series",
       "confidence": "high"
     },
     {
@@ -809,6 +505,30 @@
       "confidence": "high"
     },
     {
+      "mainName": "Lavina Quick Change Single Segment -Soft 14 Grit",
+      "canonicalSku": "X1S-SC-0014",
+      "canonicalName": "Lavina Quick Change Single Segment -Soft 14 Grit",
+      "unitSize": "Set of 9",
+      "category": "Lavina",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Dual Cartridge Caulk Gun (22 Oz.)",
+      "canonicalSku": "25305",
+      "canonicalName": "Dual Cartridge Caulk Gun (22 Oz.)",
+      "unitSize": "22 oz",
+      "category": "Repair / Remedy / Cleaning Products",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/4\" Dolphin Blend",
+      "canonicalSku": "2001B",
+      "canonicalName": "1/4\" Dolphin Blend",
+      "unitSize": "40 lb box",
+      "category": "HYBRID Series",
+      "confidence": "high"
+    },
+    {
       "mainName": "1/4\" Basalt Stone Blend",
       "canonicalSku": "35102",
       "canonicalName": "1/4\" Basalt Stone Blend",
@@ -833,155 +553,19 @@
       "confidence": "high"
     },
     {
-      "mainName": "Quartz Blend - Caramel",
-      "canonicalSku": "QB-105-40S",
-      "canonicalName": "Quartz Blend - Caramel",
+      "mainName": "Blue Granite Hybrid Series Chip Blend",
+      "canonicalSku": "FB-4101",
+      "canonicalName": "Blue Granite Hybrid Series Chip Blend",
       "unitSize": "40 lb box",
-      "category": "Quartz",
+      "category": "HYBRID Series",
       "confidence": "high"
     },
     {
-      "mainName": "Quartz Blend - Chiffon Rose",
-      "canonicalSku": "QB-106-40S",
-      "canonicalName": "Quartz Blend - Chiffon Rose",
+      "mainName": "1/4\" Northwoods Blend",
+      "canonicalSku": "CHP30NTHW1-4",
+      "canonicalName": "1/4\" Northwoods Blend",
       "unitSize": "40 lb box",
-      "category": "Quartz",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/16\" Saddle Tan Blend",
-      "canonicalSku": "35235",
-      "canonicalName": "1/16\" Saddle Tan Blend",
-      "unitSize": "40 lb box",
-      "category": "1/16\" Chips",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/16\" Shoreline Blend",
-      "canonicalSku": "35240",
-      "canonicalName": "1/16\" Shoreline Blend",
-      "unitSize": "40 lb box",
-      "category": "1/16\" Chips",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Quartz Blend - Black Granite",
-      "canonicalSku": "QB-102-40S",
-      "canonicalName": "Quartz Blend - Black Granite",
-      "unitSize": "40 lb box",
-      "category": "Quartz",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/16\" Stonehenge Blend",
-      "canonicalSku": "35232B",
-      "canonicalName": "1/16\" Stonehenge Blend",
-      "unitSize": "40 lb box",
-      "category": "1/16\" Chips",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/16\" Wombat Blend",
-      "canonicalSku": "35299B",
-      "canonicalName": "1/16\" Wombat Blend",
-      "unitSize": "40 lb box",
-      "category": "1/16\" Chips",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Quartz Blend - Black Ice",
-      "canonicalSku": "QB-115-40S",
-      "canonicalName": "Quartz Blend - Black Ice",
-      "unitSize": "40 lb box",
-      "category": "Quartz",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Quartz Blend - Blue Granite",
-      "canonicalSku": "QB-103-40S",
-      "canonicalName": "Quartz Blend - Blue Granite",
-      "unitSize": "40 lb box",
-      "category": "Quartz",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Quartz Blend - Blue Stone",
-      "canonicalSku": "QB-104-40S",
-      "canonicalName": "Quartz Blend - Blue Stone",
-      "unitSize": "40 lb box",
-      "category": "Quartz",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/8\" Saddle Tan Blend",
-      "canonicalSku": "35199",
-      "canonicalName": "1/8\" Saddle Tan Blend",
-      "unitSize": "40 lb box",
-      "category": "1/8\" Chips",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/16\" Quicksilver Blend",
-      "canonicalSku": "35222",
-      "canonicalName": "1/16\" Quicksilver Blend",
-      "unitSize": "40 lb box",
-      "category": "1/16\" Chips",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/16\" Green Bay Blend",
-      "canonicalSku": "35215",
-      "canonicalName": "1/16\" Green Bay Blend",
-      "unitSize": "40 lb box",
-      "category": "1/16\" Chips",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/16\" Khaki Blend",
-      "canonicalSku": "35225",
-      "canonicalName": "1/16\" Khaki Blend",
-      "unitSize": "40 lb box",
-      "category": "1/16\" Chips",
-      "confidence": "high"
-    },
-    {
-      "mainName": "1/16\" Midnight Blend",
-      "canonicalSku": "35230",
-      "canonicalName": "1/16\" Midnight Blend",
-      "unitSize": "40 lb box",
-      "category": "1/16\" Chips",
-      "confidence": "high"
-    },
-    {
-      "mainName": "P1710 Reef (4oz)",
-      "canonicalSku": "371552",
-      "canonicalName": "P1710 Reef (4oz)",
-      "unitSize": "40 lb box",
-      "category": "Quartz",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Quartz Blend - Sahara",
-      "canonicalSku": "104474-QB014-40S",
-      "canonicalName": "Quartz Blend - Sahara",
-      "unitSize": "40 lb box",
-      "category": "Quartz",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Quartz Blend - Sienna",
-      "canonicalSku": "QB-113-40S",
-      "canonicalName": "Quartz Blend - Sienna",
-      "unitSize": "40 lb box",
-      "category": "Quartz",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Quartz Blend - Southern Moss",
-      "canonicalSku": "QB-114-40S",
-      "canonicalName": "Quartz Blend - Southern Moss",
-      "unitSize": "40 lb box",
-      "category": "Quartz",
+      "category": "HYBRID Series",
       "confidence": "high"
     },
     {
@@ -1169,6 +753,30 @@
       "confidence": "high"
     },
     {
+      "mainName": "Denali Hybrid Series Chip Blend",
+      "canonicalSku": "FB-4214",
+      "canonicalName": "Denali Hybrid Series Chip Blend",
+      "unitSize": "40 lb box",
+      "category": "HYBRID Series",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Limestone Hybrid Series Chip Blend",
+      "canonicalSku": "FB-4111",
+      "canonicalName": "Limestone Hybrid Series Chip Blend",
+      "unitSize": "40 lb box",
+      "category": "HYBRID Series",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/4\" Autumn Blend",
+      "canonicalSku": "35011",
+      "canonicalName": "1/4\" Autumn Blend",
+      "unitSize": "40 lb box",
+      "category": "HYBRID Series",
+      "confidence": "high"
+    },
+    {
       "mainName": "Quartz Blend - Malibu",
       "canonicalSku": "QB-116-40S",
       "canonicalName": "Quartz Blend - Malibu",
@@ -1193,27 +801,11 @@
       "confidence": "high"
     },
     {
-      "mainName": "Crystal Polyaspartic Top Coat: B - Super Slow (100+ F)",
-      "canonicalSku": "10412B",
-      "canonicalName": "Crystal Polyaspartic Top Coat: B - Super Slow (100+ F)",
-      "unitSize": "5 Gallon",
-      "category": "Polyaspartic Top Coat (Special Order - Expect Longer Lead Times)",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Diamond Top Coat 4 Gallon Kit (2A:2B)",
-      "canonicalSku": "10435A",
-      "canonicalName": "Diamond Top Coat 4 Gallon Kit (2A:2B)",
-      "unitSize": "4 Gallon",
-      "category": "Diamond Top Coat (Extended Working Time) (Special Order - Expect Longer Lead Times)",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Diamond Top Coat A Side",
-      "canonicalSku": "10433B",
-      "canonicalName": "Diamond Top Coat A Side",
-      "unitSize": "5 Gallon",
-      "category": "Diamond Top Coat (Extended Working Time) (Special Order - Expect Longer Lead Times)",
+      "mainName": "Quartz Blend - Sahara",
+      "canonicalSku": "104474-QB014-40S",
+      "canonicalName": "Quartz Blend - Sahara",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
       "confidence": "high"
     },
     {
@@ -1409,6 +1001,126 @@
       "confidence": "high"
     },
     {
+      "mainName": "Quartz Blend - Caramel",
+      "canonicalSku": "QB-105-40S",
+      "canonicalName": "Quartz Blend - Caramel",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Quartz Blend - Chiffon Rose",
+      "canonicalSku": "QB-106-40S",
+      "canonicalName": "Quartz Blend - Chiffon Rose",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/16\" Saddle Tan Blend",
+      "canonicalSku": "35235",
+      "canonicalName": "1/16\" Saddle Tan Blend",
+      "unitSize": "40 lb box",
+      "category": "1/16\" Chips",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/16\" Shoreline Blend",
+      "canonicalSku": "35240",
+      "canonicalName": "1/16\" Shoreline Blend",
+      "unitSize": "40 lb box",
+      "category": "1/16\" Chips",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Quartz Blend - Black Granite",
+      "canonicalSku": "QB-102-40S",
+      "canonicalName": "Quartz Blend - Black Granite",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/16\" Stonehenge Blend",
+      "canonicalSku": "35232B",
+      "canonicalName": "1/16\" Stonehenge Blend",
+      "unitSize": "40 lb box",
+      "category": "1/16\" Chips",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/16\" Wombat Blend",
+      "canonicalSku": "35299B",
+      "canonicalName": "1/16\" Wombat Blend",
+      "unitSize": "40 lb box",
+      "category": "1/16\" Chips",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Quartz Blend - Black Ice",
+      "canonicalSku": "QB-115-40S",
+      "canonicalName": "Quartz Blend - Black Ice",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Quartz Blend - Blue Granite",
+      "canonicalSku": "QB-103-40S",
+      "canonicalName": "Quartz Blend - Blue Granite",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Quartz Blend - Blue Stone",
+      "canonicalSku": "QB-104-40S",
+      "canonicalName": "Quartz Blend - Blue Stone",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/8\" Saddle Tan Blend",
+      "canonicalSku": "35199",
+      "canonicalName": "1/8\" Saddle Tan Blend",
+      "unitSize": "40 lb box",
+      "category": "1/8\" Chips",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/16\" Quicksilver Blend",
+      "canonicalSku": "35222",
+      "canonicalName": "1/16\" Quicksilver Blend",
+      "unitSize": "40 lb box",
+      "category": "1/16\" Chips",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/16\" Green Bay Blend",
+      "canonicalSku": "35215",
+      "canonicalName": "1/16\" Green Bay Blend",
+      "unitSize": "40 lb box",
+      "category": "1/16\" Chips",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/16\" Khaki Blend",
+      "canonicalSku": "35225",
+      "canonicalName": "1/16\" Khaki Blend",
+      "unitSize": "40 lb box",
+      "category": "1/16\" Chips",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/16\" Midnight Blend",
+      "canonicalSku": "35230",
+      "canonicalName": "1/16\" Midnight Blend",
+      "unitSize": "40 lb box",
+      "category": "1/16\" Chips",
+      "confidence": "high"
+    },
+    {
       "mainName": "Blast Pro Bp 9-220 V Shot Blaster (9\" Path, 30 Amp)",
       "canonicalSku": "40500",
       "canonicalName": "Blast Pro Bp 9-220 V Shot Blaster (9\" Path, 30 Amp)",
@@ -1449,27 +1161,43 @@
       "confidence": "high"
     },
     {
-      "mainName": "25\" Heavy Duty Floor Sweeping Magnet W/ Release",
-      "canonicalSku": "40520",
-      "canonicalName": "25\" Heavy Duty Floor Sweeping Magnet W/ Release",
-      "unitSize": "Each",
-      "category": "Shot Blast - Other Items",
+      "mainName": "Quartz Blend - Sienna",
+      "canonicalSku": "QB-113-40S",
+      "canonicalName": "Quartz Blend - Sienna",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
       "confidence": "high"
     },
     {
-      "mainName": "L20S7 Electric Grinder 20\"",
-      "canonicalSku": "L20S7",
-      "canonicalName": "L20S7 Electric Grinder 20\"",
-      "unitSize": "Tool",
-      "category": "Lavina",
+      "mainName": "Quartz Blend - Southern Moss",
+      "canonicalSku": "QB-114-40S",
+      "canonicalName": "Quartz Blend - Southern Moss",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
       "confidence": "high"
     },
     {
-      "mainName": "National Helix Grinder Nylon 5\" Clutch",
-      "canonicalSku": "NFE-403978",
-      "canonicalName": "National Helix Grinder Nylon 5\" Clutch",
-      "unitSize": "Tool",
-      "category": "Uncategorized",
+      "mainName": "P1710 Reef (4oz)",
+      "canonicalSku": "371552",
+      "canonicalName": "P1710 Reef (4oz)",
+      "unitSize": "40 lb box",
+      "category": "Quartz",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Diamond Top Coat 4 Gallon Kit (2A:2B)",
+      "canonicalSku": "10435A",
+      "canonicalName": "Diamond Top Coat 4 Gallon Kit (2A:2B)",
+      "unitSize": "4 Gallon",
+      "category": "Diamond Top Coat (Extended Working Time) (Special Order - Expect Longer Lead Times)",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Crystal Polyaspartic Top Coat: B - Super Slow (100+ F)",
+      "canonicalSku": "10412B",
+      "canonicalName": "Crystal Polyaspartic Top Coat: B - Super Slow (100+ F)",
+      "unitSize": "5 Gallon",
+      "category": "Polyaspartic Top Coat (Special Order - Expect Longer Lead Times)",
       "confidence": "high"
     },
     {
@@ -1681,6 +1409,14 @@
       "confidence": "high"
     },
     {
+      "mainName": "Diamond Top Coat A Side",
+      "canonicalSku": "10433B",
+      "canonicalName": "Diamond Top Coat A Side",
+      "unitSize": "5 Gallon",
+      "category": "Diamond Top Coat (Extended Working Time) (Special Order - Expect Longer Lead Times)",
+      "confidence": "high"
+    },
+    {
       "mainName": "Shot Valve Assembly for Blast Pro Bp 9",
       "canonicalSku": "40526",
       "canonicalName": "Shot Valve Assembly for Blast Pro Bp 9",
@@ -1705,27 +1441,19 @@
       "confidence": "high"
     },
     {
-      "mainName": "PH PENCIL FOR CONCRETE",
-      "canonicalSku": "P-12M",
-      "canonicalName": "PH PENCIL FOR CONCRETE",
-      "unitSize": "Each",
-      "category": "Testing Supplies",
+      "mainName": "L20S7 Electric Grinder 20\"",
+      "canonicalSku": "L20S7",
+      "canonicalName": "L20S7 Electric Grinder 20\"",
+      "unitSize": "Tool",
+      "category": "Lavina",
       "confidence": "high"
     },
     {
-      "mainName": "Wagner Concrete Pinless Moisture Meter w/calibration plate",
-      "canonicalSku": "C555",
-      "canonicalName": "Wagner Concrete Pinless Moisture Meter w/calibration plate",
+      "mainName": "25\" Heavy Duty Floor Sweeping Magnet W/ Release",
+      "canonicalSku": "40520",
+      "canonicalName": "25\" Heavy Duty Floor Sweeping Magnet W/ Release",
       "unitSize": "Each",
-      "category": "Testing Supplies",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Hardness Pick Test (Mohs Scale)",
-      "canonicalSku": "41030",
-      "canonicalName": "Hardness Pick Test (Mohs Scale)",
-      "unitSize": "Each",
-      "category": "Testing Supplies",
+      "category": "Shot Blast - Other Items",
       "confidence": "high"
     },
     {
@@ -1733,14 +1461,6 @@
       "canonicalSku": "X1A",
       "canonicalName": "3M Standard Ear Muff",
       "unitSize": "Each",
-      "category": "Safety and Protection",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Knee Pads",
-      "canonicalSku": "KN345",
-      "canonicalName": "Knee Pads",
-      "unitSize": "Pair",
       "category": "Safety and Protection",
       "confidence": "high"
     },
@@ -1953,6 +1673,22 @@
       "confidence": "high"
     },
     {
+      "mainName": "National Helix Grinder Nylon 5\" Clutch",
+      "canonicalSku": "NFE-403978",
+      "canonicalName": "National Helix Grinder Nylon 5\" Clutch",
+      "unitSize": "Tool",
+      "category": "Uncategorized",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Knee Pads",
+      "canonicalSku": "KN345",
+      "canonicalName": "Knee Pads",
+      "unitSize": "Pair",
+      "category": "Safety and Protection",
+      "confidence": "high"
+    },
+    {
       "mainName": "Infrared Thermometer Gun",
       "canonicalSku": "TP300",
       "canonicalName": "Infrared Thermometer Gun",
@@ -1961,35 +1697,19 @@
       "confidence": "high"
     },
     {
-      "mainName": "Laser Measure",
-      "canonicalSku": "GLM165-40",
-      "canonicalName": "Laser Measure",
+      "mainName": "Wagner Concrete Pinless Moisture Meter w/calibration plate",
+      "canonicalSku": "C555",
+      "canonicalName": "Wagner Concrete Pinless Moisture Meter w/calibration plate",
       "unitSize": "Each",
       "category": "Testing Supplies",
       "confidence": "high"
     },
     {
-      "mainName": "Garage Force Yeti Cup (Black), 6 Pack",
-      "canonicalSku": "GFA-13BK6",
-      "canonicalName": "Garage Force Yeti Cup (Black), 6 Pack",
+      "mainName": "PH PENCIL FOR CONCRETE",
+      "canonicalSku": "P-12M",
+      "canonicalName": "PH PENCIL FOR CONCRETE",
       "unitSize": "Each",
-      "category": "Marketing Materials",
-      "confidence": "high"
-    },
-    {
-      "mainName": "GF Hybrid & Stonebridge Fan Deck",
-      "canonicalSku": "GF-STBHBDFNDK",
-      "canonicalName": "GF Hybrid & Stonebridge Fan Deck",
-      "unitSize": "Each",
-      "category": "Marketing Materials",
-      "confidence": "high"
-    },
-    {
-      "mainName": "GF Velcro-Back Patch 3\"x2.5\"",
-      "canonicalSku": "GFVP-325",
-      "canonicalName": "GF Velcro-Back Patch 3\"x2.5\"",
-      "unitSize": "Each",
-      "category": "Marketing Materials",
+      "category": "Testing Supplies",
       "confidence": "high"
     },
     {
@@ -2089,46 +1809,6 @@
       "confidence": "high"
     },
     {
-      "mainName": "Garage Force VeriFloor T-Shirt Black",
-      "canonicalSku": "GFA-010",
-      "canonicalName": "Garage Force VeriFloor T-Shirt Black",
-      "unitSize": "Each",
-      "category": "Apparel",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Stocking Hat",
-      "canonicalSku": "GFA-31",
-      "canonicalName": "Stocking Hat",
-      "unitSize": "Hat",
-      "category": "Apparel",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Garage Force Sweatshirt - Gray",
-      "canonicalSku": "GFA-01",
-      "canonicalName": "Garage Force Sweatshirt - Gray",
-      "unitSize": "Each",
-      "category": "Apparel",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Garage Force Polo - Black",
-      "canonicalSku": "GFA-27",
-      "canonicalName": "Garage Force Polo - Black",
-      "unitSize": "Each",
-      "category": "Apparel",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Garage Force Polo - Green",
-      "canonicalSku": "GFA-02",
-      "canonicalName": "Garage Force Polo - Green",
-      "unitSize": "Each",
-      "category": "Apparel",
-      "confidence": "high"
-    },
-    {
       "mainName": "Garage Force T-Shirt Charcoal Gray - Cotton",
       "canonicalSku": "GFA-04",
       "canonicalName": "Garage Force T-Shirt Charcoal Gray - Cotton",
@@ -2225,6 +1905,350 @@
       "confidence": "high"
     },
     {
+      "mainName": "GF Hybrid & Stonebridge Fan Deck",
+      "canonicalSku": "GF-STBHBDFNDK",
+      "canonicalName": "GF Hybrid & Stonebridge Fan Deck",
+      "unitSize": "Each",
+      "category": "Marketing Materials",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Garage Force Yeti Cup (Black), 6 Pack",
+      "canonicalSku": "GFA-13BK6",
+      "canonicalName": "Garage Force Yeti Cup (Black), 6 Pack",
+      "unitSize": "Each",
+      "category": "Marketing Materials",
+      "confidence": "high"
+    },
+    {
+      "mainName": "HYBRID Series Display Board",
+      "canonicalSku": "GFA-HYBDIS",
+      "canonicalName": "HYBRID Series Display Board",
+      "unitSize": "Each",
+      "category": "Finished Sample Sets",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Metallic Sample Display Board",
+      "canonicalSku": "GFA-MTLC",
+      "canonicalName": "Metallic Sample Display Board",
+      "unitSize": "Each",
+      "category": "Finished Sample Sets",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Hardness Pick Test (Mohs Scale)",
+      "canonicalSku": "41030",
+      "canonicalName": "Hardness Pick Test (Mohs Scale)",
+      "unitSize": "Each",
+      "category": "Testing Supplies",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Laser Measure",
+      "canonicalSku": "GLM165-40",
+      "canonicalName": "Laser Measure",
+      "unitSize": "Each",
+      "category": "Testing Supplies",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Garage Force T-Shirt (Basic) - Green",
+      "canonicalSku": "GFA-03",
+      "canonicalName": "Garage Force T-Shirt (Basic) - Green",
+      "unitSize": "Each",
+      "category": "Apparel",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Crystal Polyaspartic Top Coat: 4 Gallon Kit (2a :2b) - Super Slow (100 + F)",
+      "canonicalSku": "10407B",
+      "canonicalName": "Crystal Polyaspartic Top Coat: 4 Gallon Kit (2a :2b) - Super Slow (100 + F)",
+      "unitSize": "4 Gallon",
+      "category": "Polyaspartic Top Coat (Special Order - Expect Longer Lead Times)",
+      "confidence": "high"
+    },
+    {
+      "mainName": "GF Grip Small",
+      "canonicalSku": "GFG01",
+      "canonicalName": "GF Grip Small",
+      "unitSize": "15 lb Bucket (Openable)",
+      "category": "Anti-Slip Aggregate",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Universal Color Tint - Bulk - White",
+      "canonicalSku": "151GFW-G",
+      "canonicalName": "Universal Color Tint - Bulk - White",
+      "unitSize": "1 Gallon",
+      "category": "Liquid Color Tints (Universal Color Tints) -Gallons",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Universal Sanding Pad Driver for Helix or Buffing Machine",
+      "canonicalSku": "92000",
+      "canonicalName": "Universal Sanding Pad Driver for Helix or Buffing Machine",
+      "unitSize": "Pad",
+      "category": "Sanding and Scuffing",
+      "confidence": "high"
+    },
+    {
+      "mainName": "12 Page Catalog",
+      "canonicalSku": "GARAFL-00",
+      "canonicalName": "12 Page Catalog",
+      "unitSize": "Each",
+      "category": "Marketing Materials",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/4\" Saddle Tan Blend",
+      "canonicalSku": "35087B",
+      "canonicalName": "1/4\" Saddle Tan Blend",
+      "unitSize": "40 lb box",
+      "category": "HYBRID Series",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/4\" Wombat Blend",
+      "canonicalSku": "35032",
+      "canonicalName": "1/4\" Wombat Blend",
+      "unitSize": "40 lb box",
+      "category": "HYBRID Series",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - Grey - B Side - 5 Gallon",
+      "canonicalSku": "GF-CYCLO-BASE-BGX5",
+      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - Grey - B Side - 5 Gallon",
+      "unitSize": "5 Gallon",
+      "category": "CycloSpartic Base Coat",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/4\" Pumice Stone Blend",
+      "canonicalSku": "35100",
+      "canonicalName": "1/4\" Pumice Stone Blend",
+      "unitSize": "40 lb box",
+      "category": "1/4\" Stone Series",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Cyclospartic Top Coat (SUPER SLOW) B Side - 2 Gallon",
+      "canonicalSku": "GF-CYCLO-TOP-SS-B2",
+      "canonicalName": "Cyclospartic Top Coat (SUPER SLOW) B Side - 2 Gallon",
+      "unitSize": "2 Gallon",
+      "category": "CycloSpartic Top Coat",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Cyclospartic Top Coat (SUPER SLOW) B Side - 5 Gallon",
+      "canonicalSku": "GF-CYCLO-TOP-SS-B5",
+      "canonicalName": "Cyclospartic Top Coat (SUPER SLOW) B Side - 5 Gallon",
+      "unitSize": "5 Gallon",
+      "category": "CycloSpartic Top Coat",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Cyclospartic Crack Repair (4 Gallon Kit)",
+      "canonicalSku": "GF-CYCLO-CR",
+      "canonicalName": "Cyclospartic Crack Repair (4 Gallon Kit)",
+      "unitSize": "4 Gallon",
+      "category": "CycloSpartic Crack Repair",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Level Coat: HIGH FLOW Clear",
+      "canonicalSku": "GFLC0002",
+      "canonicalName": "Level Coat: HIGH FLOW Clear",
+      "unitSize": "3 Gallon Kit",
+      "category": "Self Leveling Epoxy",
+      "confidence": "high"
+    },
+    {
+      "mainName": "DRY COAT PRO - 3 Gallon Kit (2A:1B)",
+      "canonicalSku": "GFDRYPRO3G",
+      "canonicalName": "DRY COAT PRO - 3 Gallon Kit (2A:1B)",
+      "unitSize": "3 Gallon",
+      "category": "Moisture Mitigation Systems",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Ultra-Hydro Stop H2o Primer Kit (1A:2B) (Custom Order - Longer Ship Times)",
+      "canonicalSku": "10302",
+      "canonicalName": "Ultra-Hydro Stop H2o Primer Kit (1A:2B) (Custom Order - Longer Ship Times)",
+      "unitSize": "Kit",
+      "category": "Moisture Mitigation Systems",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - Tan - B Side - 2 Gallon",
+      "canonicalSku": "GF-CYCLO-BASE-BTX2",
+      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - Tan - B Side - 2 Gallon",
+      "unitSize": "2 Gallon",
+      "category": "CycloSpartic Base Coat",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Anchor Coat CycloSpartic Base Coat - A Side - 1 Gallon",
+      "canonicalSku": "GF-CYCLO-BASE-A1",
+      "canonicalName": "Anchor Coat CycloSpartic Base Coat - A Side - 1 Gallon",
+      "unitSize": "1 Gallon",
+      "category": "CycloSpartic Base Coat",
+      "confidence": "high"
+    },
+    {
+      "mainName": "24\" Gray Rubber Squeegee Bracket",
+      "canonicalSku": "S-00-BBRA00",
+      "canonicalName": "24\" Gray Rubber Squeegee Bracket",
+      "unitSize": "Each",
+      "category": "Squeegees and Scrapers",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Dual Cartridge Caulk Gun Tip",
+      "canonicalSku": "25310",
+      "canonicalName": "Dual Cartridge Caulk Gun Tip",
+      "unitSize": "Each",
+      "category": "Repair / Remedy / Cleaning Products",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Universal Color Tint - Antonio Silver",
+      "canonicalSku": "15254",
+      "canonicalName": "Universal Color Tint - Antonio Silver",
+      "unitSize": "1 Quart",
+      "category": "Liquid Color Tints (Universal Color Tints) - Quarts",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Universal Color Tint - Best Bronze",
+      "canonicalSku": "15206",
+      "canonicalName": "Universal Color Tint - Best Bronze",
+      "unitSize": "1 Quart",
+      "category": "Liquid Color Tints (Universal Color Tints) - Quarts",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Universal Color Tint - Brick Red",
+      "canonicalSku": "15210",
+      "canonicalName": "Universal Color Tint - Brick Red",
+      "unitSize": "1 Quart",
+      "category": "Liquid Color Tints (Universal Color Tints) - Quarts",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Shot - S390 - 50 Lbs of Steel Shot",
+      "canonicalSku": "40505",
+      "canonicalName": "Shot - S390 - 50 Lbs of Steel Shot",
+      "unitSize": "50 lb",
+      "category": "Shot Blast - Other Items",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/4\" Gravel Blend",
+      "canonicalSku": "35060B",
+      "canonicalName": "1/4\" Gravel Blend",
+      "unitSize": "40 lb box",
+      "category": "HYBRID Series",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Lavina Quick Change PCD",
+      "canonicalSku": "X-PCD",
+      "canonicalName": "Lavina Quick Change PCD",
+      "unitSize": "Set of 9",
+      "category": "Lavina",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Abrasion Resistance Additive",
+      "canonicalSku": "GF-ABRRESADD",
+      "canonicalName": "Abrasion Resistance Additive",
+      "unitSize": "Pouch",
+      "category": "Cyclo-1 (Single Component)",
+      "confidence": "high"
+    },
+    {
+      "mainName": "1/4\" Notched Squeegee (Rubber Blade Only)",
+      "canonicalSku": "45415",
+      "canonicalName": "1/4\" Notched Squeegee (Rubber Blade Only)",
+      "unitSize": "Each",
+      "category": "Squeegees and Scrapers",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - B - Clear - 2 Gallon",
+      "canonicalSku": "GF-CYCLO-BASE-BCX2",
+      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - B - Clear - 2 Gallon",
+      "unitSize": "2 Gallon",
+      "category": "CycloSpartic Base Coat",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - Grey - B Side - 2 Gallon",
+      "canonicalSku": "GF-CYCLO-BASE-BGX2",
+      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - Grey - B Side - 2 Gallon",
+      "unitSize": "2 Gallon",
+      "category": "CycloSpartic Base Coat",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Cyclospartic Top Coat (ORIGINAL SLOW) A Side - 5 Gallon",
+      "canonicalSku": "GF-CYCLO-TOP-A5",
+      "canonicalName": "Cyclospartic Top Coat (ORIGINAL SLOW) A Side - 5 Gallon",
+      "unitSize": "5 Gallon",
+      "category": "CycloSpartic Top Coat",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Lavina Quick Change Single Segment -Medium 14 Grit",
+      "canonicalSku": "X1S-MC-0014",
+      "canonicalName": "Lavina Quick Change Single Segment -Medium 14 Grit",
+      "unitSize": "Set of 9",
+      "category": "Lavina",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Calcium Chloride Moisture Test",
+      "canonicalSku": "41005",
+      "canonicalName": "Calcium Chloride Moisture Test",
+      "unitSize": "Kit",
+      "category": "Testing Supplies",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Rags - 10 Lb. Box",
+      "canonicalSku": "45915",
+      "canonicalName": "Rags - 10 Lb. Box",
+      "unitSize": "10 lb",
+      "category": "Safety and Protection",
+      "confidence": "high"
+    },
+    {
+      "mainName": "480 Aggregate Silica Sand",
+      "canonicalSku": "314759",
+      "canonicalName": "480 Aggregate Silica Sand",
+      "unitSize": "50 lb bag",
+      "category": "Anti-Slip Aggregate",
+      "confidence": "high"
+    },
+    {
+      "mainName": "GF Grip Large",
+      "canonicalSku": "GFG02",
+      "canonicalName": "GF Grip Large",
+      "unitSize": "15 lb Bucket (Openable)",
+      "category": "Anti-Slip Aggregate",
+      "confidence": "high"
+    },
+    {
+      "mainName": "GF Velcro-Back Patch 3\"x2.5\"",
+      "canonicalSku": "GFVP-325",
+      "canonicalName": "GF Velcro-Back Patch 3\"x2.5\"",
+      "unitSize": "Each",
+      "category": "Marketing Materials",
+      "confidence": "high"
+    },
+    {
       "mainName": "Garage Force Yeti Cup (Black)",
       "canonicalSku": "GFA-13BK1",
       "canonicalName": "Garage Force Yeti Cup (Black)",
@@ -2233,59 +2257,11 @@
       "confidence": "high"
     },
     {
-      "mainName": "Anchor Coat CycloSpartic Base Coat - A Side - 5 Gallon",
-      "canonicalSku": "GF-CYCLO-BASE-A5",
-      "canonicalName": "Anchor Coat CycloSpartic Base Coat - A Side - 5 Gallon",
-      "unitSize": "5 Gallon",
-      "category": "CycloSpartic Base Coat",
-      "confidence": "override"
-    },
-    {
-      "mainName": "Stone Series Display Board",
-      "canonicalSku": "GFA-StnDB",
-      "canonicalName": "Stone Series Display Board",
-      "unitSize": "Each",
-      "category": "Finished Sample Sets",
-      "confidence": "high"
-    },
-    {
-      "mainName": "STONEBRIDGE SERIES Display Board",
-      "canonicalSku": "GFA-STBDIS",
-      "canonicalName": "STONEBRIDGE SERIES Display Board",
-      "unitSize": "Each",
-      "category": "Finished Sample Sets",
-      "confidence": "high"
-    },
-    {
-      "mainName": "CycloSpartic Full Chip System 4-Page Brochure",
-      "canonicalSku": "GFA-CCFCcat4",
-      "canonicalName": "CycloSpartic Full Chip System 4-Page Brochure",
-      "unitSize": "Case",
-      "category": "Marketing Materials",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Copperplate Stonebridge Series Chip Blend",
-      "canonicalSku": "FB-COPPER",
-      "canonicalName": "Copperplate Stonebridge Series Chip Blend",
-      "unitSize": "40 lb box",
-      "category": "STONEBRIDGE SERIES",
-      "confidence": "high"
-    },
-    {
-      "mainName": "24\" Gray Rubber Squeegee W/ 6' Wooden Handle",
-      "canonicalSku": "45455",
-      "canonicalName": "24\" Gray Rubber Squeegee W/ 6' Wooden Handle",
+      "mainName": "1/8\" Notched Squeegee (Rubber Blade Only)",
+      "canonicalSku": "45420",
+      "canonicalName": "1/8\" Notched Squeegee (Rubber Blade Only)",
       "unitSize": "Each",
       "category": "Squeegees and Scrapers",
-      "confidence": "high"
-    },
-    {
-      "mainName": "Crystal Polyaspartic Top Coat: 4 Gallon Kit (2a :2b) - Slow (50-100 F)",
-      "canonicalSku": "10406B",
-      "canonicalName": "Crystal Polyaspartic Top Coat: 4 Gallon Kit (2a :2b) - Slow (50-100 F)",
-      "unitSize": "4 Gallon",
-      "category": "Polyaspartic Top Coat (Special Order - Expect Longer Lead Times)",
       "confidence": "high"
     },
     {
@@ -2313,75 +2289,107 @@
       "confidence": "high"
     },
     {
-      "mainName": "Universal Color Tint - Bulk - White",
-      "canonicalSku": "151GFW-G",
-      "canonicalName": "Universal Color Tint - Bulk - White",
-      "unitSize": "1 Gallon",
-      "category": "Liquid Color Tints (Universal Color Tints) -Gallons",
+      "mainName": "1/4\" Chip Display Board",
+      "canonicalSku": "GFA-21",
+      "canonicalName": "1/4\" Chip Display Board",
+      "unitSize": "Each",
+      "category": "Finished Sample Sets",
       "confidence": "high"
     },
     {
-      "mainName": "Universal Sanding Pad Driver for Helix or Buffing Machine",
-      "canonicalSku": "92000",
-      "canonicalName": "Universal Sanding Pad Driver for Helix or Buffing Machine",
+      "mainName": "18\" Paint Tray - Heavy Duty",
+      "canonicalSku": "45265",
+      "canonicalName": "18\" Paint Tray - Heavy Duty",
+      "unitSize": "Tray",
+      "category": "Brushes and Rollers",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Universal Color Tint - Black",
+      "canonicalSku": "15105",
+      "canonicalName": "Universal Color Tint - Black",
+      "unitSize": "1 Quart",
+      "category": "Liquid Color Tints (Universal Color Tints) - Quarts",
+      "confidence": "high"
+    },
+    {
+      "mainName": "16\" Sanding Pad - 80 Grit",
+      "canonicalSku": "36701",
+      "canonicalName": "16\" Sanding Pad - 80 Grit",
       "unitSize": "Pad",
       "category": "Sanding and Scuffing",
       "confidence": "high"
     },
     {
-      "mainName": "Replacement Front and Rear Brushes for Blast Pro Bp 9",
-      "canonicalSku": "40510",
-      "canonicalName": "Replacement Front and Rear Brushes for Blast Pro Bp 9",
+      "mainName": "24\" Gray Rubber Squeegee Replacement Blade",
+      "canonicalSku": "45440",
+      "canonicalName": "24\" Gray Rubber Squeegee Replacement Blade",
       "unitSize": "Each",
-      "category": "Blast Pro",
+      "category": "Squeegees and Scrapers",
       "confidence": "high"
     },
     {
-      "mainName": "CASE -18\" Contractor Grade 3/8\" Nap Roller Covers (12/Case)",
-      "canonicalSku": "CA386038",
-      "canonicalName": "CASE -18\" Contractor Grade 3/8\" Nap Roller Covers (12/Case)",
-      "unitSize": "Case",
-      "category": "Brushes and Rollers",
+      "mainName": "Universal Color Tint - Bulk - Gray",
+      "canonicalSku": "15122",
+      "canonicalName": "Universal Color Tint - Bulk - Gray",
+      "unitSize": "1 Gallon",
+      "category": "Liquid Color Tints (Universal Color Tints) -Gallons",
       "confidence": "high"
     },
     {
-      "mainName": "HYBRID Series Display Board",
-      "canonicalSku": "GFA-HYBDIS",
-      "canonicalName": "HYBRID Series Display Board",
-      "unitSize": "Each",
-      "category": "Finished Sample Sets",
+      "mainName": "Universal Color Tint - Bulk - Tan",
+      "canonicalSku": "15123",
+      "canonicalName": "Universal Color Tint - Bulk - Tan",
+      "unitSize": "1 Gallon",
+      "category": "Liquid Color Tints (Universal Color Tints) -Gallons",
       "confidence": "high"
     },
     {
-      "mainName": "Metallic Sample Display Board",
-      "canonicalSku": "GFA-MTLC",
-      "canonicalName": "Metallic Sample Display Board",
-      "unitSize": "Each",
-      "category": "Finished Sample Sets",
+      "mainName": "Baskerville Stonebridge Series Chip Blend",
+      "canonicalSku": "FB-BASKER",
+      "canonicalName": "Baskerville Stonebridge Series Chip Blend",
+      "unitSize": "40 lb box",
+      "category": "STONEBRIDGE SERIES",
       "confidence": "high"
     },
     {
-      "mainName": "Garage Force T-Shirt (Basic) - Green",
-      "canonicalSku": "GFA-03",
-      "canonicalName": "Garage Force T-Shirt (Basic) - Green",
+      "mainName": "Garage Force VeriFloor T-Shirt Black",
+      "canonicalSku": "GFA-010",
+      "canonicalName": "Garage Force VeriFloor T-Shirt Black",
       "unitSize": "Each",
       "category": "Apparel",
       "confidence": "high"
     },
     {
-      "mainName": "Crystal Polyaspartic Top Coat: 4 Gallon Kit (2a :2b) - Super Slow (100 + F)",
-      "canonicalSku": "10407B",
-      "canonicalName": "Crystal Polyaspartic Top Coat: 4 Gallon Kit (2a :2b) - Super Slow (100 + F)",
-      "unitSize": "4 Gallon",
-      "category": "Polyaspartic Top Coat (Special Order - Expect Longer Lead Times)",
+      "mainName": "Stocking Hat",
+      "canonicalSku": "GFA-31",
+      "canonicalName": "Stocking Hat",
+      "unitSize": "Hat",
+      "category": "Apparel",
       "confidence": "high"
     },
     {
-      "mainName": "Anchor Coat EXT CycloSpartic Base Coat - Grey - B Side - 5 Gallon",
-      "canonicalSku": "GF-CYCLO-BASE-BGX5",
-      "canonicalName": "Anchor Coat EXT CycloSpartic Base Coat - Grey - B Side - 5 Gallon",
-      "unitSize": "5 Gallon",
-      "category": "CycloSpartic Base Coat",
+      "mainName": "Garage Force Sweatshirt - Gray",
+      "canonicalSku": "GFA-01",
+      "canonicalName": "Garage Force Sweatshirt - Gray",
+      "unitSize": "Each",
+      "category": "Apparel",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Garage Force Polo - Black",
+      "canonicalSku": "GFA-27",
+      "canonicalName": "Garage Force Polo - Black",
+      "unitSize": "Each",
+      "category": "Apparel",
+      "confidence": "high"
+    },
+    {
+      "mainName": "Garage Force Polo - Green",
+      "canonicalSku": "GFA-02",
+      "canonicalName": "Garage Force Polo - Green",
+      "unitSize": "Each",
+      "category": "Apparel",
       "confidence": "high"
     },
     {
@@ -2393,14 +2401,6 @@
       "confidence": "high"
     },
     {
-      "mainName": "GF Grip Small",
-      "canonicalSku": "GFG01",
-      "canonicalName": "GF Grip Small",
-      "unitSize": "15 lb Bucket (Openable)",
-      "category": "Anti-Slip Aggregate",
-      "confidence": "high"
-    },
-    {
       "mainName": "Lavina Quick Change Single Segment - Hard 14 Grit",
       "canonicalSku": "X1S-HC-0014",
       "canonicalName": "Lavina Quick Change Single Segment - Hard 14 Grit",
@@ -2409,12 +2409,12 @@
       "confidence": "high"
     },
     {
-      "mainName": "1/4\" Chip Display Board",
-      "canonicalSku": "GFA-21",
-      "canonicalName": "1/4\" Chip Display Board",
-      "unitSize": "Each",
-      "category": "Finished Sample Sets",
-      "confidence": "high"
+      "mainName": "Anchor Coat CycloSpartic Base Coat - A Side - 5 Gallon",
+      "canonicalSku": "GF-CYCLO-BASE-A5",
+      "canonicalName": "Anchor Coat CycloSpartic Base Coat - A Side - 5 Gallon",
+      "unitSize": "5 Gallon",
+      "category": "CycloSpartic Base Coat",
+      "confidence": "override"
     }
   ],
   "needsReview": [
@@ -2451,6 +2451,14 @@
       "reason": "low confidence match (score 0.60)"
     },
     {
+      "mainName": "Putty Knife",
+      "canonicalSku": "PK-3",
+      "canonicalName": "3\" Plastic Putty Knife",
+      "unitSize": "Each",
+      "category": "Squeegees and Scrapers",
+      "reason": "low confidence match (score 0.60)"
+    },
+    {
       "mainName": "5 Quart Bucket",
       "canonicalSku": "CA61086",
       "canonicalName": "CASE - 2.5 Quart Bucket With Measurements (100/Case)",
@@ -2465,63 +2473,10 @@
       "unitSize": "Bag",
       "category": "Dust Collection - Other Items",
       "reason": "low confidence match (score 0.60)"
-    },
-    {
-      "mainName": "Putty Knife",
-      "canonicalSku": "PK-3",
-      "canonicalName": "3\" Plastic Putty Knife",
-      "unitSize": "Each",
-      "category": "Squeegees and Scrapers",
-      "reason": "low confidence match (score 0.60)"
     }
   ],
   "unmappedCanonical": [],
   "mainOnly": [
-    {
-      "id": "b56e9dee-dd57-4780-a7cc-ec728cfcc082",
-      "name": "44 Gallon Drum Liner",
-      "category": "Disposable"
-    },
-    {
-      "id": "26301a72-7e16-4294-b009-0eae8313d557",
-      "name": "9\" Paint Roller Tray",
-      "category": "Disposable"
-    },
-    {
-      "id": "169c0d47-fdaa-46b5-bed8-6934c2d3417d",
-      "name": "Acetone",
-      "category": "Disposable"
-    },
-    {
-      "id": "2524aed9-939d-42d4-a2c1-a561f5c3383e",
-      "name": "Cyclospartic Crack Filler Part A",
-      "category": "Repair"
-    },
-    {
-      "id": "67ee7b6b-d0ad-4221-a7d6-a11b79b9aa13",
-      "name": "Cyclospartic Crack Filler Part B",
-      "category": "Repair"
-    },
-    {
-      "id": "a470fd73-6614-4a43-9544-fb758351f5f5",
-      "name": "Degreaser",
-      "category": "Repair"
-    },
-    {
-      "id": "34813bf5-7865-487f-bfc7-0a4f6bf49d7c",
-      "name": "Dixie Cups",
-      "category": "Disposable"
-    },
-    {
-      "id": "93678839-77e2-45b0-a51d-45f2e926233b",
-      "name": "Dry Coat Part A",
-      "category": "Coatings"
-    },
-    {
-      "id": "17ff80db-c63d-405a-832d-2118bd6e552a",
-      "name": "Dry Coat Part B",
-      "category": "Coatings"
-    },
     {
       "id": "38e40c00-b285-417f-b748-261cb2202c35",
       "name": "Large Gloves",
@@ -2568,8 +2523,53 @@
       "category": "Disposable"
     },
     {
+      "id": "26301a72-7e16-4294-b009-0eae8313d557",
+      "name": "9\" Paint Roller Tray",
+      "category": "Disposable"
+    },
+    {
+      "id": "169c0d47-fdaa-46b5-bed8-6934c2d3417d",
+      "name": "Acetone",
+      "category": "Disposable"
+    },
+    {
+      "id": "2524aed9-939d-42d4-a2c1-a561f5c3383e",
+      "name": "Cyclospartic Crack Filler Part A",
+      "category": "Repair"
+    },
+    {
+      "id": "67ee7b6b-d0ad-4221-a7d6-a11b79b9aa13",
+      "name": "Cyclospartic Crack Filler Part B",
+      "category": "Repair"
+    },
+    {
+      "id": "a470fd73-6614-4a43-9544-fb758351f5f5",
+      "name": "Degreaser",
+      "category": "Repair"
+    },
+    {
+      "id": "34813bf5-7865-487f-bfc7-0a4f6bf49d7c",
+      "name": "Dixie Cups",
+      "category": "Disposable"
+    },
+    {
+      "id": "93678839-77e2-45b0-a51d-45f2e926233b",
+      "name": "Dry Coat Part A",
+      "category": "Coatings"
+    },
+    {
+      "id": "17ff80db-c63d-405a-832d-2118bd6e552a",
+      "name": "Dry Coat Part B",
+      "category": "Coatings"
+    },
+    {
       "id": "785c3041-01af-49ab-aa07-4b2508b27c9a",
       "name": "Respirator Replacement Filter",
+      "category": "Disposable"
+    },
+    {
+      "id": "b56e9dee-dd57-4780-a7cc-ec728cfcc082",
+      "name": "44 Gallon Drum Liner",
       "category": "Disposable"
     }
   ],

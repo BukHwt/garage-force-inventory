@@ -38,7 +38,7 @@ export function useInventory(options: UseInventoryOptions = {}): UseInventoryRes
 
       // Fetch both products and locations in parallel for better performance
       const [productsData, locationsData] = await Promise.all([
-        fetchProducts(),
+        fetchProducts({ includeUntracked: true }),
         fetchLocations(),
       ]);
 

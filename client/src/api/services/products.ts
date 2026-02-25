@@ -4,8 +4,13 @@ import { Product } from '../../types';
 /**
  * Fetch all products with their inventory items and categories
  */
-export async function fetchProducts(): Promise<Product[]> {
-  return apiGet<Product[]>('/api/products');
+export async function fetchProducts(options?: { includeUntracked?: boolean }): Promise<Product[]> {
+  const params = new URLSearchParams();
+  if (options?.includeUntracked) {
+    params.set('includeUntracked', 'true');
+  }
+  const query = params.toString();
+  return apiGet<Product[]>(`/api/products${query ? `?${query}` : ''}`);
 }
 
 /**

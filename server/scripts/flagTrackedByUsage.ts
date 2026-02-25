@@ -1,11 +1,16 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 
+const tenantArg = process.argv.find((arg) => arg.startsWith('--tenant='))?.split('=')[1];
+const tenant = tenantArg === 'main' || tenantArg === 'adam' ? tenantArg : undefined;
+
 const targetUrl =
   process.env.TARGET_DATABASE_URL ||
-  process.env.DATABASE_URL_MAIN ||
-  process.env.DATABASE_URL ||
-  process.env.DATABASE_URL_ADAM;
+  (tenant === 'main'
+    ? process.env.DATABASE_URL_MAIN || process.env.DATABASE_URL
+    : tenant === 'adam'
+      ? process.env.DATABASE_URL_ADAM
+      : process.env.DATABASE_URL_MAIN || process.env.DATABASE_URL || process.env.DATABASE_URL_ADAM);
 
 if (!targetUrl) {
   throw new Error('Set TARGET_DATABASE_URL (or DATABASE_URL_MAIN/DATABASE_URL/DATABASE_URL_ADAM)');
@@ -14,6 +19,10 @@ if (!targetUrl) {
 const prisma = new PrismaClient({ datasources: { db: { url: targetUrl } } });
 
 async function run() {
+  const dbHost = new URL(targetUrl).host;
+  const beforeTracked = await prisma.product.count({ where: { isTracked: true } });
+  console.log(`Target tenant=${tenant ?? 'auto'} host=${dbHost} tracked(before)=${beforeTracked}`);
+
   // Reset all to false
   const reset = await prisma.product.updateMany({ data: { isTracked: false } });
 
@@ -37,7 +46,8 @@ async function run() {
     data: { isTracked: true },
   });
 
-  console.log(`Reset to false: ${reset.count}, set tracked true: ${updated.count}`);
+  const afterTracked = await prisma.product.count({ where: { isTracked: true } });
+  console.log(`Reset to false: ${reset.count}, set tracked true: ${updated.count}, tracked(after)=${afterTracked}`);
 }
 
 run()
