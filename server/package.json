@@ -11,6 +11,8 @@
     "seed": "tsx prisma/seed.ts",
     "seed:adam:csv": "tsx scripts/seedAdamFromCsv.ts",
     "report:main-vs-adam": "tsx scripts/reportMainVsAdam.ts",
+    "report:tenant-catalog-diff": "tsx scripts/compareTenantCatalogs.ts",
+    "report:tenant-catalog-diff:stdout": "tsx scripts/compareTenantCatalogs.ts --stdout-only",
     "apply:main-from-adam": "tsx scripts/applyMainFromAdam.ts",
     "reconcile:main-adam:report": "tsx scripts/reconcileMainAdamFromReport.ts",
     "flag:main:tracked": "tsx scripts/flagTrackedByUsage.ts --tenant=main",
