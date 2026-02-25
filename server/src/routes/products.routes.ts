@@ -10,6 +10,18 @@ router.use((req, res, next) => {
   return requireEditor(req, res, next);
 });
 
+const normalizeTrackedInput = (value: unknown): boolean | undefined | 'invalid' => {
+  if (value === undefined) return undefined;
+  if (typeof value === 'boolean') return value;
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return 'invalid';
+};
+
+const hasPositiveReorderPoint = (value: unknown): boolean => {
+  return typeof value === 'number' && value > 0;
+};
+
 // Get all products with optional filters
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -93,10 +105,16 @@ router.post('/', async (req: Request, res: Response) => {
       consumableType,
       supplierType,
       reorderPoint,
+      isTracked,
     } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Name is required' });
+    }
+
+    const normalizedIsTracked = normalizeTrackedInput(isTracked);
+    if (normalizedIsTracked === 'invalid') {
+      return res.status(400).json({ error: 'isTracked must be a boolean' });
     }
 
     const product = await req.prisma.product.create({
@@ -113,6 +131,9 @@ router.post('/', async (req: Request, res: Response) => {
         consumableType,
         supplierType,
         reorderPoint,
+        isTracked: hasPositiveReorderPoint(Number(reorderPoint))
+          ? true
+          : Boolean(normalizedIsTracked),
       },
       include: {
         category: true,
@@ -148,7 +169,13 @@ router.put('/:id', async (req: Request, res: Response) => {
       reorderPoint,
       supplierType,
       consumableType,
+      isTracked,
     } = req.body;
+
+    const normalizedIsTracked = normalizeTrackedInput(isTracked);
+    if (normalizedIsTracked === 'invalid') {
+      return res.status(400).json({ error: 'isTracked must be a boolean' });
+    }
 
     let reorderPointValue: number | null | undefined = undefined;
     if (reorderPoint !== undefined) {
@@ -162,6 +189,34 @@ router.put('/:id', async (req: Request, res: Response) => {
         reorderPointValue = num;
       }
     }
+
+    const currentProduct = await req.prisma.product.findUnique({
+      where: { id },
+      include: { inventoryItems: true },
+    });
+
+    if (!currentProduct) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const nextReorderPoint = reorderPoint !== undefined ? reorderPointValue : currentProduct.reorderPoint;
+
+    if (normalizedIsTracked === false) {
+      const hasInventory = currentProduct.inventoryItems.some((item) => item.quantity > 0);
+      const reorderBlocksUntrack = hasPositiveReorderPoint(nextReorderPoint);
+
+      if (hasInventory || reorderBlocksUntrack) {
+        return res.status(400).json({
+          error: 'Cannot untrack a product that has inventory or a reorder point above 0. Clear inventory and lower reorder point first.',
+        });
+      }
+    }
+
+    const nextIsTracked = hasPositiveReorderPoint(nextReorderPoint)
+      ? true
+      : normalizedIsTracked !== undefined
+        ? normalizedIsTracked
+        : currentProduct.isTracked;
 
     const product = await req.prisma.product.update({
       where: { id },
@@ -178,6 +233,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         ...(reorderPoint !== undefined && { reorderPoint: reorderPointValue }),
         ...(supplierType !== undefined && { supplierType }),
         ...(consumableType !== undefined && { consumableType }),
+        isTracked: nextIsTracked,
       },
       include: {
         category: true,
