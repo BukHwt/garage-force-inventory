@@ -14,9 +14,11 @@ router.use((req, res, next) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { categoryId, search } = req.query;
+    const includeUntracked = req.query.includeUntracked === 'true';
 
     const products = await req.prisma.product.findMany({
       where: {
+        ...(includeUntracked ? {} : { isTracked: true }),
         ...(categoryId && { categoryId: categoryId as string }),
         ...(search && {
           OR: [
@@ -148,6 +150,19 @@ router.put('/:id', async (req: Request, res: Response) => {
       consumableType,
     } = req.body;
 
+    let reorderPointValue: number | null | undefined = undefined;
+    if (reorderPoint !== undefined) {
+      if (reorderPoint === '' || reorderPoint === null) {
+        reorderPointValue = null;
+      } else {
+        const num = Number(reorderPoint);
+        if (!Number.isFinite(num)) {
+          return res.status(400).json({ error: 'reorderPoint must be a number or empty to clear' });
+        }
+        reorderPointValue = num;
+      }
+    }
+
     const product = await req.prisma.product.update({
       where: { id },
       data: {
@@ -160,7 +175,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         ...(categoryId !== undefined && { categoryId }),
         ...(imageUrl !== undefined && { imageUrl }),
         ...(notes !== undefined && { notes }),
-        ...(reorderPoint !== undefined && { reorderPoint }),
+        ...(reorderPoint !== undefined && { reorderPoint: reorderPointValue }),
         ...(supplierType !== undefined && { supplierType }),
         ...(consumableType !== undefined && { consumableType }),
       },
