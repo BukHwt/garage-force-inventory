@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Category } from '../../types';
 
 export interface ProductCreateData {
+  isTracked: boolean;
   name: string;
   description: string;
   sku: string;
@@ -28,6 +29,7 @@ export function ProductCreateForm({
   onCancel,
 }: ProductCreateFormProps) {
   const [formData, setFormData] = useState<ProductCreateData>({
+    isTracked: false,
     name: '',
     description: '',
     sku: '',
@@ -54,6 +56,7 @@ export function ProductCreateForm({
 
     try {
       await onSubmit({
+        isTracked: formData.isTracked,
         name: formData.name.trim(),
         description: formData.description.trim() || '',
         sku: formData.sku.trim() || '',
@@ -66,6 +69,7 @@ export function ProductCreateForm({
 
       // Reset form on success
       setFormData({
+        isTracked: false,
         name: '',
         description: '',
         sku: '',
@@ -84,7 +88,7 @@ export function ProductCreateForm({
 
   const handleChange = (
     field: keyof ProductCreateData,
-    value: string | number | null
+    value: string | number | boolean | null
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -107,6 +111,32 @@ export function ProductCreateForm({
             <p className="text-alert-red text-sm font-semibold">{error}</p>
           </div>
         )}
+
+        {/* Product Name */}
+        <div className="bg-dark-bg border border-dark-border rounded-lg p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-dark-text-primary">
+              Track this product
+            </p>
+            <button
+              type="button"
+              onClick={() => handleChange('isTracked', !formData.isTracked)}
+              disabled={isSubmitting || ((formData.reorderPoint ?? 0) > 0 && formData.isTracked)}
+              className={`px-3 py-1.5 rounded border text-sm font-semibold transition-colors ${
+                formData.isTracked
+                  ? 'border-gf-green text-gf-green'
+                  : 'border-dark-border text-dark-text-muted'
+              } ${((formData.reorderPoint ?? 0) > 0 && formData.isTracked) ? 'opacity-50 cursor-not-allowed' : 'active:bg-gf-charcoal-700'}`}
+            >
+              {formData.isTracked ? 'Tracked' : 'Untracked'}
+            </button>
+          </div>
+          {(formData.reorderPoint ?? 0) > 0 && (
+            <p className="text-xs text-dark-text-muted mt-1">
+              Reorder point above 0 requires tracking.
+            </p>
+          )}
+        </div>
 
         {/* Product Name */}
         <div>
@@ -217,10 +247,13 @@ export function ProductCreateForm({
             type="number"
             value={formData.reorderPoint ?? ''}
             onChange={(e) =>
-              handleChange(
-                'reorderPoint',
-                e.target.value === '' ? null : parseInt(e.target.value, 10)
-              )
+              {
+                const nextReorderPoint = e.target.value === '' ? null : parseInt(e.target.value, 10);
+                handleChange('reorderPoint', nextReorderPoint);
+                if ((nextReorderPoint ?? 0) > 0) {
+                  handleChange('isTracked', true);
+                }
+              }
             }
             disabled={isSubmitting}
             min={0}
