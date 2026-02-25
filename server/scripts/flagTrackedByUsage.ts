@@ -16,10 +16,11 @@ if (!targetUrl) {
   throw new Error('Set TARGET_DATABASE_URL (or DATABASE_URL_MAIN/DATABASE_URL/DATABASE_URL_ADAM)');
 }
 
-const prisma = new PrismaClient({ datasources: { db: { url: targetUrl } } });
+const resolvedTargetUrl: string = targetUrl;
+const prisma = new PrismaClient({ datasources: { db: { url: resolvedTargetUrl } } });
 
 async function run() {
-  const dbHost = new URL(targetUrl).host;
+  const dbHost = new URL(resolvedTargetUrl).host;
   const beforeTracked = await prisma.product.count({ where: { isTracked: true } });
   console.log(`Target tenant=${tenant ?? 'auto'} host=${dbHost} tracked(before)=${beforeTracked}`);
 
