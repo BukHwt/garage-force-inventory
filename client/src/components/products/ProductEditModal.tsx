@@ -79,7 +79,10 @@ export function ProductEditModal({
         sku: formData.sku.trim() || undefined,
         color: formData.color.trim() || undefined,
         unitSize: formData.unitSize.trim() || undefined,
-        reorderPoint: formData.reorderPoint || undefined,
+        reorderPoint:
+          formData.reorderPoint === null || formData.reorderPoint === undefined
+            ? null
+            : formData.reorderPoint,
         supplierType: formData.supplierType,
         categoryId: formData.categoryId || undefined,
       });
@@ -232,13 +235,11 @@ export function ProductEditModal({
             </label>
             <input
               type="number"
-              value={formData.reorderPoint || ''}
-              onChange={(e) =>
-                handleChange(
-                  'reorderPoint',
-                  e.target.value ? parseInt(e.target.value) : null
-                )
-              }
+              value={formData.reorderPoint ?? ''}
+              onChange={(e) => {
+                const val = e.target.value;
+                handleChange('reorderPoint', val === '' ? null : parseInt(val, 10));
+              }}
               disabled={isSubmitting}
               min={0}
               className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-gf-green disabled:opacity-50"
