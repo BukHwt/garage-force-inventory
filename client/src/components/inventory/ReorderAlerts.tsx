@@ -80,11 +80,6 @@ export function ReorderAlerts({
                 <div className="text-xs font-body text-dark-text-muted mt-1">
                   {getSupplierTypeLabel(product.supplierType)}
                 </div>
-                {disableReceive && (
-                  <div className="text-xs text-dark-text-muted mt-2 italic">
-                    View-only access
-                  </div>
-                )}
               </div>
             );
           })}

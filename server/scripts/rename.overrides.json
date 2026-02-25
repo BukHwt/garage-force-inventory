@@ -1,0 +1,13 @@
+{
+  "//": "Rename-only rules for main tenant (no SKU assignment). Key = current name, value = desired name.",
+  "1 quart bucket": "1 Quart Bucket With Measurements",
+  "2.5 quart bucket": "2.5 Quart Bucket With Measurements",
+  "5 quart bucket": "5 Quart Bucket With Measurements",
+  "10 quart bucket": "10 Quart Bucket With Measurements",
+  "18\" roller": "18\" Contractor Grade 3/8\" Nap Roller Covers",
+  "9\" Paint Roller": "9\" Contractor Grade 3/8\" Nap Roller Covers",
+  "HEPA Filter": "Respirator Replacement Filter",
+  "Dust Collector Liner": "Infinity Bag Replacement",
+  "Patch Repair Putty Part A": "GF Patch - Repair Paste Part A",
+  "Patch Repair Putty Part B": "GF Patch - Repair Paste Part B"
+}
