@@ -9,6 +9,7 @@ import authRouter from './routes/auth.routes.js';
 import { authenticate } from './middleware/auth.js';
 import transactionsRouter from './routes/transactions.routes.js';
 import neighborsRouter from './routes/neighbors.routes.js';
+import sharedOrdersRouter from './routes/sharedOrders.routes.js';
 import { tenantMiddleware } from './middleware/tenant.js';
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/locations', locationsRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/neighbors', neighborsRouter);
+app.use('/api/shared-orders', sharedOrdersRouter);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
