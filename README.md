@@ -6,6 +6,7 @@ Mobile-first inventory management system for SD Concrete Coating Inc / Garage Fo
 
 - **Multi-location inventory tracking** - Warehouse, Trailer, Personal
 - **Location management** - Create/edit locations, enforce unique naming, and delete only when inventory is zero
+- **Neighbor inventory visibility** - Read-only cross-tenant view to see what nearby franchise inventory is on hand
 - **Smart reorder alerts** - Never run out of critical materials
 - **Supplier management** - Track Garage Force required/optional vs locally sourced items
 - **Transaction history & rollback** - Full audit trail of receipts, consumption, transfers with rollback safeguards
@@ -176,6 +177,13 @@ Legacy reconciliation scripts are archived in `server/scripts/archive`.
   - Duplicate error copy: `Location names must be unique.`
 - Delete is blocked when the location has inventory quantity above `0`.
 - Location lists are sorted alphabetically.
+
+## Neighbor Inventory
+
+- Open the **More** tab and tap **Neighbor Inventory**.
+- Choose the neighboring tenant and search by name/SKU/vendor part number.
+- The screen is intentionally read-only in this phase.
+- Future request workflows (build list + email/text) are planned separately and are out of scope for this release.
 
 ## Database Schema
 
