@@ -110,6 +110,9 @@
 - UI behavior updates:
   - Single-use items do not show open/sealed status labels in product cards.
   - Category lists support `Hide All` / `Show All`.
+- Active development device target:
+  - Samsung Galaxy S25 Ultra
+  - Browser: Chrome (Android)
 
 ## Next Chat Handoff
 - Date: 2026-02-26
