@@ -11,7 +11,20 @@
       "pinHash": "$2b$10$ZWyFkhSbmTBbQux7FA1z1ecu8rBgnPVY55KdeSZ9QIRCDcdeTZTcG"
     }
   ],
-  "locations": [],
+  "locations": [
+    {
+      "name": "Personal",
+      "description": "Garage/truck overflow storage"
+    },
+    {
+      "name": "Trailer",
+      "description": "Mobile inventory for jobs"
+    },
+    {
+      "name": "Farm",
+      "description": "Farm storage location"
+    }
+  ],
   "categories": [
     {
       "name": "1/16\" Chips"
