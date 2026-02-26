@@ -70,7 +70,13 @@ cp server/.env.example server/.env
 npm run db:up        # starts Postgres via Docker Compose
 npm run db:init      # runs migrations + seed script
 ```
-- Seed data lives in `server/prisma/data/inventory.json` (generated from `inventory.csv`). Update those files and rerun `npm run seed` whenever your real-world inventory changes.
+- Seed data now lives in snapshot files:
+  - `server/prisma/data/seed.snapshot.main.json` (public/main schema)
+  - `server/prisma/data/seed.snapshot.adam.json` (adam schema)
+  - `server/prisma/data/seed.snapshot.json` (fallback/default)
+- Export fresh snapshots (without seeding) via:
+  - `cd server && npm run snapshot:all`
+  - This writes `*.candidate.json` files by default and will not overwrite existing files unless `--overwrite` is used.
 
 4. Start the development servers
 ```bash
@@ -86,8 +92,29 @@ The app will be available at:
 - Model: one Postgres database (the binder) with per-tenant schemas (folders). Default tenant uses `public`, DemoViewer uses `adam`.
 - Env: set `DATABASE_URL_MAIN` (or `DATABASE_URL`) to `...schema=public` and `DATABASE_URL_ADAM` to `...schema=adam` on the backend.
 - Create the extra schema once: `psql "$DATABASE_URL_MAIN" -c "CREATE SCHEMA IF NOT EXISTS adam;"`.
-- Migrations: `npm run db:init:tenants` (runs `prisma migrate deploy` for each configured schema). Add `-- --with-seed` if you want to seed each schema; skip seeding to preserve existing data.
+- Migrations only: `npm run db:init:tenants` (runs `prisma migrate deploy` for each configured schema).
+- Migrate + seed both schemas: `npm run db:init:tenants:seed`.
 - Routing: the backend picks the schema per request via header `x-tenant: adam` (defaults to `main`). Use the same backend URL for all tenants.
+
+## Snapshot Seed Workflow
+
+Use this as the single repeatable data workflow:
+
+1. Export snapshots from the live source of truth:
+   - `cd server && npm run snapshot:all`
+   - Default output files:
+     - `server/prisma/data/seed.snapshot.main.candidate.json`
+     - `server/prisma/data/seed.snapshot.adam.candidate.json`
+   - Replace canonical files only intentionally:
+     - `cd server && npm run snapshot:all:replace`
+2. Apply housekeeping edits directly in:
+   - `server/prisma/data/seed.snapshot.main.json`
+   - `server/prisma/data/seed.snapshot.adam.json`
+3. Rebuild from snapshots:
+   - `npm run db:init` (single schema)
+   - `npm run db:init:tenants:seed` (multi-tenant)
+
+Legacy reconciliation scripts are archived in `server/scripts/archive`.
 
 ## Product Tracking Rules
 
@@ -117,8 +144,14 @@ The app will be available at:
 
 ### Server directory
 - `npm run dev` - Start server with hot reload
-- `npm run seed` - Seed database with sample data
+- `npm run seed` - Seed database from snapshot baseline
 - `npm run db:init` - Prisma migrate deploy + seed (used in CI/CD)
+- `npm run db:init:tenants` - Migrate each configured tenant schema
+- `npm run db:init:tenants:seed` - Migrate + seed each configured tenant schema
+- `npm run snapshot:main` - Export snapshot for `main` tenant
+- `npm run snapshot:adam` - Export snapshot for `adam` tenant
+- `npm run snapshot:all` - Export snapshots for all configured tenants
+- `npm run snapshot:*:replace` - Intentionally overwrite canonical snapshot files
 - `npx prisma studio` - Open Prisma Studio database viewer
 
 > Need a deeper dive into environment setup or hosting? See `docs/deployment.md`.
@@ -136,6 +169,7 @@ The app will be available at:
 
 **Product** - Catalog of available products
 - Name, SKU, description, category
+- Vendor part number (non-unique) for supplier codes that are reused across variants
 - Reorder management (reorder point, max stock, lead time)
 - Supplier type (Garage Force required/optional/open source)
 - Consumable type (reusable vs single-use items)

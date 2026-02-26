@@ -33,24 +33,26 @@ npm run db:down   # stop and remove the local database container
 1. Create a Render PostgreSQL instance (Starter tier works for demos).
 2. Copy its **Internal Database URL** and set it as `DATABASE_URL` on the web service (Settings ? Environment).
 3. Add other runtime env vars (`NODE_ENV=production`, `JWT_SECRET`, etc.).
-4. Configure the service **Pre-deploy command**:
-   - **Staging**: `npm run db:init` (migrations + seed)
-   - **Production**: `cd server && npx prisma migrate deploy`
-   Seed production manually only when you intentionally reset the data.
-5. Keep your normal start command (`npm run dev` for combined dev servers, or `cd server && npm run start` in production).
+4. Configure the service commands:
+   - **Build**: `npm ci --include=dev && npm run build`
+   - **Pre-deploy (production default)**: `npm run db:init:tenants` (migrations only)
+   - **Start**: `npm run start`
+   Use `npm run db:init:tenants:seed` only when you intentionally want a full data rebuild from snapshots.
+5. Keep runtime env vars in Render aligned with your tenant setup (`DATABASE_URL` for `public`, `DATABASE_URL_ADAM` for `adam`).
 
 ### Multi-tenant schemas on a single Postgres
 
 - Create the extra schema once (example): `psql "$DATABASE_URL_MAIN" -c "CREATE SCHEMA IF NOT EXISTS adam;"`.
 - Set `DATABASE_URL_MAIN=...schema=public` and `DATABASE_URL_ADAM=...schema=adam` on the backend service.
-- Run `npm run db:init:tenants` (add `-- --with-seed` only if you want to seed each schema).
+- Run `npm run db:init:tenants` for migrations only.
+- Run `npm run db:init:tenants:seed` only for intentional schema rebuilds from snapshot data.
 - The API selects the tenant per request via `x-tenant` header (`main` default, `adam` optional).
 
 ## 3. CI / preview deployments
 
-- Reuse the same `npm run db:init` command in any pipeline stage that provisions a temporary database.
-- Because the seed script relies on Prisma `upsert`s, it can be run safely multiple times.
-- Failing migrations or seed steps should block the deployment long before traffic reaches the app.
+- Use `npm run db:init:tenants` in deployment pipelines where data must be preserved.
+- Use `npm run db:init:tenants:seed` only in ephemeral/test environments where destructive reseeding is expected.
+- Failing migrations or seed steps should block the deployment before traffic reaches the app.
 
 ## 4. Environment variables
 
@@ -64,4 +66,6 @@ npm run db:down   # stop and remove the local database container
 | `POSTGRES_PASSWORD` | optional | Overrides Compose default password                            |
 | `POSTGRES_DB`       | optional | Overrides Compose default DB name                             |
 
-With these pieces in place, provisioning a fresh environment (local, staging, production, or preview) boils down to: provide a Postgres connection string and run `npm run db:init`.
+With these pieces in place, provisioning is straightforward:
+- Preserve data: provide tenant DB URLs and run `npm run db:init:tenants`.
+- Rebuild from canonical snapshots: run `npm run db:init:tenants:seed`.

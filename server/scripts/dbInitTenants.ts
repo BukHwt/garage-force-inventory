@@ -3,20 +3,38 @@ import { execSync } from 'child_process';
 
 type TenantConfig = {
   name: string;
-  url?: string;
+  url: string;
 };
 
-const tenants: TenantConfig[] = [
-  { name: 'main', url: process.env.DATABASE_URL_MAIN ?? process.env.DATABASE_URL },
-  { name: 'adam', url: process.env.DATABASE_URL_ADAM },
-].filter((tenant) => Boolean(tenant.url));
+const withSeed = process.argv.includes('--with-seed');
 
-function extractSchema(url: string) {
+function resolveTenants(): TenantConfig[] {
+  const mainUrl = process.env.DATABASE_URL_MAIN ?? process.env.DATABASE_URL;
+  const adamUrl = process.env.DATABASE_URL_ADAM;
+
+  const tenants: TenantConfig[] = [];
+  if (mainUrl) tenants.push({ name: 'main', url: mainUrl });
+  if (adamUrl) tenants.push({ name: 'adam', url: adamUrl });
+  return tenants;
+}
+
+function extractSchema(url: string): string | undefined {
   const match = url.match(/schema=([^&]+)/);
   return match?.[1];
 }
 
-function createSchemaIfMissing(schema: string, envUrl: string, label: string) {
+function runCommand(command: string, envUrl: string, label: string) {
+  execSync(command, {
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      DATABASE_URL: envUrl,
+    },
+  });
+  console.log(`Finished ${label}`);
+}
+
+function createSchemaIfMissing(schema: string, envUrl: string, tenantName: string) {
   // Use stdin because Prisma 6 does not support --script.
   const sql = `CREATE SCHEMA IF NOT EXISTS "${schema}";\n`;
   execSync(`npx prisma db execute --stdin --url "${envUrl}"`, {
@@ -28,30 +46,10 @@ function createSchemaIfMissing(schema: string, envUrl: string, label: string) {
     input: sql,
     shell: true,
   } as any);
-  console.log(`Ensured schema for ${label}: ${schema}`);
+  console.log(`Ensured schema for ${tenantName}: ${schema}`);
 }
 
-const withSeed = process.argv.includes('--with-seed');
-
-if (!tenants.length) {
-  console.error('No tenant database URLs found. Set DATABASE_URL or DATABASE_URL_MAIN/DATABASE_URL_ADAM.');
-  process.exit(1);
-}
-
-function run(cmd: string, envUrl: string, label: string) {
-  execSync(cmd, {
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      DATABASE_URL: envUrl,
-    },
-  });
-  console.log(`Finished ${label}`);
-}
-
-for (const tenant of tenants) {
-  if (!tenant.url) continue;
-
+function migrateTenant(tenant: TenantConfig) {
   const schema = extractSchema(tenant.url);
   if (schema) {
     console.log(`\n=== Ensuring schema exists for tenant: ${tenant.name} (${schema}) ===`);
@@ -59,12 +57,29 @@ for (const tenant of tenants) {
   }
 
   console.log(`\n=== Migrating tenant: ${tenant.name} (${tenant.url}) ===`);
-  run('npx prisma migrate deploy', tenant.url, `${tenant.name} migrate`);
-
-  if (withSeed) {
-    console.log(`\n--- Seeding tenant: ${tenant.name} ---`);
-    run('npm run seed', tenant.url, `${tenant.name} seed`);
-  }
+  runCommand('npx prisma migrate deploy', tenant.url, `${tenant.name} migrate`);
 }
 
-console.log('\nAll tenant migrations complete.');
+function seedTenant(tenant: TenantConfig) {
+  console.log(`\n--- Seeding tenant: ${tenant.name} ---`);
+  runCommand('npm run seed', tenant.url, `${tenant.name} seed`);
+}
+
+function main() {
+  const tenants = resolveTenants();
+  if (!tenants.length) {
+    console.error('No tenant database URLs found. Set DATABASE_URL or DATABASE_URL_MAIN/DATABASE_URL_ADAM.');
+    process.exit(1);
+  }
+
+  for (const tenant of tenants) {
+    migrateTenant(tenant);
+    if (withSeed) {
+      seedTenant(tenant);
+    }
+  }
+
+  console.log('\nAll tenant migrations complete.');
+}
+
+main();
