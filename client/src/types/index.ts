@@ -1,7 +1,10 @@
 export interface Location {
   id: string;
   name: string;
-  description: string;
+  description?: string | null;
+  _count?: {
+    inventoryItems: number;
+  };
 }
 
 export interface Category {

@@ -5,6 +5,7 @@ Mobile-first inventory management system for SD Concrete Coating Inc / Garage Fo
 ## Features
 
 - **Multi-location inventory tracking** - Warehouse, Trailer, Personal
+- **Location management** - Create/edit locations, enforce unique naming, and delete only when inventory is zero
 - **Smart reorder alerts** - Never run out of critical materials
 - **Supplier management** - Track Garage Force required/optional vs locally sourced items
 - **Transaction history & rollback** - Full audit trail of receipts, consumption, transfers with rollback safeguards
@@ -162,6 +163,19 @@ Legacy reconciliation scripts are archived in `server/scripts/archive`.
 - Each entry shows product, locations, user, and whether the action is eligible for rollback.
 - Rollbacks are disabled automatically when newer activity exists for the same product/location or when reversing the move would create negative inventory.
 - Only non-viewer roles can trigger rollbacks, and every rollback captures who performed it for auditing.
+
+## Location Management
+
+- Open the **More** tab and tap **Manage Locations**.
+- `OWNER` and `TECH` roles can create, edit, and delete locations.
+- `VIEWER` role remains read-only.
+- Location names are validated by the API:
+  - Trimmed before save
+  - Minimum 2 characters
+  - Case-insensitive unique per tenant
+  - Duplicate error copy: `Location names must be unique.`
+- Delete is blocked when the location has inventory quantity above `0`.
+- Location lists are sorted alphabetically.
 
 ## Database Schema
 

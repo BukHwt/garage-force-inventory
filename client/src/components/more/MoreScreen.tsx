@@ -4,6 +4,12 @@ import { Header } from '../layout/Header';
 
 const links = [
   {
+    id: 'locations',
+    title: 'Manage Locations',
+    description: 'Create, edit, and remove storage locations for this tenant.',
+    path: '/locations',
+  },
+  {
     id: 'transactions',
     title: 'Transaction Log',
     description: 'Review activity history and rollback mistakes quickly.',
@@ -35,7 +41,7 @@ export function MoreScreen() {
                   <p className="font-semibold text-dark-text-primary">{link.title}</p>
                   <p className="text-sm text-dark-text-secondary">{link.description}</p>
                 </div>
-                <span className="text-2xl text-gf-green">›</span>
+                <span className="text-2xl text-gf-green">{'>'}</span>
               </div>
             </button>
           ))}
