@@ -329,6 +329,9 @@ function App() {
         ? (tabId as TabId)
         : 'dashboard');
       if (typedTab === currentTab) {
+        if (typedTab === 'more' && location.pathname !== TAB_TO_PATH.more) {
+          navigate(TAB_TO_PATH.more);
+        }
         return;
       }
       setPreviousTab(currentTab);
@@ -339,7 +342,7 @@ function App() {
       const targetPath = TAB_TO_PATH[typedTab] ?? TAB_TO_PATH.dashboard;
       navigate(targetPath);
     },
-    [currentTab, isViewer, navigate, navigateToManage]
+    [currentTab, isViewer, location.pathname, navigate, navigateToManage]
   );
 
   const handleReceiveFromAlert = useCallback((product: Product) => {
