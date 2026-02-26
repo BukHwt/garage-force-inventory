@@ -33,6 +33,7 @@ import { ProductCatalogScreen } from './components/products/ProductCatalogScreen
 import { LoginModal } from './components/auth/LoginModal';
 import { MoreScreen } from './components/more/MoreScreen';
 import { TransactionLogScreen } from './components/more/TransactionLogScreen';
+import { LocationsScreen } from './components/more/LocationsScreen';
 
 type TabId = 'dashboard' | 'add' | 'products' | 'more';
 type ManagePrefill = {
@@ -59,7 +60,11 @@ const getTabFromPath = (pathname: string): TabId => {
   if (normalizedPath.startsWith('/products')) {
     return 'products';
   }
-  if (normalizedPath.startsWith('/more') || normalizedPath.startsWith('/transactions')) {
+  if (
+    normalizedPath.startsWith('/more') ||
+    normalizedPath.startsWith('/transactions') ||
+    normalizedPath.startsWith('/locations')
+  ) {
     return 'more';
   }
   return 'dashboard';
@@ -572,6 +577,16 @@ function App() {
         />
         <Route path={TAB_TO_PATH.more} element={<MoreScreen />} />
         <Route path="/transactions" element={<TransactionLogScreen />} />
+        <Route
+          path="/locations"
+          element={
+            <LocationsScreen
+              locations={locations}
+              products={products}
+              onLocationsChanged={refetch}
+            />
+          }
+        />
         <Route path="*" element={<Navigate to={TAB_TO_PATH.dashboard} replace />} />
       </Routes>
 
