@@ -4,6 +4,12 @@ import { Header } from '../layout/Header';
 
 const links = [
   {
+    id: 'neighbor-inventory',
+    title: 'Neighbor Inventory',
+    description: 'View on-hand inventory from your neighboring tenant.',
+    path: '/neighbor-inventory',
+  },
+  {
     id: 'locations',
     title: 'Manage Locations',
     description: 'Create, edit, and remove storage locations for this tenant.',

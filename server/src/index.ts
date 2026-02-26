@@ -8,6 +8,7 @@ import categoriesRouter from './routes/categories.routes.js';
 import authRouter from './routes/auth.routes.js';
 import { authenticate } from './middleware/auth.js';
 import transactionsRouter from './routes/transactions.routes.js';
+import neighborsRouter from './routes/neighbors.routes.js';
 import { tenantMiddleware } from './middleware/tenant.js';
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api/inventory', inventoryRouter);
 app.use('/api/locations', locationsRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/transactions', transactionsRouter);
+app.use('/api/neighbors', neighborsRouter);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

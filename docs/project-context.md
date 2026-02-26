@@ -113,14 +113,14 @@
 
 ## Next Chat Handoff
 - Date: 2026-02-26
-- Active goal: Location management delivered (More entry, `/locations` screen, create/edit/delete constraints).
-- Branch: `feature/locations-management`
+- Active goal: Start neighborhood collaboration with read-only Neighbor Inventory view.
+- Branch: `feature/neighbor-inventory-view`
 - PR link(s): [set in next session]
 - Product direction:
-  1. Add a Location Management entry under the `More` tab.
-  2. Allow creating and editing locations (name + optional description).
-  3. Keep behavior tenant-aware (`main` and `adam` can differ).
-  4. Seed Adam with `Trailer`, `Personal`, and `Farm` by default.
+  1. Add a `Neighbor Inventory` entry under the `More` tab.
+  2. Allow viewing on-hand inventory from the opposite tenant.
+  3. Keep behavior read-only for this phase (all roles can view).
+  4. Keep behavior tenant-aware (`main` and `adam` can differ).
 - Current tenant context:
   - `main` currently has: `Personal`, `Trailer`, `Warehouse`.
   - `adam` canonical default locations: `Personal`, `Trailer`, `Farm`.
@@ -139,8 +139,18 @@
   - [x] local seed/migrate run
   - [x] production deploy verified
 - Known risks or follow-ups:
-  1. Add dedicated automated tests for locations CRUD validation + auth.
-  2. Confirm whether future UX should surface per-location quantity totals outside manage screen.
+  1. Add dedicated automated tests for neighbor inventory endpoint + UI behavior.
+  2. Confirm search/sort defaults for larger datasets once usage grows.
+
+## Neighborhood Collaboration Scope
+- Current phase scope:
+  - Read-only cross-tenant visibility of on-hand inventory.
+  - No request workflow, no reservation workflow, no quantity commits.
+- Explicitly out of scope in current phase:
+  - "Click product to request from neighbor" actions.
+  - Shared draft request list, email generation, or text-message generation.
+- Future candidate scope:
+  - Tap neighbor item (e.g., top coat) to add to a request draft list that can be exported via email/text to Adam.
 
 ## Location Feature Decisions
 - Delete behavior:
