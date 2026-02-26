@@ -34,6 +34,7 @@ import { LoginModal } from './components/auth/LoginModal';
 import { MoreScreen } from './components/more/MoreScreen';
 import { TransactionLogScreen } from './components/more/TransactionLogScreen';
 import { LocationsScreen } from './components/more/LocationsScreen';
+import { NeighborInventoryScreen } from './components/more/NeighborInventoryScreen';
 
 type TabId = 'dashboard' | 'add' | 'products' | 'more';
 type ManagePrefill = {
@@ -63,7 +64,8 @@ const getTabFromPath = (pathname: string): TabId => {
   if (
     normalizedPath.startsWith('/more') ||
     normalizedPath.startsWith('/transactions') ||
-    normalizedPath.startsWith('/locations')
+    normalizedPath.startsWith('/locations') ||
+    normalizedPath.startsWith('/neighbor-inventory')
   ) {
     return 'more';
   }
@@ -577,6 +579,7 @@ function App() {
         />
         <Route path={TAB_TO_PATH.more} element={<MoreScreen />} />
         <Route path="/transactions" element={<TransactionLogScreen />} />
+        <Route path="/neighbor-inventory" element={<NeighborInventoryScreen />} />
         <Route
           path="/locations"
           element={

@@ -69,5 +69,27 @@ export interface InventoryTransactionRecord {
   revertedBy?: TransactionUserSummary | null;
 }
 
+export interface NeighborTenantOption {
+  key: string;
+  label: string;
+}
+
+export interface NeighborInventoryLocation {
+  locationId: string;
+  locationName: string;
+  quantity: number;
+}
+
+export interface NeighborInventoryProduct {
+  productId: string;
+  name: string;
+  sku?: string | null;
+  vendorPartNumber?: string | null;
+  unitSize?: string | null;
+  category?: Category | null;
+  totalQuantity: number;
+  locations: NeighborInventoryLocation[];
+}
+
 // Helper type for filtering
 export type LocationFilterOption = 'all' | string;
