@@ -1,0 +1,355 @@
+{
+  "version": 1,
+  "sourceSchema": "public",
+  "users": [
+    {
+      "name": "DemoOwner",
+      "role": "OWNER",
+      "pin": "5555",
+      "isActive": true
+    },
+    {
+      "name": "DemoTechnician",
+      "role": "TECH",
+      "pin": "5555",
+      "isActive": true
+    },
+    {
+      "name": "DemoManager",
+      "role": "OWNER",
+      "pin": "5555",
+      "isActive": true
+    },
+    {
+      "name": "DemoViewer",
+      "role": "VIEWER",
+      "pin": "5555",
+      "isActive": true
+    }
+  ],
+  "locations": [
+    {
+      "name": "Demo Warehouse",
+      "description": "Fictional demo storage"
+    },
+    {
+      "name": "Demo Trailer",
+      "description": "Fictional demo storage"
+    },
+    {
+      "name": "Demo Shelf",
+      "description": "Fictional demo storage"
+    }
+  ],
+  "categories": [
+    {
+      "name": "Coatings"
+    },
+    {
+      "name": "Decorative Blends"
+    },
+    {
+      "name": "Tools"
+    },
+    {
+      "name": "Consumables"
+    }
+  ],
+  "products": [
+    {
+      "name": "Sample Base Coat Kit",
+      "sku": "DEMO-COAT-KIT",
+      "category": "Coatings",
+      "productType": "kit",
+      "consumableType": "REUSABLE",
+      "unitSize": "2-part kit",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-1",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "components": [
+        {
+          "componentSku": "DEMO-RESIN-A",
+          "quantityRequired": 1,
+          "componentLabel": "Part A"
+        },
+        {
+          "componentSku": "DEMO-HARDENER-B",
+          "quantityRequired": 1,
+          "componentLabel": "Part B"
+        }
+      ],
+      "inventory": [
+        {
+          "location": "Demo Trailer",
+          "quantity": 8,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Sample Resin Part A",
+      "sku": "DEMO-RESIN-A",
+      "category": "Coatings",
+      "productType": "component",
+      "consumableType": "SINGLE_USE",
+      "unitSize": "1 gallon",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-2",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "inventory": [
+        {
+          "location": "Demo Warehouse",
+          "quantity": 5,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Sample Hardener Part B",
+      "sku": "DEMO-HARDENER-B",
+      "category": "Coatings",
+      "productType": "component",
+      "consumableType": "SINGLE_USE",
+      "unitSize": "1 gallon",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-3",
+      "supplierType": "GARAGE_FORCE_REQUIRED",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "inventory": [
+        {
+          "location": "Demo Warehouse",
+          "quantity": 5,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Sample Gray Blend",
+      "sku": "DEMO-GRAY",
+      "category": "Decorative Blends",
+      "productType": "variant_parent",
+      "consumableType": "REUSABLE",
+      "unitSize": null,
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-4",
+      "supplierType": "OPEN_SOURCE",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "inventory": []
+    },
+    {
+      "name": "Sample Gray Blend",
+      "sku": "DEMO-GRAY-BOX",
+      "category": "Decorative Blends",
+      "productType": "simple",
+      "consumableType": "SINGLE_USE",
+      "unitSize": "40 lb box",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-5",
+      "supplierType": "OPEN_SOURCE",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "parentSku": "DEMO-GRAY",
+      "inventory": [
+        {
+          "location": "Demo Warehouse",
+          "quantity": 12,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Sample Gray Blend",
+      "sku": "DEMO-GRAY-BUCKET",
+      "category": "Decorative Blends",
+      "productType": "simple",
+      "consumableType": "SINGLE_USE",
+      "unitSize": "40 lb bucket",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-6",
+      "supplierType": "OPEN_SOURCE",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "parentSku": "DEMO-GRAY",
+      "inventory": [
+        {
+          "location": "Demo Warehouse",
+          "quantity": 3,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Sample Blue Blend",
+      "sku": "DEMO-BLUE-BOX",
+      "category": "Decorative Blends",
+      "productType": "simple",
+      "consumableType": "SINGLE_USE",
+      "unitSize": "40 lb box",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-7",
+      "supplierType": "OPEN_SOURCE",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "inventory": [
+        {
+          "location": "Demo Trailer",
+          "quantity": 8,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Demo Roller Frame",
+      "sku": "DEMO-FRAME",
+      "category": "Tools",
+      "productType": "simple",
+      "consumableType": "REUSABLE",
+      "unitSize": "each",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-8",
+      "supplierType": "OPEN_SOURCE",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "inventory": [
+        {
+          "location": "Demo Warehouse",
+          "quantity": 2,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Demo Roller Sleeve",
+      "sku": "DEMO-SLEEVE",
+      "category": "Consumables",
+      "productType": "simple",
+      "consumableType": "SINGLE_USE",
+      "unitSize": "each",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-9",
+      "supplierType": "OPEN_SOURCE",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "inventory": [
+        {
+          "location": "Demo Warehouse",
+          "quantity": 6,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Demo Masking Tape",
+      "sku": "DEMO-TAPE",
+      "category": "Consumables",
+      "productType": "simple",
+      "consumableType": "SINGLE_USE",
+      "unitSize": "each",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-10",
+      "supplierType": "OPEN_SOURCE",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "inventory": [
+        {
+          "location": "Demo Trailer",
+          "quantity": 0,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Sample Primer",
+      "sku": "DEMO-PRIMER",
+      "category": "Coatings",
+      "productType": "simple",
+      "consumableType": "SINGLE_USE",
+      "unitSize": "1 gallon",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-11",
+      "supplierType": "OPEN_SOURCE",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "inventory": [
+        {
+          "location": "Demo Warehouse",
+          "quantity": 10,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    },
+    {
+      "name": "Demo Mixing Paddle",
+      "sku": "DEMO-PADDLE",
+      "category": "Tools",
+      "productType": "simple",
+      "consumableType": "REUSABLE",
+      "unitSize": "each",
+      "manufacturer": "Example Supply Co.",
+      "description": "Fictional product for local development.",
+      "vendorPartNumber": "EXAMPLE-12",
+      "supplierType": "OPEN_SOURCE",
+      "isTracked": true,
+      "reorderPoint": 4,
+      "maxStockLevel": 20,
+      "leadTimeDays": 7,
+      "inventory": [
+        {
+          "location": "Demo Warehouse",
+          "quantity": 2,
+          "status": "SEALED",
+          "notes": "Synthetic demo stock"
+        }
+      ]
+    }
+  ]
+}

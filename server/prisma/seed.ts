@@ -1,9 +1,79 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, ProductConsumableType, UserRole } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 import fs from 'node:fs';
 import path from 'node:path';
-import bcrypt from 'bcryptjs';
 
-type InventorySeedFile = {
+type SnapshotUser = {
+  name: string;
+  role: UserRole;
+  isActive?: boolean;
+  pin?: string;
+  pinHash?: string;
+};
+
+type SnapshotLocation = {
+  name: string;
+  description?: string | null;
+};
+
+type SnapshotCategory = {
+  name: string;
+};
+
+type SnapshotInventoryItem = {
+  location: string;
+  quantity: number;
+  status?: string;
+  batchNumber?: string | null;
+  expiresAt?: string | null;
+  notes?: string | null;
+};
+
+type SnapshotComponent = {
+  componentSku?: string | null;
+  componentName?: string | null;
+  quantityRequired?: number;
+  isOptional?: boolean;
+  componentLabel?: string | null;
+  sortOrder?: number;
+};
+
+type SnapshotProduct = {
+  name: string;
+  sku?: string | null;
+  vendorPartNumber?: string | null;
+  description?: string | null;
+  color?: string | null;
+  unitSize?: string | null;
+  manufacturer?: string | null;
+  imageUrl?: string | null;
+  notes?: string | null;
+  productType?: string;
+  consumableType?: ProductConsumableType;
+  parentSku?: string | null;
+  parentName?: string | null;
+  isTracked?: boolean;
+  reorderPoint?: number | null;
+  maxStockLevel?: number | null;
+  leadTimeDays?: number;
+  supplierType?: string;
+  averageUsagePerJob?: number | null;
+  category?: string | null;
+  inventory?: SnapshotInventoryItem[];
+  components?: SnapshotComponent[];
+};
+
+type InventorySnapshot = {
+  version: 1;
+  exportedAt?: string;
+  sourceSchema?: string;
+  users: SnapshotUser[];
+  locations: SnapshotLocation[];
+  categories: SnapshotCategory[];
+  products: SnapshotProduct[];
+};
+
+type LegacyInventorySeedFile = {
   products: Array<{
     name: string;
     sku: string | null;
@@ -17,7 +87,7 @@ type InventorySeedFile = {
     maxStockLevel: number | null;
     leadTimeDays: number;
     notes: string | null;
-    consumableType?: string;
+    consumableType?: ProductConsumableType;
     inventory: Array<{
       location: string;
       quantity: number;
@@ -28,52 +98,110 @@ type InventorySeedFile = {
 };
 
 const prisma = new PrismaClient();
+const defaultSnapshotPath = path.resolve(process.cwd(), 'prisma', 'data', 'seed.snapshot.json');
+const legacyPath = path.resolve(process.cwd(), 'prisma', 'data', 'inventory.json');
 
-const dataPath = path.resolve(process.cwd(), 'prisma', 'data', 'inventory.json');
-const rawData = fs.readFileSync(dataPath, 'utf-8');
-const seedData = JSON.parse(rawData) as InventorySeedFile;
+const defaultUsers: SnapshotUser[] = [
+  { name: 'DemoOwner', role: 'OWNER', pin: '5555', isActive: true },
+  { name: 'DemoTechnician', role: 'TECH', pin: '5555', isActive: true },
+  { name: 'DemoManager', role: 'OWNER', pin: '5555', isActive: true },
+  { name: 'DemoViewer', role: 'VIEWER', pin: '5555', isActive: true },
+];
 
-const locationDescriptions: Record<string, string> = {
-  Warehouse: 'Main storage location',
-  Trailer: 'Mobile inventory for jobs',
-  Personal: 'Garage/truck overflow storage',
-};
+function parseSchemaFromUrl(url?: string) {
+  if (!url) return 'public';
+  const match = url.match(/schema=([^&]+)/);
+  return match?.[1] ?? 'public';
+}
 
-const singleUseProducts = new Set(
-  [
-    '1 Quart Bucket',
-    '2.5 Quart Bucket',
-    '5 Quart Bucket',
-    '10 Quart Bucket',
-    '18" Paint Roller Tray',
-    '18" Roller',
-    '18" Sanding Disc',
-    '9" Paint Roller',
-    '9" Paint Roller Tray',
-    '44 Gallon Drum Liner',
-    'Dust Collector Liner',
-    'Finish Squeegie',
-    'Grinder Diamonds - Coating',
-    'Grinder Diamonds - Hard',
-    'Grinder Diamonds - Medium',
-    'Grinder Diamonds - Soft',
-    'HEPA Filter',
-    'Large Gloves',
-    'Dixie Cups',
-    'Moisture Test Kit',
-    "Painter's Tape",
-    'Putty Knife',
-    'Rags',
-    'Shotblast Shot',
-    'Silica Sand',
-    'Squeegie Head Holder',
-    'Stir Wand',
-    'Cyclo-1',
-    '1/4" Squeegie Replacement Head',
-    '1/8" Squeegie Replacement Head',
-    'Squeegie Head Holder',
-  ].map((name) => name.trim()),
-);
+function resolveSnapshotPath() {
+  const schema = parseSchemaFromUrl(process.env.DATABASE_URL);
+  const normalizedSchema = schema.toLowerCase() === 'public' ? 'main' : schema;
+  const schemaSpecificPath = path.resolve(
+    process.cwd(),
+    'prisma',
+    'data',
+    `seed.snapshot.${normalizedSchema}.json`,
+  );
+
+  if (fs.existsSync(schemaSpecificPath)) {
+    return schemaSpecificPath;
+  }
+  return defaultSnapshotPath;
+}
+
+function parseSnapshot(): InventorySnapshot {
+  const snapshotPath = resolveSnapshotPath();
+  if (fs.existsSync(snapshotPath)) {
+    const raw = fs.readFileSync(snapshotPath, 'utf-8');
+    const parsed = JSON.parse(raw) as InventorySnapshot;
+
+    if (!Array.isArray(parsed.products)) {
+      throw new Error('Snapshot file is invalid: products must be an array.');
+    }
+
+    return {
+      version: 1,
+      exportedAt: parsed.exportedAt,
+      sourceSchema: parsed.sourceSchema,
+      users: parsed.users ?? defaultUsers,
+      locations: parsed.locations ?? [],
+      categories: parsed.categories ?? [],
+      products: parsed.products,
+    };
+  }
+
+  if (!fs.existsSync(legacyPath)) {
+    throw new Error(
+      'No seed file found. Expected prisma/data/seed.snapshot.json, prisma/data/seed.snapshot.<schema>.json, or prisma/data/inventory.json.',
+    );
+  }
+
+  const legacy = JSON.parse(fs.readFileSync(legacyPath, 'utf-8')) as LegacyInventorySeedFile;
+
+  const inferredLocations = Array.from(
+    new Set(legacy.products.flatMap((product) => product.inventory.map((item) => item.location))),
+  ).map((name) => ({ name }));
+
+  const inferredCategories = Array.from(new Set(legacy.products.map((product) => product.category))).map(
+    (name) => ({ name }),
+  );
+
+  return {
+    version: 1,
+    users: defaultUsers,
+    locations: inferredLocations,
+    categories: inferredCategories,
+    products: legacy.products.map((product) => ({
+      name: product.name,
+      sku: product.sku,
+      vendorPartNumber: null,
+      category: product.category,
+      supplierType: product.supplierType,
+      productType: product.productType,
+      unitSize: product.unitSize,
+      description: product.description,
+      color: product.color,
+      reorderPoint: product.reorderPoint,
+      maxStockLevel: product.maxStockLevel,
+      leadTimeDays: product.leadTimeDays,
+      notes: product.notes,
+      consumableType: product.consumableType ?? 'REUSABLE',
+      inventory: product.inventory.map((item) => ({
+        location: item.location,
+        quantity: item.quantity,
+        status: item.status,
+        notes: item.notes ?? null,
+      })),
+    })),
+  };
+}
+
+function keyForProduct(product: { sku?: string | null; name: string }) {
+  const sku = (product.sku ?? '').trim();
+  if (sku) return `sku:${sku}`;
+  return `name:${product.name.trim().toLowerCase()}`;
+}
 
 async function resetTables() {
   console.log('Clearing existing data...');
@@ -86,125 +214,199 @@ async function resetTables() {
   await prisma.user.deleteMany();
 }
 
-const defaultUsers: Array<{ name: string; role: UserRole; pin: string }> = [
-  { name: 'DemoOwner', role: 'OWNER', pin: '5555' },
-  { name: 'DemoTechnician', role: 'TECH', pin: '5555' },
-  { name: 'DemoManager', role: 'OWNER', pin: '5555' },
-  { name: 'DemoViewer', role: 'VIEWER', pin: '5555' },
-];
+async function seedUsers(users: SnapshotUser[]) {
+  console.log('Creating users...');
+  for (const user of users) {
+    let pinHash = user.pinHash;
 
-async function seedUsers() {
-  console.log('Creating default users...');
-  for (const user of defaultUsers) {
-    const pinHash = await bcrypt.hash(user.pin, 10);
+    if (!pinHash && user.pin) {
+      pinHash = await bcrypt.hash(user.pin, 10);
+    }
+
+    if (!pinHash) {
+      throw new Error(`User ${user.name} must include either pin or pinHash in snapshot.`);
+    }
+
     await prisma.user.create({
       data: {
         name: user.name,
         role: user.role,
         pinHash,
+        isActive: user.isActive ?? true,
       },
     });
   }
 }
 
-async function seedLocations() {
-  const uniqueLocations = Array.from(
-    new Set(seedData.products.flatMap((p) => p.inventory.map((item) => item.location))),
+async function seedLocations(locations: SnapshotLocation[], products: SnapshotProduct[]) {
+  const locationNamesFromProducts = products.flatMap((product) =>
+    (product.inventory ?? []).map((item) => item.location),
   );
 
-  const map = new Map<string, string>();
-  for (const name of uniqueLocations) {
-    const location = await prisma.location.create({
+  const names = new Set<string>([
+    ...locations.map((location) => location.name),
+    ...locationNamesFromProducts,
+  ]);
+
+  const locationInput = new Map(locations.map((location) => [location.name, location]));
+  const idByName = new Map<string, string>();
+
+  for (const name of Array.from(names).sort((a, b) => a.localeCompare(b))) {
+    const record = await prisma.location.create({
       data: {
         name,
-        description: locationDescriptions[name] ?? null,
+        description: locationInput.get(name)?.description ?? null,
       },
     });
-    map.set(name, location.id);
+    idByName.set(name, record.id);
   }
-  return map;
+
+  return idByName;
 }
 
-async function seedCategories() {
-  const uniqueCategories = Array.from(new Set(seedData.products.map((p) => p.category)));
-  const map = new Map<string, string>();
+async function seedCategories(categories: SnapshotCategory[], products: SnapshotProduct[]) {
+  const names = new Set<string>([
+    ...categories.map((category) => category.name),
+    ...products.map((product) => product.category).filter((value): value is string => Boolean(value)),
+  ]);
 
-  for (const name of uniqueCategories) {
-    const category = await prisma.category.create({
-      data: { name },
-    });
-    map.set(name, category.id);
+  const idByName = new Map<string, string>();
+  for (const name of Array.from(names).sort((a, b) => a.localeCompare(b))) {
+    const category = await prisma.category.create({ data: { name } });
+    idByName.set(name, category.id);
   }
 
-  return map;
+  return idByName;
 }
 
 async function seedProducts(
-  categoryMap: Map<string, string>,
-  locationMap: Map<string, string>,
+  products: SnapshotProduct[],
+  categoryIds: Map<string, string>,
+  locationIds: Map<string, string>,
 ) {
-  for (const product of seedData.products) {
-    const categoryId = categoryMap.get(product.category);
-    if (!categoryId) {
-      throw new Error(`Missing category mapping for ${product.category}`);
-    }
+  const sortedProducts = [...products].sort((a, b) => a.name.localeCompare(b.name));
+  const productIds = new Map<string, string>();
 
-    const inventoryToCreate = product.inventory.map((item) => {
-      const locationId = locationMap.get(item.location);
-      if (!locationId) {
-        throw new Error(`Missing location mapping for ${item.location}`);
-      }
-      return {
-        locationId,
-        quantity: item.quantity,
-        status: item.status,
-        notes: item.notes ?? null,
-      };
-    });
+  for (const product of sortedProducts) {
+    const categoryId = product.category ? categoryIds.get(product.category) : undefined;
 
-    const consumableType =
-      (product.consumableType as 'REUSABLE' | 'SINGLE_USE' | undefined) ??
-      (singleUseProducts.has(product.name) ? 'SINGLE_USE' : 'REUSABLE');
-
-    const createdProduct = await prisma.product.create({
+    const created = await prisma.product.create({
       data: {
         name: product.name,
-        sku: product.sku,
-        description: product.description,
-        unitSize: product.unitSize,
-        manufacturer: product.supplierType === 'OPEN_SOURCE' ? 'Various' : 'Garage Force',
+        sku: product.sku ?? null,
+        vendorPartNumber: product.vendorPartNumber ?? null,
+        description: product.description ?? null,
+        color: product.color ?? null,
+        unitSize: product.unitSize ?? null,
+        manufacturer: product.manufacturer ?? null,
+        imageUrl: product.imageUrl ?? null,
+        notes: product.notes ?? null,
+        productType: product.productType ?? 'simple',
+        consumableType: product.consumableType ?? 'REUSABLE',
+        isTracked: product.isTracked ?? false,
+        reorderPoint: product.reorderPoint ?? null,
+        maxStockLevel: product.maxStockLevel ?? null,
+        leadTimeDays: product.leadTimeDays ?? 7,
+        supplierType: product.supplierType ?? 'OPEN_SOURCE',
+        averageUsagePerJob: product.averageUsagePerJob ?? null,
         categoryId,
-        productType: product.productType,
-        supplierType: product.supplierType,
-        consumableType,
-        color: product.color,
-        reorderPoint: product.reorderPoint ?? undefined,
-        maxStockLevel: product.maxStockLevel ?? undefined,
-        leadTimeDays: product.leadTimeDays,
-        notes: product.notes,
-        inventoryItems: {
-          create: inventoryToCreate,
-        },
       },
     });
 
-    console.log(`✓ Seeded product: ${createdProduct.name}`);
+    productIds.set(keyForProduct(product), created.id);
+  }
+
+  for (const product of sortedProducts) {
+    if (!product.parentSku && !product.parentName) continue;
+
+    const productId = productIds.get(keyForProduct(product));
+    if (!productId) continue;
+
+    const parentKey = product.parentSku
+      ? keyForProduct({ sku: product.parentSku, name: product.parentName ?? product.parentSku })
+      : keyForProduct({ name: product.parentName ?? '', sku: null });
+
+    const parentId = productIds.get(parentKey);
+    if (!parentId) {
+      throw new Error(`Missing parent product for ${product.name}: ${product.parentSku ?? product.parentName}`);
+    }
+
+    await prisma.product.update({
+      where: { id: productId },
+      data: { parentProductId: parentId },
+    });
+  }
+
+  for (const product of sortedProducts) {
+    const productId = productIds.get(keyForProduct(product));
+    if (!productId) continue;
+
+    for (const item of product.inventory ?? []) {
+      const locationId = locationIds.get(item.location);
+      if (!locationId) {
+        throw new Error(`Missing location mapping for ${item.location}`);
+      }
+
+      await prisma.inventoryItem.create({
+        data: {
+          productId,
+          locationId,
+          quantity: item.quantity,
+          status: item.status ?? 'SEALED',
+          batchNumber: item.batchNumber ?? null,
+          expiresAt: item.expiresAt ? new Date(item.expiresAt) : null,
+          notes: item.notes ?? null,
+        },
+      });
+    }
+  }
+
+  for (const product of sortedProducts) {
+    const kitProductId = productIds.get(keyForProduct(product));
+    if (!kitProductId) continue;
+
+    for (const component of product.components ?? []) {
+      const componentKey = component.componentSku
+        ? keyForProduct({ sku: component.componentSku, name: component.componentName ?? component.componentSku })
+        : keyForProduct({ name: component.componentName ?? '', sku: null });
+
+      const componentProductId = productIds.get(componentKey);
+      if (!componentProductId) {
+        throw new Error(
+          `Missing component product for ${product.name}: ${component.componentSku ?? component.componentName}`,
+        );
+      }
+
+      await prisma.productComponent.create({
+        data: {
+          kitProductId,
+          componentProductId,
+          quantityRequired: component.quantityRequired ?? 1,
+          isOptional: component.isOptional ?? false,
+          componentLabel: component.componentLabel ?? null,
+          sortOrder: component.sortOrder ?? 0,
+        },
+      });
+    }
   }
 }
 
 async function main() {
-  console.log('Seeding database with real inventory snapshot...');
+  const snapshot = parseSnapshot();
+
+  console.log('Seeding database from snapshot baseline...');
   await resetTables();
-  await seedUsers();
+  await seedUsers(snapshot.users);
 
-  const locationMap = await seedLocations();
-  console.log(`✓ Created ${locationMap.size} locations`);
+  const locationIds = await seedLocations(snapshot.locations, snapshot.products);
+  console.log(`Created ${locationIds.size} locations`);
 
-  const categoryMap = await seedCategories();
-  console.log(`✓ Created ${categoryMap.size} categories`);
+  const categoryIds = await seedCategories(snapshot.categories, snapshot.products);
+  console.log(`Created ${categoryIds.size} categories`);
 
-  await seedProducts(categoryMap, locationMap);
-  console.log('Seeding complete!');
+  await seedProducts(snapshot.products, categoryIds, locationIds);
+  console.log(`Created ${snapshot.products.length} products`);
+  console.log('Seeding complete.');
 }
 
 main()
