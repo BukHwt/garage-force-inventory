@@ -155,6 +155,7 @@
 
 ## Shared Orders Pricing Notes
 - Include per-item price on shared order items and show running order total.
+- UI direction: do not require users to type price during add flow; add flow should be quantity-first.
 - Operational target: free shipping threshold at `$3,000` for combined orders.
 - Data source preference:
   1. Existing shared CSV inputs/snapshots if price is present.

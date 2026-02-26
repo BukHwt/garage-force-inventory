@@ -5,26 +5,24 @@ import {
   deleteSharedOrderItem,
   fetchSharedOrders,
   markAllOpenSharedOrdersAsOrdered,
-  updateSharedOrderItem,
   updateSharedOrderStatus,
 } from '../../api/services/sharedOrders';
+import { fetchProducts } from '../../api/services/products';
 import { useAuth } from '../../context/AuthContext';
-import { SharedOrderItem, SharedOrderStatus } from '../../types';
+import { Product, SharedOrderItem, SharedOrderStatus } from '../../types';
 
 type Mode = 'view' | 'add';
 
-type FormState = {
-  productName: string;
-  quantity: string;
-  estimatedUnitPrice: string;
-  sku: string;
-  vendorPartNumber: string;
-  unitSize: string;
-  categoryName: string;
-  notes: string;
+type CatalogGroup = {
+  key: string;
+  name: string;
+  products: Product[];
 };
 
-const FREE_SHIPPING_CENTS = 300000;
+type StatusGroup = {
+  status: SharedOrderStatus;
+  items: SharedOrderItem[];
+};
 
 const STATUS_LABELS: Record<SharedOrderStatus, string> = {
   OPEN: 'Open',
@@ -35,58 +33,80 @@ const STATUS_LABELS: Record<SharedOrderStatus, string> = {
 
 const STATUS_ORDER: SharedOrderStatus[] = ['OPEN', 'ORDERED', 'RECEIVED', 'CANCELLED'];
 
-const emptyForm: FormState = {
-  productName: '',
-  quantity: '1',
-  estimatedUnitPrice: '',
-  sku: '',
-  vendorPartNumber: '',
-  unitSize: '',
-  categoryName: '',
-  notes: '',
+const DEFAULT_STATUS_COLLAPSED: Record<SharedOrderStatus, boolean> = {
+  OPEN: false,
+  ORDERED: true,
+  RECEIVED: true,
+  CANCELLED: true,
 };
 
-function toFormState(item: SharedOrderItem): FormState {
-  return {
-    productName: item.productName,
-    quantity: String(item.quantity),
-    estimatedUnitPrice:
-      item.estimatedUnitPriceCents !== null && item.estimatedUnitPriceCents !== undefined
-        ? (item.estimatedUnitPriceCents / 100).toFixed(2)
-        : '',
-    sku: item.sku ?? '',
-    vendorPartNumber: item.vendorPartNumber ?? '',
-    unitSize: item.unitSize ?? '',
-    categoryName: item.categoryName ?? '',
-    notes: item.notes ?? '',
-  };
+const UNCATEGORIZED_KEY = '__uncategorized__';
+const UNCATEGORIZED_NAME = 'Uncategorized';
+const ADDED_BADGE_DURATION_MS = 1200;
+
+function getErrorMessage(err: unknown, fallback: string) {
+  return err instanceof ApiError ? err.message : fallback;
 }
 
-function formatCurrency(cents: number) {
-  return new Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(cents / 100);
+function includesText(value: string | null | undefined, query: string) {
+  return (value ?? '').toLowerCase().includes(query);
 }
 
-function buildPayload(form: FormState) {
-  const quantity = Number(form.quantity);
-  const hasPrice = form.estimatedUnitPrice.trim().length > 0;
-  const unitPriceDollars = Number(form.estimatedUnitPrice);
+function filterSharedOrders(items: SharedOrderItem[], query: string) {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) {
+    return items;
+  }
 
-  return {
-    productName: form.productName,
-    quantity,
-    estimatedUnitPriceCents: hasPrice && Number.isFinite(unitPriceDollars)
-      ? Math.round(unitPriceDollars * 100)
-      : null,
-    sku: form.sku,
-    vendorPartNumber: form.vendorPartNumber,
-    unitSize: form.unitSize,
-    categoryName: form.categoryName,
-    notes: form.notes,
-  };
+  return items.filter((item) =>
+    includesText(item.productName, normalized) ||
+    includesText(item.sku, normalized) ||
+    includesText(item.vendorPartNumber, normalized) ||
+    includesText(item.notes, normalized),
+  );
+}
+
+function filterCatalogProducts(products: Product[], query: string) {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) {
+    return products;
+  }
+
+  return products.filter((product) =>
+    includesText(product.name, normalized) ||
+    includesText(product.sku, normalized) ||
+    includesText(product.vendorPartNumber, normalized) ||
+    includesText(product.category?.name, normalized),
+  );
+}
+
+function groupCatalogProducts(products: Product[]): CatalogGroup[] {
+  const groups = new Map<string, CatalogGroup>();
+
+  for (const product of products) {
+    const key = product.category?.id || UNCATEGORIZED_KEY;
+    const name = product.category?.name || UNCATEGORIZED_NAME;
+    const existing = groups.get(key) ?? { key, name, products: [] };
+    existing.products.push(product);
+    groups.set(key, existing);
+  }
+
+  return Array.from(groups.values()).sort((a, b) => {
+    if (a.key === UNCATEGORIZED_KEY) return 1;
+    if (b.key === UNCATEGORIZED_KEY) return -1;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+function ensureCatalogSectionState(
+  prev: Record<string, boolean>,
+  groups: CatalogGroup[],
+): Record<string, boolean> {
+  const next: Record<string, boolean> = {};
+  for (const group of groups) {
+    next[group.key] = prev[group.key] ?? true;
+  }
+  return next;
 }
 
 export function SharedOrdersScreen() {
@@ -101,26 +121,38 @@ export function SharedOrdersScreen() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [lastCreatedId, setLastCreatedId] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [collapsedStatuses, setCollapsedStatuses] = useState<Record<SharedOrderStatus, boolean>>({
-    OPEN: false,
-    ORDERED: true,
-    RECEIVED: true,
-    CANCELLED: true,
-  });
-  const [form, setForm] = useState<FormState>(emptyForm);
+  const [collapsedStatuses, setCollapsedStatuses] = useState<Record<SharedOrderStatus, boolean>>(
+    DEFAULT_STATUS_COLLAPSED,
+  );
+
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
+  const [catalogCollapsedSections, setCatalogCollapsedSections] = useState<Record<string, boolean>>({});
+  const [pendingQuantityByProductId, setPendingQuantityByProductId] = useState<Record<string, number>>({});
+  const [recentlyAddedByProductId, setRecentlyAddedByProductId] = useState<Record<string, boolean>>({});
 
   const loadItems = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchSharedOrders();
-      setItems(data);
+      setItems(await fetchSharedOrders());
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Unable to load shared orders';
-      setError(message);
+      setError(getErrorMessage(err, 'Unable to load shared orders'));
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const loadCatalog = useCallback(async () => {
+    setCatalogLoading(true);
+    setError(null);
+    try {
+      setCatalogProducts(await fetchProducts({ includeUntracked: true }));
+    } catch (err) {
+      setError(getErrorMessage(err, 'Unable to load product catalog'));
+    } finally {
+      setCatalogLoading(false);
     }
   }, []);
 
@@ -128,122 +160,104 @@ export function SharedOrdersScreen() {
     loadItems();
   }, [loadItems]);
 
-  const filteredItems = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase();
-    if (!query) return items;
-    return items.filter((item) =>
-      item.productName.toLowerCase().includes(query) ||
-      (item.sku ?? '').toLowerCase().includes(query) ||
-      (item.vendorPartNumber ?? '').toLowerCase().includes(query) ||
-      (item.notes ?? '').toLowerCase().includes(query),
-    );
-  }, [items, searchTerm]);
+  useEffect(() => {
+    if (mode === 'add' && !catalogLoading && catalogProducts.length === 0) {
+      loadCatalog();
+    }
+  }, [catalogLoading, catalogProducts.length, loadCatalog, mode]);
 
-  const groupedItems = useMemo(() => {
-    return STATUS_ORDER.map((status) => ({
-      status,
-      items: filteredItems.filter((item) => item.status === status),
-    }));
-  }, [filteredItems]);
+  const filteredItems = useMemo(
+    () => filterSharedOrders(items, searchTerm),
+    [items, searchTerm],
+  );
 
-  const openTotalCents = useMemo(() => {
-    return items
-      .filter((item) => item.status === 'OPEN' && item.estimatedUnitPriceCents !== null && item.estimatedUnitPriceCents !== undefined)
-      .reduce((sum, item) => sum + item.quantity * (item.estimatedUnitPriceCents ?? 0), 0);
-  }, [items]);
+  const groupedItems = useMemo<StatusGroup[]>(
+    () => STATUS_ORDER.map((status) => ({ status, items: filteredItems.filter((item) => item.status === status) })),
+    [filteredItems],
+  );
 
-  const remainingToFreeShipping = Math.max(FREE_SHIPPING_CENTS - openTotalCents, 0);
+  const filteredCatalogProducts = useMemo(
+    () => filterCatalogProducts(catalogProducts, catalogSearchTerm),
+    [catalogProducts, catalogSearchTerm],
+  );
+
+  const groupedCatalogProducts = useMemo(
+    () => groupCatalogProducts(filteredCatalogProducts),
+    [filteredCatalogProducts],
+  );
+
+  useEffect(() => {
+    if (mode !== 'add') {
+      return;
+    }
+
+    setCatalogCollapsedSections((prev) => ensureCatalogSectionState(prev, groupedCatalogProducts));
+  }, [groupedCatalogProducts, mode]);
 
   const toggleStatusSection = (status: SharedOrderStatus) => {
-    setCollapsedStatuses((prev) => ({
-      ...prev,
-      [status]: !prev[status],
-    }));
+    setCollapsedStatuses((prev) => ({ ...prev, [status]: !prev[status] }));
   };
 
-  const showAll = () => {
-    setCollapsedStatuses({
-      OPEN: false,
-      ORDERED: false,
-      RECEIVED: false,
-      CANCELLED: false,
-    });
+  const toggleCatalogSection = (key: string) => {
+    setCatalogCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const hideAll = () => {
-    setCollapsedStatuses({
-      OPEN: true,
-      ORDERED: true,
-      RECEIVED: true,
-      CANCELLED: true,
-    });
+  const showAllStatuses = () => {
+    setCollapsedStatuses({ OPEN: false, ORDERED: false, RECEIVED: false, CANCELLED: false });
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (isViewer) return;
+  const hideAllStatuses = () => {
+    setCollapsedStatuses({ OPEN: true, ORDERED: true, RECEIVED: true, CANCELLED: true });
+  };
 
-    setSubmitting(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      const payload = buildPayload(form);
-      if (editingId) {
-        await updateSharedOrderItem(editingId, payload);
-        setSuccess('Shared order item updated.');
-      } else {
-        const created = await createSharedOrderItem(payload);
-        setLastCreatedId(created.id);
-        setSuccess('Item added to shared orders.');
-      }
-      setForm(emptyForm);
-      setEditingId(null);
-      await loadItems();
-      setMode('view');
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Unable to save shared order item';
-      setError(message);
-    } finally {
-      setSubmitting(false);
-    }
+  const showAllCatalog = () => {
+    setCatalogCollapsedSections(() =>
+      groupedCatalogProducts.reduce<Record<string, boolean>>((acc, group) => {
+        acc[group.key] = false;
+        return acc;
+      }, {}),
+    );
+  };
+
+  const hideAllCatalog = () => {
+    setCatalogCollapsedSections(() =>
+      groupedCatalogProducts.reduce<Record<string, boolean>>((acc, group) => {
+        acc[group.key] = true;
+        return acc;
+      }, {}),
+    );
   };
 
   const handleUndoCreate = async () => {
     if (!lastCreatedId || isViewer) return;
+
     setSubmitting(true);
     setError(null);
+
     try {
       await deleteSharedOrderItem(lastCreatedId);
       setSuccess('Last add undone.');
       setLastCreatedId(null);
       await loadItems();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Unable to undo';
-      setError(message);
+      setError(getErrorMessage(err, 'Unable to undo'));
     } finally {
       setSubmitting(false);
     }
   };
 
-  const beginEdit = (item: SharedOrderItem) => {
-    setEditingId(item.id);
-    setForm(toFormState(item));
-    setMode('add');
-    setError(null);
-    setSuccess(null);
-  };
-
   const handleStatusChange = async (itemId: string, status: SharedOrderStatus) => {
     if (isViewer) return;
+
     setSubmitting(true);
     setError(null);
     setSuccess(null);
+
     try {
       await updateSharedOrderStatus(itemId, status);
       await loadItems();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Unable to update status';
-      setError(message);
+      setError(getErrorMessage(err, 'Unable to update status'));
     } finally {
       setSubmitting(false);
     }
@@ -251,16 +265,60 @@ export function SharedOrdersScreen() {
 
   const handleMarkOpenOrdered = async () => {
     if (isViewer) return;
+
     setSubmitting(true);
     setError(null);
     setSuccess(null);
+
     try {
       const result = await markAllOpenSharedOrdersAsOrdered();
       setSuccess(`Marked ${result.updatedCount} item${result.updatedCount === 1 ? '' : 's'} as ordered.`);
       await loadItems();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Unable to mark open items as ordered';
-      setError(message);
+      setError(getErrorMessage(err, 'Unable to mark open items as ordered'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const updatePendingQuantity = (productId: string, nextValue: number) => {
+    setPendingQuantityByProductId((prev) => ({ ...prev, [productId]: Math.max(0, nextValue) }));
+  };
+
+  const handleRowAdd = async (product: Product) => {
+    if (isViewer) return;
+
+    const quantity = pendingQuantityByProductId[product.id] ?? 0;
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const created = await createSharedOrderItem({
+        productName: product.name,
+        sku: product.sku,
+        vendorPartNumber: product.vendorPartNumber,
+        unitSize: product.unitSize,
+        categoryName: product.category?.name,
+        quantity,
+      });
+
+      setLastCreatedId(created.id);
+      setSuccess(`Added ${product.name} to shared orders.`);
+      setPendingQuantityByProductId((prev) => ({ ...prev, [product.id]: 0 }));
+      setRecentlyAddedByProductId((prev) => ({ ...prev, [product.id]: true }));
+
+      setTimeout(() => {
+        setRecentlyAddedByProductId((prev) => ({ ...prev, [product.id]: false }));
+      }, ADDED_BADGE_DURATION_MS);
+
+      await loadItems();
+    } catch (err) {
+      setError(getErrorMessage(err, 'Unable to add item to shared orders'));
     } finally {
       setSubmitting(false);
     }
@@ -286,12 +344,7 @@ export function SharedOrdersScreen() {
           </button>
           <button
             type="button"
-            onClick={() => {
-              setMode('add');
-              if (!editingId) {
-                setForm(emptyForm);
-              }
-            }}
+            onClick={() => setMode('add')}
             className={`p-3 rounded-lg border-2 transition-all font-heading font-semibold ${
               mode === 'add'
                 ? 'bg-gf-green-700 border-gf-green text-white'
@@ -299,20 +352,20 @@ export function SharedOrdersScreen() {
             }`}
             style={{ minHeight: '44px' }}
           >
-            <div className="text-sm">{editingId ? 'Edit Item' : 'Add Item'}</div>
+            <div className="text-sm">Add Item</div>
           </button>
         </div>
 
-        {mode === 'view' && (
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Search shared order items..."
-            className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-gf-green"
-            style={{ minHeight: '44px' }}
-          />
-        )}
+        <input
+          type="text"
+          value={mode === 'view' ? searchTerm : catalogSearchTerm}
+          onChange={(event) =>
+            mode === 'view' ? setSearchTerm(event.target.value) : setCatalogSearchTerm(event.target.value)
+          }
+          placeholder={mode === 'view' ? 'Search shared order items...' : 'Search products...'}
+          className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-gf-green"
+          style={{ minHeight: '44px' }}
+        />
       </div>
 
       <div className="p-4 space-y-3">
@@ -335,21 +388,6 @@ export function SharedOrdersScreen() {
 
         {mode === 'view' ? (
           <>
-            <div className="bg-dark-card border border-dark-border rounded-lg p-3 space-y-1">
-              <p className="text-sm text-dark-text-secondary">
-                Open order estimate: <span className="text-dark-text-primary font-semibold">{formatCurrency(openTotalCents)}</span>
-              </p>
-              {remainingToFreeShipping > 0 ? (
-                <p className="text-xs text-dark-text-muted">
-                  {formatCurrency(remainingToFreeShipping)} remaining to reach free shipping ({formatCurrency(FREE_SHIPPING_CENTS)}).
-                </p>
-              ) : (
-                <p className="text-xs text-gf-green-200">
-                  Free shipping threshold reached.
-                </p>
-              )}
-            </div>
-
             {!isViewer && (
               <div className="flex justify-end">
                 <button
@@ -366,14 +404,14 @@ export function SharedOrdersScreen() {
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
-                onClick={hideAll}
+                onClick={hideAllStatuses}
                 className="px-2 py-1 text-xs rounded border border-dark-border text-dark-text-secondary"
               >
                 Hide All
               </button>
               <button
                 type="button"
-                onClick={showAll}
+                onClick={showAllStatuses}
                 className="px-2 py-1 text-xs rounded border border-dark-border text-dark-text-secondary"
               >
                 Show All
@@ -392,9 +430,7 @@ export function SharedOrdersScreen() {
                     onClick={() => toggleStatusSection(group.status)}
                     className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-gf-charcoal-700 transition-colors duration-150"
                   >
-                    <h3 className="font-heading font-semibold text-sm text-dark-text-primary">
-                      {STATUS_LABELS[group.status]}
-                    </h3>
+                    <h3 className="font-heading font-semibold text-sm text-dark-text-primary">{STATUS_LABELS[group.status]}</h3>
                     <span className="text-dark-text-secondary text-xs">
                       {collapsedStatuses[group.status] ? 'Show' : 'Hide'} ({group.items.length})
                     </span>
@@ -418,36 +454,18 @@ export function SharedOrdersScreen() {
                                 <p className="text-xs text-dark-text-muted mt-1">
                                   Requested by {item.requestedByUserName} ({item.requestedByTenant})
                                 </p>
-                                {item.estimatedUnitPriceCents !== null && item.estimatedUnitPriceCents !== undefined && (
-                                  <p className="text-xs text-dark-text-secondary mt-1">
-                                    Est. Unit: {formatCurrency(item.estimatedUnitPriceCents)} | Est. Line: {formatCurrency(item.estimatedUnitPriceCents * item.quantity)}
-                                  </p>
-                                )}
-                                {item.notes && (
-                                  <p className="text-xs text-dark-text-secondary mt-1">
-                                    Notes: {item.notes}
-                                  </p>
-                                )}
+                                {item.notes && <p className="text-xs text-dark-text-secondary mt-1">Notes: {item.notes}</p>}
                               </div>
                               {!isViewer && (
                                 <div className="flex flex-col gap-2">
                                   {item.status === 'OPEN' && (
-                                    <>
-                                      <button
-                                        type="button"
-                                        onClick={() => beginEdit(item)}
-                                        className="px-3 py-1 text-xs rounded border border-dark-border text-dark-text-secondary"
-                                      >
-                                        Edit
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleStatusChange(item.id, 'ORDERED')}
-                                        className="px-3 py-1 text-xs rounded border border-gf-green text-gf-green"
-                                      >
-                                        Mark Ordered
-                                      </button>
-                                    </>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStatusChange(item.id, 'ORDERED')}
+                                      className="px-3 py-1 text-xs rounded border border-gf-green text-gf-green"
+                                    >
+                                      Mark Ordered
+                                    </button>
                                   )}
                                   {item.status === 'ORDERED' && (
                                     <button
@@ -480,132 +498,113 @@ export function SharedOrdersScreen() {
             )}
           </>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-dark-card border border-dark-border rounded-lg p-4 space-y-3">
-            <h3 className="font-heading text-lg text-dark-text-primary">
-              {editingId ? 'Edit Shared Order Item' : 'Add Shared Order Item'}
-            </h3>
-
-            <div>
-              <label className="block text-xs uppercase tracking-wide text-dark-text-secondary mb-1">
-                Product Name *
-              </label>
-              <input
-                value={form.productName}
-                onChange={(event) => setForm((prev) => ({ ...prev, productName: event.target.value }))}
-                className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary"
-                required
-              />
+          <>
+            <div className="text-sm text-dark-text-secondary">
+              Pick quantities inline, then add directly from each product row.
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs uppercase tracking-wide text-dark-text-secondary mb-1">
-                  Quantity *
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  value={form.quantity}
-                  onChange={(event) => setForm((prev) => ({ ...prev, quantity: event.target.value }))}
-                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wide text-dark-text-secondary mb-1">
-                  Est Unit Price ($)
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={form.estimatedUnitPrice}
-                  onChange={(event) => setForm((prev) => ({ ...prev, estimatedUnitPrice: event.target.value }))}
-                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs uppercase tracking-wide text-dark-text-secondary mb-1">
-                  SKU
-                </label>
-                <input
-                  value={form.sku}
-                  onChange={(event) => setForm((prev) => ({ ...prev, sku: event.target.value }))}
-                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wide text-dark-text-secondary mb-1">
-                  Vendor Part #
-                </label>
-                <input
-                  value={form.vendorPartNumber}
-                  onChange={(event) => setForm((prev) => ({ ...prev, vendorPartNumber: event.target.value }))}
-                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs uppercase tracking-wide text-dark-text-secondary mb-1">
-                  Unit Size
-                </label>
-                <input
-                  value={form.unitSize}
-                  onChange={(event) => setForm((prev) => ({ ...prev, unitSize: event.target.value }))}
-                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wide text-dark-text-secondary mb-1">
-                  Category
-                </label>
-                <input
-                  value={form.categoryName}
-                  onChange={(event) => setForm((prev) => ({ ...prev, categoryName: event.target.value }))}
-                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs uppercase tracking-wide text-dark-text-secondary mb-1">
-                Notes
-              </label>
-              <textarea
-                value={form.notes}
-                onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
-                className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary min-h-[90px]"
-              />
-            </div>
-
-            <div className="flex gap-2">
+            <div className="flex items-center justify-end gap-2">
               <button
-                type="submit"
-                disabled={submitting || isViewer}
-                className="btn-gf flex-1 py-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                type="button"
+                onClick={hideAllCatalog}
+                className="px-2 py-1 text-xs rounded border border-dark-border text-dark-text-secondary"
               >
-                {editingId ? 'Save Changes' : 'Add Item'}
+                Hide All
               </button>
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingId(null);
-                    setForm(emptyForm);
-                    setMode('view');
-                  }}
-                  className="btn-gf-outline flex-1 py-2"
-                >
-                  Cancel Edit
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={showAllCatalog}
+                className="px-2 py-1 text-xs rounded border border-dark-border text-dark-text-secondary"
+              >
+                Show All
+              </button>
             </div>
-          </form>
+
+            {catalogLoading ? (
+              <div className="bg-dark-card p-6 rounded-lg text-center border border-dark-border text-dark-text-secondary">
+                Loading product catalog...
+              </div>
+            ) : groupedCatalogProducts.length === 0 ? (
+              <div className="bg-dark-card p-6 rounded-lg text-center border border-dark-border text-dark-text-muted">
+                No products found
+              </div>
+            ) : (
+              groupedCatalogProducts.map((group) => (
+                <section key={group.key} className="bg-dark-card border border-dark-border rounded-lg shadow-lg overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleCatalogSection(group.key)}
+                    className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-gf-charcoal-700 transition-colors duration-150"
+                  >
+                    <h3 className="font-heading font-semibold text-sm text-dark-text-primary truncate pr-2">{group.name}</h3>
+                    <span className="text-dark-text-secondary text-xs whitespace-nowrap">
+                      {catalogCollapsedSections[group.key] ? 'Show' : 'Hide'} ({group.products.length})
+                    </span>
+                  </button>
+
+                  {!catalogCollapsedSections[group.key] && (
+                    <div className="border-t border-dark-border">
+                      {group.products.map((product) => {
+                        const quantity = pendingQuantityByProductId[product.id] ?? 0;
+                        const recentlyAdded = recentlyAddedByProductId[product.id] ?? false;
+
+                        return (
+                          <div key={product.id} className="px-3 py-2 border-b border-dark-border last:border-b-0">
+                            <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-2">
+                              <div className="min-w-0">
+                                <p className="font-heading font-semibold text-sm text-dark-text-primary truncate">
+                                  {product.name}
+                                </p>
+                                {product.unitSize && (
+                                  <p className="text-xs text-dark-text-muted truncate">{product.unitSize}</p>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => updatePendingQuantity(product.id, quantity - 1)}
+                                disabled={isViewer || quantity <= 0 || submitting}
+                                className="w-8 h-8 rounded border border-dark-border text-dark-text-primary disabled:opacity-50"
+                              >
+                                -
+                              </button>
+                              <div className="min-w-[24px] text-center font-heading text-dark-text-primary text-sm">
+                                {quantity}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => updatePendingQuantity(product.id, quantity + 1)}
+                                disabled={isViewer || submitting}
+                                className="w-8 h-8 rounded border border-dark-border text-dark-text-primary disabled:opacity-50"
+                              >
+                                +
+                              </button>
+
+                              <div className="w-14 text-right">
+                                {recentlyAdded ? (
+                                  <span className="text-xs font-semibold text-gf-green-200">ADDED!</span>
+                                ) : quantity > 0 ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRowAdd(product)}
+                                    disabled={isViewer || submitting}
+                                    className="px-2 py-1 text-xs rounded border border-gf-green text-gf-green disabled:opacity-50"
+                                  >
+                                    Add
+                                  </button>
+                                ) : (
+                                  <span className="inline-block w-full" aria-hidden="true">&nbsp;</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              ))
+            )}
+          </>
         )}
       </div>
     </div>

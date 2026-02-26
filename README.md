@@ -190,8 +190,8 @@ Legacy reconciliation scripts are archived in `server/scripts/archive`.
 
 - Open the **More** tab and tap **Shared Orders**.
 - Use `View/Edit` to manage status (`OPEN`, `ORDERED`, `RECEIVED`, `CANCELLED`) and `Add Item` to append new order requests.
-- Shared list uses a running estimated total and highlights progress toward the `$3,000` free-shipping target.
-- Price data can be entered per item and later enriched from CSV/snapshot sources.
+- Add flow is quantity-first (no manual price entry in-row).
+- Price data and `$3,000` free-shipping progress are planned for later once pricing sources are integrated.
 
 ## Database Schema
 
