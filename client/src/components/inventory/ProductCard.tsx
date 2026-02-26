@@ -13,6 +13,7 @@ interface ProductCardProps {
 export const ProductCard = memo(function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick }: ProductCardProps) {
   const isReorderNeeded = needsReorder(product);
   const showingAllLocations = selectedLocation === 'all';
+  const isSingleUse = product.consumableType === 'SINGLE_USE';
   const unitLabel = product.unitSize || 'units';
 
   const displayQuantity = showingAllLocations
@@ -54,7 +55,16 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
           )}
         </div>
         <div className="text-right">
-          {openQuantity > 0 && sealedQuantity > 0 ? (
+          {isSingleUse ? (
+            <>
+              <div className="text-xl font-heading font-bold text-dark-text-primary">
+                {displayQuantity}
+              </div>
+              <div className="text-xs font-body text-dark-text-secondary">
+                {unitLabel}
+              </div>
+            </>
+          ) : openQuantity > 0 && sealedQuantity > 0 ? (
             <div className="flex gap-2 justify-end items-baseline">
               <div className="text-right">
                 <div className="text-base font-heading font-bold text-amber-400">
@@ -107,31 +117,39 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
                   locationName: item.location.name,
                   open: 0,
                   sealed: 0,
+                  total: 0,
                 };
                 if (item.status === 'OPEN') {
                   summary.open += item.quantity;
                 } else {
                   summary.sealed += item.quantity;
                 }
+                summary.total += item.quantity;
                 map.set(key, summary);
                 return map;
-              }, new Map<string, { locationName: string; open: number; sealed: number }>())
+              }, new Map<string, { locationName: string; open: number; sealed: number; total: number }>())
             ).map(([key, summary]) => (
               <div key={key} className="flex items-center justify-between">
                 <span className="font-semibold text-dark-text-secondary">{summary.locationName}</span>
                 <span className="text-dark-text-muted">
-                  {summary.open > 0 && (
-                    <span className="text-amber-400">
-                      {summary.open} open
-                      {summary.sealed > 0 ? ' / ' : ''}
-                    </span>
+                  {isSingleUse ? (
+                    <span className="text-dark-text-primary">{summary.total}</span>
+                  ) : (
+                    <>
+                      {summary.open > 0 && (
+                        <span className="text-amber-400">
+                          {summary.open} open
+                          {summary.sealed > 0 ? ' / ' : ''}
+                        </span>
+                      )}
+                      {summary.sealed > 0 && (
+                        <span className="text-gf-green">
+                          {summary.sealed} sealed
+                        </span>
+                      )}
+                      {summary.open === 0 && summary.sealed === 0 && <span>0</span>}
+                    </>
                   )}
-                  {summary.sealed > 0 && (
-                    <span className="text-gf-green">
-                      {summary.sealed} sealed
-                    </span>
-                  )}
-                  {summary.open === 0 && summary.sealed === 0 && <span>0</span>}
                 </span>
               </div>
             ))}

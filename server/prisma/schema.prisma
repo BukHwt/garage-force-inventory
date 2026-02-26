@@ -34,6 +34,7 @@ model Product {
   name               String
   description        String?
   sku                String?                @unique
+  vendorPartNumber   String?
   color              String?
   unitSize           String?
   manufacturer       String?
@@ -61,6 +62,8 @@ model Product {
   // Kit relationships
   kitComponents      ProductComponent[]     @relation("KitProduct")
   componentOf        ProductComponent[]     @relation("ComponentProduct")
+
+  @@index([vendorPartNumber])
 }
 
 enum ProductConsumableType {

@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-02-25T17:57:42.744Z",
+  "mainProducts": 321,
+  "adamProducts": 320,
+  "mainSkus": 302,
+  "adamSkus": 302,
+  "missingInAdam": [],
+  "missingInMain": [],
+  "categoryMismatches": [
+    {
+      "sku": "GF-ABRRESADD",
+      "mainCategory": "Cyclo-1 (Single Component)",
+      "adamCategory": "Anti-Slip Aggregate",
+      "mainName": "Abrasion Resistance Additive",
+      "adamName": "Abrasion Resistance Additive"
+    }
+  ],
+  "nameMismatches": [],
+  "duplicateSkus": {
+    "main": [],
+    "adam": []
+  },
+  "noSkuProducts": {
+    "main": 19,
+    "adam": 18
+  },
+  "allowedDifferences": {
+    "isTrackedDiffCount": 32,
+    "inventoryQuantityDiffCount": 33
+  }
+}

@@ -68,11 +68,52 @@ export function ProductList({
     }));
   }, []);
 
+  const hideAllSections = useCallback(() => {
+    setCollapsedSections(() =>
+      groupedProducts.reduce<Record<string, boolean>>((acc, group) => {
+        acc[group.key] = true;
+        return acc;
+      }, {})
+    );
+  }, [groupedProducts]);
+
+  const showAllSections = useCallback(() => {
+    setCollapsedSections(() =>
+      groupedProducts.reduce<Record<string, boolean>>((acc, group) => {
+        acc[group.key] = false;
+        return acc;
+      }, {})
+    );
+  }, [groupedProducts]);
+
+  const hasExpandedSections = groupedProducts.some(group => !collapsedSections[group.key]);
+  const hasCollapsedSections = groupedProducts.some(group => collapsedSections[group.key] ?? true);
+
   return (
     <div className="space-y-3">
-      <h2 className="font-bold text-dark-text-primary text-lg">
-        Inventory {locationName && `- ${locationName}`}
-      </h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="font-bold text-dark-text-primary text-lg">
+          Inventory {locationName && `- ${locationName}`}
+        </h2>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={hideAllSections}
+            disabled={!hasExpandedSections}
+            className="px-2 py-1 text-xs rounded border border-dark-border text-dark-text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Hide All
+          </button>
+          <button
+            type="button"
+            onClick={showAllSections}
+            disabled={!hasCollapsedSections}
+            className="px-2 py-1 text-xs rounded border border-dark-border text-dark-text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Show All
+          </button>
+        </div>
+      </div>
 
       {products.length === 0 ? (
         <EmptyState message="No products found. Add some products to get started!" />
