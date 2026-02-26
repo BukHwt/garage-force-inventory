@@ -7,6 +7,7 @@ Mobile-first inventory management system for SD Concrete Coating Inc / Garage Fo
 - **Multi-location inventory tracking** - Warehouse, Trailer, Personal
 - **Location management** - Create/edit locations, enforce unique naming, and delete only when inventory is zero
 - **Neighbor inventory visibility** - Read-only cross-tenant view to see what nearby franchise inventory is on hand
+- **Shared orders list** - Combined purchasing list with status tracking and running total toward free shipping
 - **Smart reorder alerts** - Never run out of critical materials
 - **Supplier management** - Track Garage Force required/optional vs locally sourced items
 - **Transaction history & rollback** - Full audit trail of receipts, consumption, transfers with rollback safeguards
@@ -184,6 +185,13 @@ Legacy reconciliation scripts are archived in `server/scripts/archive`.
 - Choose the neighboring tenant and search by name/SKU/vendor part number.
 - The screen is intentionally read-only in this phase.
 - Future request workflows (build list + email/text) are planned separately and are out of scope for this release.
+
+## Shared Orders
+
+- Open the **More** tab and tap **Shared Orders**.
+- Use `View/Edit` to manage status (`OPEN`, `ORDERED`, `RECEIVED`, `CANCELLED`) and `Add Item` to append new order requests.
+- Add flow is quantity-first (no manual price entry in-row).
+- Price data and `$3,000` free-shipping progress are planned for later once pricing sources are integrated.
 
 ## Database Schema
 

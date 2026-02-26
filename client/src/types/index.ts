@@ -91,5 +91,37 @@ export interface NeighborInventoryProduct {
   locations: NeighborInventoryLocation[];
 }
 
+export type SharedOrderStatus = 'OPEN' | 'ORDERED' | 'RECEIVED' | 'CANCELLED';
+
+export interface SharedOrderItem {
+  id: string;
+  productName: string;
+  sku?: string | null;
+  vendorPartNumber?: string | null;
+  unitSize?: string | null;
+  categoryName?: string | null;
+  quantity: number;
+  estimatedUnitPriceCents?: number | null;
+  notes?: string | null;
+  status: SharedOrderStatus;
+  requestedByTenant: string;
+  requestedByUserId?: string | null;
+  requestedByUserName: string;
+  orderedAt?: string | null;
+  orderedByTenant?: string | null;
+  orderedByUserId?: string | null;
+  orderedByUserName?: string | null;
+  receivedAt?: string | null;
+  receivedByTenant?: string | null;
+  receivedByUserId?: string | null;
+  receivedByUserName?: string | null;
+  cancelledAt?: string | null;
+  cancelledByTenant?: string | null;
+  cancelledByUserId?: string | null;
+  cancelledByUserName?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Helper type for filtering
 export type LocationFilterOption = 'all' | string;

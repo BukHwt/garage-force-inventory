@@ -113,8 +113,8 @@
 
 ## Next Chat Handoff
 - Date: 2026-02-26
-- Active goal: Start neighborhood collaboration with read-only Neighbor Inventory view.
-- Branch: `feature/neighbor-inventory-view`
+- Active goal: Build Shared Orders list (view/edit + add) as phase 2 of neighborhood collaboration.
+- Branch: `feature/shared-orders-list`
 - PR link(s): [set in next session]
 - Product direction:
   1. Add a `Neighbor Inventory` entry under the `More` tab.
@@ -145,12 +145,21 @@
 ## Neighborhood Collaboration Scope
 - Current phase scope:
   - Read-only cross-tenant visibility of on-hand inventory.
-  - No request workflow, no reservation workflow, no quantity commits.
+  - Shared order list for combined purchasing (`OPEN`, `ORDERED`, `RECEIVED`, `CANCELLED`).
 - Explicitly out of scope in current phase:
   - "Click product to request from neighbor" actions.
   - Shared draft request list, email generation, or text-message generation.
 - Future candidate scope:
   - Tap neighbor item (e.g., top coat) to add to a request draft list that can be exported via email/text to DemoViewer.
+  - Include richer pricing support sourced from canonical CSV data where available; if price data is missing in snapshots/CSVs, research alternative source (including vendor website) and backfill.
+
+## Shared Orders Pricing Notes
+- Include per-item price on shared order items and show running order total.
+- UI direction: do not require users to type price during add flow; add flow should be quantity-first.
+- Operational target: free shipping threshold at `$3,000` for combined orders.
+- Data source preference:
+  1. Existing shared CSV inputs/snapshots if price is present.
+  2. If missing, perform manual research or website-sourced enrichment workflow.
 
 ## Location Feature Decisions
 - Delete behavior:

@@ -10,6 +10,12 @@ const links = [
     path: '/neighbor-inventory',
   },
   {
+    id: 'shared-orders',
+    title: 'Shared Orders',
+    description: 'Build and manage a combined order list across neighboring tenants.',
+    path: '/shared-orders',
+  },
+  {
     id: 'locations',
     title: 'Manage Locations',
     description: 'Create, edit, and remove storage locations for this tenant.',
