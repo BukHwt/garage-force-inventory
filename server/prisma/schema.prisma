@@ -147,3 +147,43 @@ enum UserRole {
   TECH
   VIEWER
 }
+
+enum SharedOrderStatus {
+  OPEN
+  ORDERED
+  RECEIVED
+  CANCELLED
+}
+
+model SharedOrderItem {
+  id                     String            @id @default(uuid())
+  productName            String
+  sku                    String?
+  vendorPartNumber       String?
+  unitSize               String?
+  categoryName           String?
+  quantity               Int
+  estimatedUnitPriceCents Int?
+  notes                  String?
+  status                 SharedOrderStatus @default(OPEN)
+  requestedByTenant      String
+  requestedByUserId      String?
+  requestedByUserName    String
+  orderedAt              DateTime?
+  orderedByTenant        String?
+  orderedByUserId        String?
+  orderedByUserName      String?
+  receivedAt             DateTime?
+  receivedByTenant       String?
+  receivedByUserId       String?
+  receivedByUserName     String?
+  cancelledAt            DateTime?
+  cancelledByTenant      String?
+  cancelledByUserId      String?
+  cancelledByUserName    String?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  @@index([status, createdAt])
+  @@index([requestedByTenant, status])
+}

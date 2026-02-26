@@ -35,6 +35,7 @@ import { MoreScreen } from './components/more/MoreScreen';
 import { TransactionLogScreen } from './components/more/TransactionLogScreen';
 import { LocationsScreen } from './components/more/LocationsScreen';
 import { NeighborInventoryScreen } from './components/more/NeighborInventoryScreen';
+import { SharedOrdersScreen } from './components/more/SharedOrdersScreen';
 
 type TabId = 'dashboard' | 'add' | 'products' | 'more';
 type ManagePrefill = {
@@ -65,7 +66,8 @@ const getTabFromPath = (pathname: string): TabId => {
     normalizedPath.startsWith('/more') ||
     normalizedPath.startsWith('/transactions') ||
     normalizedPath.startsWith('/locations') ||
-    normalizedPath.startsWith('/neighbor-inventory')
+    normalizedPath.startsWith('/neighbor-inventory') ||
+    normalizedPath.startsWith('/shared-orders')
   ) {
     return 'more';
   }
@@ -580,6 +582,7 @@ function App() {
         <Route path={TAB_TO_PATH.more} element={<MoreScreen />} />
         <Route path="/transactions" element={<TransactionLogScreen />} />
         <Route path="/neighbor-inventory" element={<NeighborInventoryScreen />} />
+        <Route path="/shared-orders" element={<SharedOrdersScreen />} />
         <Route
           path="/locations"
           element={
