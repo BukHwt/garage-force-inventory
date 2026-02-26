@@ -9,18 +9,16 @@
     "build": "prisma generate && tsc",
     "start": "node dist/src/index.js",
     "seed": "tsx prisma/seed.ts",
-    "seed:adam:csv": "tsx scripts/seedAdamFromCsv.ts",
-    "report:main-vs-adam": "tsx scripts/reportMainVsAdam.ts",
-    "report:tenant-catalog-diff": "tsx scripts/compareTenantCatalogs.ts",
-    "report:tenant-catalog-diff:stdout": "tsx scripts/compareTenantCatalogs.ts --stdout-only",
-    "apply:main-from-adam": "tsx scripts/applyMainFromAdam.ts",
-    "reconcile:main-adam:report": "tsx scripts/reconcileMainAdamFromReport.ts",
-    "flag:main:tracked": "tsx scripts/flagTrackedByUsage.ts --tenant=main",
-    "flag:adam:tracked": "tsx scripts/flagTrackedByUsage.ts --tenant=adam",
-    "sync:tracked:to-adam": "tsx scripts/syncTrackedToAdam.ts",
+    "snapshot:main": "tsx scripts/exportSeedSnapshot.ts --tenant=main",
+    "snapshot:adam": "tsx scripts/exportSeedSnapshot.ts --tenant=adam",
+    "snapshot:all": "tsx scripts/exportSeedSnapshot.ts --all-tenants",
+    "snapshot:main:replace": "tsx scripts/exportSeedSnapshot.ts --tenant=main --canonical --overwrite",
+    "snapshot:adam:replace": "tsx scripts/exportSeedSnapshot.ts --tenant=adam --canonical --overwrite",
+    "snapshot:all:replace": "tsx scripts/exportSeedSnapshot.ts --all-tenants --canonical --overwrite",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:init": "npx prisma migrate deploy && npm run seed",
-    "db:init:tenants": "tsx scripts/dbInitTenants.ts"
+    "db:init:tenants": "tsx scripts/dbInitTenants.ts",
+    "db:init:tenants:seed": "tsx scripts/dbInitTenants.ts --with-seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

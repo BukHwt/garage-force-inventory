@@ -20,6 +20,7 @@ export interface CreateProductRequest {
   name: string;
   description?: string;
   sku?: string;
+  vendorPartNumber?: string;
   color?: string;
   unitSize?: string;
   reorderPoint?: number | null;
@@ -42,6 +43,7 @@ export interface UpdateProductRequest {
   name?: string;
   description?: string;
   sku?: string;
+  vendorPartNumber?: string;
   color?: string;
   unitSize?: string;
   reorderPoint?: number | null;
