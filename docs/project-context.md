@@ -113,8 +113,8 @@
 
 ## Next Chat Handoff
 - Date: 2026-02-26
-- Active goal: Add location management (create/edit locations) from the UI.
-- Branch: [set in next session]
+- Active goal: Location management delivered (More entry, `/locations` screen, create/edit/delete constraints).
+- Branch: `feature/locations-management`
 - PR link(s): [set in next session]
 - Product direction:
   1. Add a Location Management entry under the `More` tab.
@@ -139,8 +139,8 @@
   - [x] local seed/migrate run
   - [x] production deploy verified
 - Known risks or follow-ups:
-  1. Confirm UX copy for duplicate-name validation error message.
-  2. Confirm if delete action should be hidden or shown-disabled when inventory exists.
+  1. Add dedicated automated tests for locations CRUD validation + auth.
+  2. Confirm whether future UX should surface per-location quantity totals outside manage screen.
 
 ## Location Feature Decisions
 - Delete behavior:
