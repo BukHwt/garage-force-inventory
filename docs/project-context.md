@@ -114,36 +114,60 @@
   - Samsung Galaxy S25 Ultra
   - Browser: Chrome (Android)
 
+## Collaboration Preferences
+- User preference: Keep communication practical and upbeat in a "Janet-like" style from The Good Place (friendly, clear, capable).
+- Guardrail: Keep scope tight; do not expand scope without explicit user approval.
+- Handoff preference: End each handoff with a short request for feedback on tone/style so future sessions can tune communication.
+
 ## Next Chat Handoff
 - Date: 2026-02-26
-- Active goal: Build Shared Orders list (view/edit + add) as phase 2 of neighborhood collaboration.
-- Branch: `feature/shared-orders-list`
-- PR link(s): [set in next session]
-- Product direction:
-  1. Add a `Neighbor Inventory` entry under the `More` tab.
-  2. Allow viewing on-hand inventory from the opposite tenant.
-  3. Keep behavior read-only for this phase (all roles can view).
-  4. Keep behavior tenant-aware (`main` and `adam` can differ).
-- Current tenant context:
-  - `main` currently has: `Personal`, `Trailer`, `Warehouse`.
-  - `adam` canonical default locations: `Personal`, `Trailer`, `Farm`.
+- Active goal: Improve Manage-tab product selection UX (current product dropdown is too long to scan).
+- Last completed feature: Neighbor Inventory + Shared Orders shipped and deployed.
+- Branch for next work: `main` (explicitly approved by user for this pass).
+- Problem statement:
+  - In Manage workflows (`Receive`, `Transfer`, `Use`), the product field is a native dropdown with the full catalog.
+  - On mobile, this is slow to navigate and hard to process.
+- Scope for next implementation:
+  - Frontend only first pass (no API/schema changes).
+  - Replace product `<select>` in:
+    - `client/src/components/inventory/ReceiveInventoryForm.tsx`
+    - `client/src/components/inventory/TransferInventoryForm.tsx`
+    - `client/src/components/inventory/UseInventoryForm.tsx`
+- Solution options (ranked):
+  1. Recommended: Reusable search-first `ProductPicker` (typeahead + grouped results).
+  2. Category-first two-step selector (choose category, then product).
+  3. Keep dropdown but add quick filters (`in stock only`, `recently used`).
+- Approved implementation plan:
+  1. Build shared `ProductPicker` component under `client/src/components/inventory/shared/`.
+  2. Replace native `<select>` in `Receive`, `Transfer`, and `Use` forms with `ProductPicker`.
+  3. Search behavior:
+    - Match against `name`, `sku`, and `vendorPartNumber`.
+    - Case-insensitive, updates on each keystroke.
+  4. Display behavior:
+    - Group by existing category names (no category merging in v1).
+    - Collapsible sections with `Hide/Show` controls.
+    - Compact row layout: product name + unit size (optional small SKU only if needed).
+  5. Filtering behavior:
+    - `Receive`: default show all products.
+    - `Transfer` and `Use`: default `in stock only` with `Show all` toggle.
+  6. Speed behavior:
+    - Add lightweight "Recent products" (client-side local storage, last 5-10 selections).
+  7. Non-goals for v1:
+    - No backend changes.
+    - No schema/migration changes.
+    - No pricing logic in this picker work.
 - Suggested acceptance criteria:
-  1. From `More`, user can navigate to a locations screen.
-  2. User can add a location and it appears immediately in location pickers/filters.
-  3. User can edit location name/description and updates persist.
-  4. Changes apply only to the active tenant.
-  5. Viewer-role users cannot modify locations.
-- Commands already run this session:
-  1. Local migration + seed validation across tenants.
-  2. Production deploy completed and verified live.
-- Validation completed:
-  - [x] `client` TypeScript check
-  - [x] `server` TypeScript check
-  - [x] local seed/migrate run
-  - [x] production deploy verified
-- Known risks or follow-ups:
-  1. Add dedicated automated tests for neighbor inventory endpoint + UI behavior.
-  2. Confirm search/sort defaults for larger datasets once usage grows.
+  1. Product can be found in <= 3 interactions for common tasks.
+  2. Search updates results immediately and is case-insensitive.
+  3. Existing validations/submission behavior remain unchanged.
+  4. Layout fits Samsung Galaxy S25 Ultra width with no horizontal scrolling.
+  5. `Receive`, `Transfer`, and `Use` all use the same picker component.
+- Validation checklist for next session:
+  - [ ] `cd client && npm run build`
+  - [ ] `cd client && npx tsc --noEmit`
+  - [ ] Manual mobile checks for all three Manage modes.
+- UX decision already set for v1:
+  - Keep existing categories as-is; revisit bucketed categories only if scanning remains slow after first release.
 
 ## Neighborhood Collaboration Scope
 - Current phase scope:
@@ -157,12 +181,10 @@
   - Include richer pricing support sourced from canonical CSV data where available; if price data is missing in snapshots/CSVs, research alternative source (including vendor website) and backfill.
 
 ## Shared Orders Pricing Notes
-- Include per-item price on shared order items and show running order total.
-- UI direction: do not require users to type price during add flow; add flow should be quantity-first.
-- Operational target: free shipping threshold at `$3,000` for combined orders.
-- Data source preference:
-  1. Existing shared CSV inputs/snapshots if price is present.
-  2. If missing, perform manual research or website-sourced enrichment workflow.
+- Price support is deferred for now; no price input in current Shared Orders UI.
+- Future plan:
+  1. Load canonical prices from curated data source (CSV/snapshot/import), not manual row-by-row typing.
+  2. Once trusted pricing exists, show running subtotal and progress toward the `$3,000` free-shipping threshold.
 
 ## Location Feature Decisions
 - Delete behavior:
