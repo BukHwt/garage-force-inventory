@@ -11,7 +11,7 @@ import { filterProductsByLocation, getProductsNeedingReorder, getTotalQuantity }
 
 // API Services
 import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage, unsealInventory } from './api/services/inventory';
-import type { ReceiveInventoryRequest, TransferInventoryRequest, UseInventoryRequest } from './api/services/inventory';
+import type { ReceiveInventoryRequest, TransferInventoryRequest, UnsealInventoryRequest, UseInventoryRequest } from './api/services/inventory';
 import { updateProduct, createProduct, UpdateProductRequest, CreateProductRequest } from './api/services/products';
 
 // Types
@@ -28,7 +28,7 @@ import { ProductList } from './components/inventory/ProductList';
 import { InventoryAdjustmentModal } from './components/common/InventoryAdjustmentModal';
 import { InventoryActionModal } from './components/inventory/InventoryActionModal';
 import { UnsealModal } from './components/inventory/UnsealModal';
-import { AddInventoryScreen } from './components/inventory/AddInventoryScreen';
+import { AddInventoryScreen, InventoryMode } from './components/inventory/AddInventoryScreen';
 import { ProductCatalogScreen } from './components/products/ProductCatalogScreen';
 import { LoginModal } from './components/auth/LoginModal';
 import { MoreScreen } from './components/more/MoreScreen';
@@ -39,7 +39,7 @@ import { SharedOrdersScreen } from './components/more/SharedOrdersScreen';
 
 type TabId = 'dashboard' | 'add' | 'products' | 'more';
 type ManagePrefill = {
-  mode?: 'receive' | 'transfer' | 'use';
+  mode?: 'receive' | 'transfer' | 'use' | 'unseal';
   productId?: string;
   locationId?: string;
 };
@@ -95,7 +95,7 @@ const parseManageSearch = (search: string): ManagePrefill => {
   }
   const params = new URLSearchParams(search);
   const modeParam = params.get('mode');
-  const allowedModes: ManagePrefill['mode'][] = ['receive', 'transfer', 'use'];
+  const allowedModes: ManagePrefill['mode'][] = ['receive', 'transfer', 'use', 'unseal'];
   const mode = allowedModes.includes(modeParam as ManagePrefill['mode'])
     ? (modeParam as ManagePrefill['mode'])
     : undefined;
@@ -319,6 +319,21 @@ function App() {
     shouldRestoreScroll.current = true;
     navigate(TAB_TO_PATH.dashboard);
   }, [navigate, refetch]);
+
+  const handleUnsealInventory = useCallback(async (data: UnsealInventoryRequest) => {
+    await unsealInventory(data);
+    await refetch();
+  }, [refetch]);
+
+  const handleManageModeChange = useCallback((mode: InventoryMode) => {
+    setPreFilledData((prev) => {
+      if (prev.mode === mode) {
+        return prev;
+      }
+      return { mode };
+    });
+    navigateToManage({ mode }, { replace: true });
+  }, [navigateToManage]);
 
   const handleTabChange = useCallback(
     (tabId: string) => {
@@ -562,11 +577,13 @@ function App() {
                 onReceive={handleReceiveInventory}
                 onTransfer={handleTransferInventory}
                 onUse={handleUseInventory}
+                onUnseal={handleUnsealInventory}
                 initialMode={preFilledData.mode}
                 initialProductId={preFilledData.productId}
                 initialLocationId={preFilledData.locationId || selectedLocation}
                 onClearPreFilled={handleClearPreFilled}
                 onCancel={handleCancelTransaction}
+                onModeChange={handleManageModeChange}
               />
             )
           }
@@ -583,7 +600,7 @@ function App() {
           }
         />
         <Route path={TAB_TO_PATH.more} element={<MoreScreen />} />
-        <Route path="/transactions" element={<TransactionLogScreen />} />
+        <Route path="/transactions" element={<TransactionLogScreen onInventoryChanged={refetch} />} />
         <Route path="/neighbor-inventory" element={<NeighborInventoryScreen />} />
         <Route path="/shared-orders" element={<SharedOrdersScreen />} />
         <Route

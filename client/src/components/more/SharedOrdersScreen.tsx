@@ -536,7 +536,7 @@ export function SharedOrdersScreen() {
                     onClick={() => toggleCatalogSection(group.key)}
                     className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-gf-charcoal-700 transition-colors duration-150"
                   >
-                    <h3 className="font-heading font-semibold text-sm text-dark-text-primary truncate pr-2">{group.name}</h3>
+                    <h3 className="font-heading font-semibold text-sm text-dark-text-primary pr-2 break-words">{group.name}</h3>
                     <span className="text-dark-text-secondary text-xs whitespace-nowrap">
                       {catalogCollapsedSections[group.key] ? 'Show' : 'Hide'} ({group.products.length})
                     </span>
@@ -552,11 +552,11 @@ export function SharedOrdersScreen() {
                           <div key={product.id} className="px-3 py-2 border-b border-dark-border last:border-b-0">
                             <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-2">
                               <div className="min-w-0">
-                                <p className="font-heading font-semibold text-sm text-dark-text-primary truncate">
+                                <p className="font-heading font-semibold text-sm text-dark-text-primary break-words leading-tight">
                                   {product.name}
                                 </p>
                                 {product.unitSize && (
-                                  <p className="text-xs text-dark-text-muted truncate">{product.unitSize}</p>
+                                  <p className="text-xs text-dark-text-muted break-words">{product.unitSize}</p>
                                 )}
                               </div>
                               <button
