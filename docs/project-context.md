@@ -118,56 +118,61 @@
 - User preference: Keep communication practical and upbeat in a "Janet-like" style from The Good Place (friendly, clear, capable).
 - Guardrail: Keep scope tight; do not expand scope without explicit user approval.
 - Handoff preference: End each handoff with a short request for feedback on tone/style so future sessions can tune communication.
+- Latest tone feedback: Janet vibe rated "good" by user (2026-02-27).
 
 ## Next Chat Handoff
-- Date: 2026-02-26
-- Active goal: Improve Manage-tab product selection UX (current product dropdown is too long to scan).
-- Last completed feature: Neighbor Inventory + Shared Orders shipped and deployed.
-- Branch for next work: `main` (explicitly approved by user for this pass).
-- Problem statement:
-  - In Manage workflows (`Receive`, `Transfer`, `Use`), the product field is a native dropdown with the full catalog.
-  - On mobile, this is slow to navigate and hard to process.
-- Scope for next implementation:
-  - Frontend only first pass (no API/schema changes).
-  - Replace product `<select>` in:
-    - `client/src/components/inventory/ReceiveInventoryForm.tsx`
-    - `client/src/components/inventory/TransferInventoryForm.tsx`
-    - `client/src/components/inventory/UseInventoryForm.tsx`
-- Solution options (ranked):
-  1. Recommended: Reusable search-first `ProductPicker` (typeahead + grouped results).
-  2. Category-first two-step selector (choose category, then product).
-  3. Keep dropdown but add quick filters (`in stock only`, `recently used`).
-- Approved implementation plan:
-  1. Build shared `ProductPicker` component under `client/src/components/inventory/shared/`.
-  2. Replace native `<select>` in `Receive`, `Transfer`, and `Use` forms with `ProductPicker`.
-  3. Search behavior:
-    - Match against `name`, `sku`, and `vendorPartNumber`.
-    - Case-insensitive, updates on each keystroke.
-  4. Display behavior:
-    - Group by existing category names (no category merging in v1).
-    - Collapsible sections with `Hide/Show` controls.
-    - Compact row layout: product name + unit size (optional small SKU only if needed).
-  5. Filtering behavior:
-    - `Receive`: default show all products.
-    - `Transfer` and `Use`: default `in stock only` with `Show all` toggle.
-  6. Speed behavior:
-    - Add lightweight "Recent products" (client-side local storage, last 5-10 selections).
-  7. Non-goals for v1:
-    - No backend changes.
-    - No schema/migration changes.
-    - No pricing logic in this picker work.
-- Suggested acceptance criteria:
-  1. Product can be found in <= 3 interactions for common tasks.
-  2. Search updates results immediately and is case-insensitive.
-  3. Existing validations/submission behavior remain unchanged.
-  4. Layout fits Samsung Galaxy S25 Ultra width with no horizontal scrolling.
-  5. `Receive`, `Transfer`, and `Use` all use the same picker component.
-- Validation checklist for next session:
-  - [ ] `cd client && npm run build`
-  - [ ] `cd client && npx tsc --noEmit`
-  - [ ] Manual mobile checks for all three Manage modes.
-- UX decision already set for v1:
-  - Keep existing categories as-is; revisit bucketed categories only if scanning remains slow after first release.
+- Date: 2026-02-27
+- Active goal status: Completed (`Manage` product picker + `Unseal` mode + rollback refresh fix).
+- Branch: `feature/manage-product-picker`
+- Completed outcomes:
+  1. Manage forms use in-app `ProductPicker` (`Receive`, `Transfer`, `Use`) with search by `name`, `sku`, and `vendorPartNumber`.
+  2. Category sections in picker default to collapsed and support toggling.
+  3. Added lightweight recent-product memory in picker.
+  4. Added dedicated Manage `Unseal` mode in compact single-row mode selector.
+  5. `Unseal` picker is filtered to products with sealed quantity only.
+  6. Manage mode persists through URL (`/manage?mode=...`) so actions/refetch do not bounce tab state.
+  7. Shared Orders add rows no longer truncate product names.
+  8. Rolling back a transaction now refreshes dashboard inventory state.
+- Validation completed:
+  - [x] `cd client && npx tsc --noEmit`
+  - [x] `cd client && npm run build`
+  - [x] `cd server && npx tsc --noEmit`
+- Manual QA pending:
+  1. End-to-end mobile verification on Samsung S25 Ultra (Chrome) for all 4 Manage modes.
+  2. Rollback behavior verification across receipt/use/transfer/unseal scenarios.
+
+## Security & Reliability Plan (Next Priority)
+- Objective: harden app against abuse/tampering before expanded neighbor onboarding.
+- Execution order:
+  1. Tenant isolation hardening:
+     - enforce tenant access from authenticated user context (JWT/session claims), not client header trust alone.
+     - add tests proving cross-tenant denial for unauthorized users.
+  2. Auth and mutation route protection:
+     - add rate limiting for login and write-heavy endpoints.
+     - add lockout/backoff for repeated failed PIN attempts.
+  3. API security baseline:
+     - add `helmet`, tighten CORS to known frontend origins, disable `x-powered-by`.
+     - centralize request validation (reject unknown/malformed fields consistently).
+  4. Dependency and secret posture:
+     - remediate high/critical dependency vulnerabilities.
+     - verify strong/rotatable `JWT_SECRET` handling.
+  5. Deploy/ops reliability:
+     - add CI gates for build/type/tests before merge/deploy.
+     - define backup/restore drill and monitoring alerts.
+
+## Testing Baseline Needed For Next Release
+- Minimum automated gate:
+  1. `client`: `npx tsc --noEmit` + `npm run build`
+  2. `server`: `npx tsc --noEmit`
+  3. integration tests:
+     - role restrictions (`VIEWER` write block)
+     - tenant isolation
+     - inventory flows (`receive`, `transfer`, `use`, `unseal`, rollback)
+     - auth throttling behavior
+  4. mobile smoke E2E:
+     - Manage flow
+     - Shared Orders add/view
+     - rollback reflected on Dashboard
 
 ## Neighborhood Collaboration Scope
 - Current phase scope:
