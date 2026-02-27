@@ -120,54 +120,28 @@
 - Handoff preference: End each handoff with a short request for feedback on tone/style so future sessions can tune communication.
 
 ## Next Chat Handoff
-- Date: 2026-02-26
-- Active goal: Improve Manage-tab product selection UX (current product dropdown is too long to scan).
-- Last completed feature: Neighbor Inventory + Shared Orders shipped and deployed.
-- Branch for next work: `main` (explicitly approved by user for this pass).
-- Problem statement:
-  - In Manage workflows (`Receive`, `Transfer`, `Use`), the product field is a native dropdown with the full catalog.
-  - On mobile, this is slow to navigate and hard to process.
-- Scope for next implementation:
-  - Frontend only first pass (no API/schema changes).
-  - Replace product `<select>` in:
-    - `client/src/components/inventory/ReceiveInventoryForm.tsx`
-    - `client/src/components/inventory/TransferInventoryForm.tsx`
-    - `client/src/components/inventory/UseInventoryForm.tsx`
-- Solution options (ranked):
-  1. Recommended: Reusable search-first `ProductPicker` (typeahead + grouped results).
-  2. Category-first two-step selector (choose category, then product).
-  3. Keep dropdown but add quick filters (`in stock only`, `recently used`).
-- Approved implementation plan:
-  1. Build shared `ProductPicker` component under `client/src/components/inventory/shared/`.
-  2. Replace native `<select>` in `Receive`, `Transfer`, and `Use` forms with `ProductPicker`.
-  3. Search behavior:
-    - Match against `name`, `sku`, and `vendorPartNumber`.
-    - Case-insensitive, updates on each keystroke.
-  4. Display behavior:
-    - Group by existing category names (no category merging in v1).
-    - Collapsible sections with `Hide/Show` controls.
-    - Compact row layout: product name + unit size (optional small SKU only if needed).
-  5. Filtering behavior:
-    - `Receive`: default show all products.
-    - `Transfer` and `Use`: default `in stock only` with `Show all` toggle.
-  6. Speed behavior:
-    - Add lightweight "Recent products" (client-side local storage, last 5-10 selections).
-  7. Non-goals for v1:
-    - No backend changes.
-    - No schema/migration changes.
-    - No pricing logic in this picker work.
-- Suggested acceptance criteria:
-  1. Product can be found in <= 3 interactions for common tasks.
-  2. Search updates results immediately and is case-insensitive.
-  3. Existing validations/submission behavior remain unchanged.
-  4. Layout fits Samsung Galaxy S25 Ultra width with no horizontal scrolling.
-  5. `Receive`, `Transfer`, and `Use` all use the same picker component.
-- Validation checklist for next session:
-  - [ ] `cd client && npm run build`
-  - [ ] `cd client && npx tsc --noEmit`
-  - [ ] Manual mobile checks for all three Manage modes.
-- UX decision already set for v1:
-  - Keep existing categories as-is; revisit bucketed categories only if scanning remains slow after first release.
+- Date: 2026-02-27
+- Active goal status: Completed (`Manage` selector + `Unseal` workflow).
+- Branch: `feature/manage-product-picker`
+- Completed outcomes:
+  1. Added reusable in-app `ProductPicker` to Manage forms (`Receive`, `Transfer`, `Use`).
+  2. Search supports `name`, `sku`, and `vendorPartNumber` (case-insensitive).
+  3. Category groups in picker start collapsed by default.
+  4. Added lightweight recent-product memory in picker.
+  5. Added dedicated `Unseal` mode in Manage (single-row mode selector).
+  6. `Unseal` product selection is filtered to products with sealed inventory only.
+  7. Manage mode persists (`/manage?mode=...`) so form stays on active tab after actions/refetch.
+  8. Shared Orders add rows now show full product names (no truncation clipping).
+  9. Transaction rollback now triggers inventory refetch so Dashboard reflects rolled-back quantities.
+- Validation completed this session:
+  - [x] `cd client && npx tsc --noEmit`
+  - [x] `cd client && npm run build`
+- Follow-up/manual QA checklist:
+  1. Verify Manage tab behavior on Samsung S25 Ultra in Chrome for all 4 modes.
+  2. Verify rollback flow updates Dashboard counts immediately for receipt/use/transfer/unseal cases.
+  3. Confirm long product names remain readable in Shared Orders add rows without horizontal scroll.
+- Suggested next product focus:
+  - Shared Orders phase 2 management polish (clear list / ordered handoff workflow).
 
 ## Neighborhood Collaboration Scope
 - Current phase scope:
