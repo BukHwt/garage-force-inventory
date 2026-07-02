@@ -193,7 +193,16 @@ Legacy reconciliation scripts are archived in `server/scripts/archive`.
 - Open the **More** tab and tap **Shared Orders**.
 - Use `View/Edit` to manage status (`OPEN`, `ORDERED`, `RECEIVED`, `CANCELLED`) and `Add Item` to append new order requests.
 - Add flow is quantity-first (no manual price entry in-row).
+- Product/category text in add rows is fully readable (no name truncation in row content).
 - Price data and `$3,000` free-shipping progress are planned for later once pricing sources are integrated.
+
+## Manage Workflows
+
+- Manage now includes four compact modes in one row: `Receive`, `Transfer`, `Unseal`, and `Use`.
+- Product selection in Manage uses an in-app picker (search + collapsed category groups + recent products), replacing native device dropdowns.
+- `Transfer` and `Use` default to in-stock product filtering in the picker.
+- `Unseal` mode is dedicated to opening sealed containers and only lists products with sealed quantity available.
+- Active Manage mode is persisted in the URL (`/manage?mode=...`) so the screen stays on the same mode after submit/refetch.
 
 ## Database Schema
 

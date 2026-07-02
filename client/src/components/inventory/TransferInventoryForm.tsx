@@ -2,6 +2,7 @@ import React, { useState, memo, useMemo, useCallback } from "react";
 import { Product, Location } from "../../types";
 import { QuantityInput } from "./shared/QuantityInput";
 import { LocationPicker } from "./shared/LocationPicker";
+import { ProductPicker } from "./shared/ProductPicker";
 
 export interface TransferInventoryData {
   productId: string;
@@ -89,6 +90,10 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
   }, [formData.fromLocationId, locations]);
 
   const handleProductChange = (productId: string) => {
+    if (productId === formData.productId) {
+      return;
+    }
+
     // Reset locations when product changes
     setFormData({
       ...formData,
@@ -165,24 +170,15 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Product Selection */}
       <div>
-        <label className="block text-sm font-semibold text-dark-text-primary mb-2">
-          Product *
-        </label>
-        <select
-          value={formData.productId}
-          onChange={(e) => handleProductChange(e.target.value)}
-          className="w-full bg-dark-bg border border-dark-border text-dark-text-primary px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-gf-green"
-          style={{ minHeight: "44px" }}
+        <ProductPicker
+          products={products}
+          selectedProductId={formData.productId}
+          onProductChange={handleProductChange}
+          label="Product *"
+          showInStockToggle={true}
+          defaultInStockOnly={true}
           disabled={isSubmitting}
-        >
-          <option value="">Select a product...</option>
-          {inventoryProducts.map((product) => (
-            <option key={product.id} value={product.id}>
-              {product.name} {product.sku ? `(${product.sku})` : ""} -{" "}
-              {product.unitSize}
-            </option>
-          ))}
-        </select>
+        />
         {selectedProduct?.description && (
           <p className="text-xs text-dark-text-muted mt-1">
             {selectedProduct.description}
