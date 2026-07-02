@@ -16,6 +16,7 @@ export interface InventoryItem {
   id: string;
   quantity: number;
   status?: 'SEALED' | 'OPEN';
+  notes?: string | null;
   location: Location;
 }
 

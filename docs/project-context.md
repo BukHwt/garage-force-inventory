@@ -126,10 +126,13 @@
 - UI behavior updates:
   - Single-use items do not show open/sealed status labels in product cards.
   - Category lists support `Hide All` / `Show All`.
-  - Selecting a location now hides products that do not have inventory at that location.
+  - Selecting a location keeps tracked products visible even when that location has zero quantity.
+  - Chip blend rows can merge box and bucket variants while still showing unit-specific counts.
+  - Chip blend `All Locations` summaries show per-location `boxes / buckets` instead of `open / sealed`.
   - Transfer actions now only list products with on-hand inventory.
   - Reorder alerts default to a collapsed state on the dashboard.
   - Helper text about inline editing was removed from the inventory UI.
+  - Products tab now includes a tracked-only filter and an `Add Unit` workflow for creating a new unit-size variant from an existing product definition.
   - Client TypeScript config now includes `ignoreDeprecations: "6.0"` for current compiler compatibility.
 - Active development device target:
   - Samsung Galaxy S25 Ultra
@@ -150,32 +153,26 @@
 
 ## Next Chat Handoff
 - Date: 2026-07-02
-- Active goal status: Completed (location-aware inventory workflow + Manage picker + Unseal workflow).
+- Active goal status: Completed (tracked dashboard behavior + chip unit dashboard flow + product unit-variant workflow).
 - Branch: `feature/dashboard-inline-inventory`
 - Completed outcomes:
-  1. Added reusable in-app `ProductPicker` to Manage forms (`Receive`, `Transfer`, `Use`).
-  2. Search supports `name`, `sku`, and `vendorPartNumber` (case-insensitive).
-  3. Category groups in picker start collapsed by default.
-  4. Added lightweight recent-product memory in picker.
-  5. Added dedicated `Unseal` mode in Manage (single-row mode selector).
-  6. `Unseal` product selection is filtered to products with sealed inventory only.
-  7. Manage mode persists (`/manage?mode=...`) so the form stays on the active tab after actions/refetch.
-  8. Shared Orders add rows now show full product names (no truncation clipping).
-  9. Transaction rollback now triggers inventory refetch so the dashboard reflects rolled-back quantities.
-  10. Selecting a location now filters out products that do not have inventory there.
-  11. Transfer actions only offer products that currently have on-hand inventory.
-  12. Reorder alerts begin collapsed on the dashboard to keep the inventory list prominent.
-  13. Helper text for inline editing was removed from the inventory UI.
+  1. Dashboard chip blends can merge box and bucket product variants into one row.
+  2. Chip controls only render for unit types that actually exist for that blend in the catalog.
+  3. Chip rows remain stable at zero quantity and can recreate missing location inventory from inline `+` actions.
+  4. `All Locations` chip summaries now show per-location `boxes / buckets` counts instead of `open / sealed`.
+  5. Selecting a specific location keeps tracked products visible even when that location is currently at `0`.
+  6. Products tab now has a tracked-only toggle in `View/Edit`.
+  7. Products tab now has an `Add Unit` workflow that pre-fills a new variant from an existing catalog item.
+  8. Product create form now supports reusable initial values for variant creation.
 - Validation completed:
-  - [x] Browser-first verification for the latest inventory and Manage flow changes.
-  - [x] `cd client && npx tsc --noEmit`
   - [x] `cd client && npm run build`
+  - [x] `cd client && npm test -- --watchAll=false ProductCard.test.tsx`
   - [x] `cd server && npx tsc --noEmit`
 - Follow-up/manual QA checklist:
-  1. Verify Manage tab behavior on Samsung S25 Ultra in Chrome for all 4 modes.
-  2. Verify rollback flow updates Dashboard counts immediately for receipt/use/transfer/unseal cases.
-  3. Confirm long product names remain readable in Shared Orders add rows without horizontal scroll.
-  4. Spot-check location filtering and transfer availability on mobile before the next release.
+  1. Verify merged chip blend rows on mobile for `all` locations and specific locations.
+  2. Confirm `Add Unit` workflow produces clean variants for box/bucket chip blends without manual copy errors.
+  3. Spot-check tracked-only filter plus tracked zero-quantity visibility on the dashboard after edits.
+  4. Verify rollback flow still updates Dashboard counts immediately for receipt/use/transfer cases involving tracked products.
 
 ## Security & Reliability Plan (Next Priority)
 

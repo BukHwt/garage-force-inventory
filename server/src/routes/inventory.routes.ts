@@ -315,10 +315,31 @@ router.patch('/stock', async (req: Request, res: Response) => {
 });
 
 // Adjust inventory quantity (legacy endpoint)
+function isChipBlendProduct(product: { name?: string | null; unitSize?: string | null }) {
+  const label = `${product?.name ?? ''} ${product?.unitSize ?? ''}`.toLowerCase();
+  return label.includes('chip');
+}
+
+function getChipCounts(notes?: string | null) {
+  if (!notes) {
+    return { boxes: 0, buckets: 0 };
+  }
+
+  try {
+    const parsed = JSON.parse(notes);
+    return {
+      boxes: Number(parsed?.boxes ?? 0) || 0,
+      buckets: Number(parsed?.buckets ?? 0) || 0,
+    };
+  } catch {
+    return { boxes: 0, buckets: 0 };
+  }
+}
+
 router.patch('/:id/adjust', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { adjustment } = req.body;
+    const { adjustment, unitType } = req.body;
 
     if (typeof adjustment !== 'number') {
       return res.status(400).json({ error: 'Adjustment must be a number' });
@@ -326,11 +347,55 @@ router.patch('/:id/adjust', async (req: Request, res: Response) => {
 
     const currentItem = await req.prisma.inventoryItem.findUnique({
       where: { id },
-      include: { location: true },
+      include: { location: true, product: true },
     });
 
     if (!currentItem) {
       return res.status(404).json({ error: 'Inventory item not found' });
+    }
+
+    const chipMode = isChipBlendProduct(currentItem.product) && (unitType === 'BOX' || unitType === 'BUCKET');
+
+    if (chipMode) {
+      const counts = getChipCounts(currentItem.notes);
+      const nextCounts = {
+        boxes: counts.boxes,
+        buckets: counts.buckets,
+      };
+
+      if (unitType === 'BOX') {
+        nextCounts.boxes = Math.max(0, nextCounts.boxes + adjustment);
+      } else {
+        nextCounts.buckets = Math.max(0, nextCounts.buckets + adjustment);
+      }
+
+      const nextQuantity = nextCounts.boxes + nextCounts.buckets;
+
+      const updatedItem = await req.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const item = await tx.inventoryItem.update({
+          where: { id },
+          data: {
+            quantity: nextQuantity,
+            notes: JSON.stringify(nextCounts),
+          },
+          include: { location: true, product: true },
+        });
+
+        await tx.inventoryTransaction.create({
+          data: {
+            productId: currentItem.productId,
+            transactionType: 'ADJUSTMENT',
+            fromLocationId: currentItem.locationId,
+            quantity: adjustment,
+            notes: `Adjusted ${unitType.toLowerCase()} count for ${currentItem.location.name}`,
+            performedByUserId: req.user?.id,
+          },
+        });
+
+        return item;
+      });
+
+      return res.json(updatedItem);
     }
 
     const existingItems = await getInventoryRows(req.prisma, currentItem.productId, currentItem.locationId);
