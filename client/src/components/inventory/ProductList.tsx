@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Product, Location, InventoryItem } from '../../types';
-import { ProductCard } from './ProductCard';
-import { EmptyState } from '../common/EmptyState';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Product, Location, InventoryItem } from "../../types";
+import { ProductCard } from "./ProductCard";
+import { EmptyState } from "../common/EmptyState";
 
 interface ProductListProps {
   products: Product[];
@@ -18,21 +18,27 @@ export function ProductList({
   onProductClick,
   onAdjustClick,
 }: ProductListProps) {
-  const locationName = selectedLocation !== 'all'
-    ? locations.find(l => l.id === selectedLocation)?.name
-    : null;
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const locationName =
+    selectedLocation !== "all"
+      ? locations.find((l) => l.id === selectedLocation)?.name
+      : null;
+  const [collapsedSections, setCollapsedSections] = useState<
+    Record<string, boolean>
+  >({});
 
   const groupedProducts = useMemo(() => {
-    const groups = new Map<string, {
-      key: string;
-      name: string;
-      products: Product[];
-    }>();
+    const groups = new Map<
+      string,
+      {
+        key: string;
+        name: string;
+        products: Product[];
+      }
+    >();
 
     for (const product of products) {
-      const key = product.category?.id || '__uncategorized__';
-      const name = product.category?.name || 'Uncategorized';
+      const key = product.category?.id || "__uncategorized__";
+      const name = product.category?.name || "Uncategorized";
       const existing = groups.get(key) ?? {
         key,
         name,
@@ -45,14 +51,14 @@ export function ProductList({
     }
 
     return Array.from(groups.values()).sort((a, b) => {
-      if (a.key === '__uncategorized__') return 1;
-      if (b.key === '__uncategorized__') return -1;
+      if (a.key === "__uncategorized__") return 1;
+      if (b.key === "__uncategorized__") return -1;
       return a.name.localeCompare(b.name);
     });
   }, [products]);
 
   useEffect(() => {
-    setCollapsedSections(prev => {
+    setCollapsedSections((prev) => {
       const next: Record<string, boolean> = {};
       for (const group of groupedProducts) {
         next[group.key] = prev[group.key] ?? true;
@@ -62,7 +68,7 @@ export function ProductList({
   }, [groupedProducts]);
 
   const toggleSection = useCallback((key: string) => {
-    setCollapsedSections(prev => ({
+    setCollapsedSections((prev) => ({
       ...prev,
       [key]: !prev[key],
     }));
@@ -73,7 +79,7 @@ export function ProductList({
       groupedProducts.reduce<Record<string, boolean>>((acc, group) => {
         acc[group.key] = true;
         return acc;
-      }, {})
+      }, {}),
     );
   }, [groupedProducts]);
 
@@ -82,12 +88,16 @@ export function ProductList({
       groupedProducts.reduce<Record<string, boolean>>((acc, group) => {
         acc[group.key] = false;
         return acc;
-      }, {})
+      }, {}),
     );
   }, [groupedProducts]);
 
-  const hasExpandedSections = groupedProducts.some(group => !collapsedSections[group.key]);
-  const hasCollapsedSections = groupedProducts.some(group => collapsedSections[group.key] ?? true);
+  const hasExpandedSections = groupedProducts.some(
+    (group) => !collapsedSections[group.key],
+  );
+  const hasCollapsedSections = groupedProducts.some(
+    (group) => collapsedSections[group.key] ?? true,
+  );
 
   return (
     <div className="space-y-3">
@@ -120,7 +130,10 @@ export function ProductList({
       ) : (
         <div className="space-y-3">
           {groupedProducts.map((group) => (
-            <section key={group.key} className="bg-dark-card border border-dark-border rounded-lg shadow-lg overflow-hidden">
+            <section
+              key={group.key}
+              className="bg-dark-card border border-dark-border rounded-lg shadow-lg overflow-hidden"
+            >
               <button
                 type="button"
                 onClick={() => toggleSection(group.key)}
@@ -130,14 +143,18 @@ export function ProductList({
                 <h3 className="font-heading font-semibold text-sm text-dark-text-primary truncate pr-2">
                   {group.name}
                 </h3>
-                <span className="text-dark-text-secondary text-xs whitespace-nowrap" aria-hidden="true">
-                  {collapsedSections[group.key] ? 'Show' : 'Hide'} ({group.products.length})
+                <span
+                  className="text-dark-text-secondary text-xs whitespace-nowrap"
+                  aria-hidden="true"
+                >
+                  {collapsedSections[group.key] ? "Show" : "Hide"} (
+                  {group.products.length})
                 </span>
               </button>
 
               {!collapsedSections[group.key] && (
                 <div className="pb-2 space-y-2 border-t border-dark-border">
-                  {group.products.map(product => (
+                  {group.products.map((product) => (
                     <ProductCard
                       key={product.id}
                       product={product}
@@ -155,4 +172,3 @@ export function ProductList({
     </div>
   );
 }
-
