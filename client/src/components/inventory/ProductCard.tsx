@@ -1,6 +1,10 @@
-import React, { memo, useMemo } from 'react';
-import { Product } from '../../types';
-import { getTotalQuantity, getLocationQuantity, needsReorder } from '../../utils/inventory';
+import React, { memo, useMemo } from "react";
+import { InventoryItem, Product } from "../../types";
+import {
+  getTotalQuantity,
+  getLocationQuantity,
+  needsReorder,
+} from "../../utils/inventory";
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +14,8 @@ interface ProductCardProps {
   errorMessage?: string | null;
   onIncrement?: (product: Product, locationId: string) => void;
   onDecrement?: (product: Product, locationId: string) => void;
+  onCardClick?: (product: Product, locationId: string) => void;
+  onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
 }
 
 export const ProductCard = memo(function ProductCard({
@@ -20,30 +26,42 @@ export const ProductCard = memo(function ProductCard({
   errorMessage,
   onIncrement,
   onDecrement,
+  onCardClick,
 }: ProductCardProps) {
   const isReorderNeeded = needsReorder(product);
-  const showingAllLocations = selectedLocation === 'all';
-  const unitLabel = product.unitSize || 'units';
+  const showingAllLocations = selectedLocation === "all";
+  const isSingleUse = product.consumableType === "SINGLE_USE";
+  const unitLabel = product.unitSize || "units";
+
   const displayQuantity = showingAllLocations
     ? getTotalQuantity(product)
     : getLocationQuantity(product, selectedLocation);
 
   const inventoryByLocation = useMemo(() => {
-    const totals = new Map<string, { name: string; quantity: number }>();
+    const totals = new Map<string, { name: string; open: number; sealed: number; total: number }>();
 
     for (const item of product.inventoryItems) {
       const existing = totals.get(item.location.id);
       if (existing) {
-        existing.quantity += item.quantity;
+        existing.open += item.status === "OPEN" ? item.quantity : 0;
+        existing.sealed += item.status === "SEALED" ? item.quantity : 0;
+        existing.total += item.quantity;
       } else {
-        totals.set(item.location.id, { name: item.location.name, quantity: item.quantity });
+        totals.set(item.location.id, {
+          name: item.location.name,
+          open: item.status === "OPEN" ? item.quantity : 0,
+          sealed: item.status === "SEALED" ? item.quantity : 0,
+          total: item.quantity,
+        });
       }
     }
 
     return Array.from(totals.entries()).map(([locationId, entry]) => ({
       locationId,
       name: entry.name,
-      quantity: entry.quantity,
+      open: entry.open,
+      sealed: entry.sealed,
+      total: entry.total,
     }));
   }, [product.inventoryItems]);
 
@@ -53,9 +71,10 @@ export const ProductCard = memo(function ProductCard({
   return (
     <div
       className={`bg-dark-card p-3 rounded-lg shadow-lg border ${
-        isReorderNeeded ? 'border-l-4 border-alert-red' : 'border-dark-border'
-      }`}
-      style={{ minHeight: '44px' }}
+        isReorderNeeded ? "border-l-4 border-alert-red" : "border-dark-border"
+      } ${onCardClick ? "cursor-pointer active:bg-gf-charcoal-700 transition-colors duration-150" : ""}`}
+      style={{ minHeight: "44px" }}
+      onClick={() => onCardClick?.(product, selectedLocation)}
     >
       <div className="flex justify-between items-start gap-3 mb-1">
         <div className="flex-1 min-w-0">
@@ -80,7 +99,7 @@ export const ProductCard = memo(function ProductCard({
                 {displayQuantity}
               </div>
               <div className="text-xs font-body text-dark-text-secondary">
-                {isPending ? 'Saving...' : unitLabel}
+                {isPending ? "Saving..." : unitLabel}
               </div>
             </div>
             <button
@@ -106,12 +125,31 @@ export const ProductCard = memo(function ProductCard({
 
       {showingAllLocations && inventoryByLocation.length > 0 && (
         <div className="mt-2 pt-2 border-t border-dark-border">
-          <div className="text-xs text-dark-text-muted font-semibold mb-1">By Location:</div>
+          <div className="text-xs text-dark-text-muted font-semibold mb-1">
+            By Location:
+          </div>
           <div className="space-y-1 text-xs">
             {inventoryByLocation.map((item) => (
               <div key={item.locationId} className="flex items-center justify-between">
                 <span className="font-semibold text-dark-text-secondary">{item.name}</span>
-                <span className="text-dark-text-primary">{item.quantity}</span>
+                <span className="text-dark-text-muted">
+                  {isSingleUse ? (
+                    <span className="text-dark-text-primary">{item.total}</span>
+                  ) : (
+                    <>
+                      {item.open > 0 && (
+                        <span className="text-amber-400">
+                          {item.open} open
+                          {item.sealed > 0 ? " / " : ""}
+                        </span>
+                      )}
+                      {item.sealed > 0 && (
+                        <span className="text-gf-green">{item.sealed} sealed</span>
+                      )}
+                      {item.open === 0 && item.sealed === 0 && <span>0</span>}
+                    </>
+                  )}
+                </span>
               </div>
             ))}
           </div>

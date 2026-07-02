@@ -13,7 +13,11 @@ const TRANSACTION_TYPE_COPY: Record<string, { label: string; color: string }> = 
   ADJUSTMENT: { label: 'Adjustment', color: 'text-indigo-300' },
 };
 
-export function TransactionLogScreen() {
+interface TransactionLogScreenProps {
+  onInventoryChanged?: () => Promise<void> | void;
+}
+
+export function TransactionLogScreen({ onInventoryChanged }: TransactionLogScreenProps) {
   const { user } = useAuth();
   const isViewer = user?.role === 'VIEWER';
   const [transactions, setTransactions] = useState<InventoryTransactionRecord[]>([]);
@@ -25,6 +29,7 @@ export function TransactionLogScreen() {
   const loadTransactions = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
       const data = await fetchTransactions(200);
       setTransactions(data);
@@ -53,11 +58,11 @@ export function TransactionLogScreen() {
 
       setSubmittingId(transactionId);
       setActionError(null);
+
       try {
         const updated = await rollbackTransaction(transactionId);
-        setTransactions((prev) =>
-          prev.map((tx) => (tx.id === updated.id ? updated : tx)),
-        );
+        setTransactions((prev) => prev.map((tx) => (tx.id === updated.id ? updated : tx)));
+        await onInventoryChanged?.();
       } catch (err) {
         const message = err instanceof ApiError ? err.message : 'Unable to roll back transaction';
         setActionError(message);
@@ -65,7 +70,7 @@ export function TransactionLogScreen() {
         setSubmittingId(null);
       }
     },
-    [isViewer, transactions],
+    [isViewer, onInventoryChanged, transactions],
   );
 
   const renderLocationSummary = useCallback((transaction: InventoryTransactionRecord) => {
@@ -78,7 +83,7 @@ export function TransactionLogScreen() {
       case 'CONSUMPTION':
         return `Used from ${fromLocation ?? 'Unknown location'}`;
       case 'TRANSFER':
-        return `${fromLocation ?? 'Unknown'} to ${toLocation ?? 'Unknown'}`;
+        return `${fromLocation ?? 'Unknown'} -> ${toLocation ?? 'Unknown'}`;
       case 'ADJUSTMENT':
         return `Adjusted at ${fromLocation ?? 'Unknown location'}`;
       default:
@@ -102,10 +107,7 @@ export function TransactionLogScreen() {
               Audit stock changes and roll back mistakes before additional edits occur.
             </p>
           </div>
-          <button
-            onClick={loadTransactions}
-            className="btn-gf-outline px-4 py-2 text-sm"
-          >
+          <button onClick={loadTransactions} className="btn-gf-outline px-4 py-2 text-sm">
             Refresh
           </button>
         </div>
@@ -162,9 +164,7 @@ export function TransactionLogScreen() {
                       <p className={`text-sm font-semibold uppercase tracking-wide ${typeCopy.color}`}>
                         {typeCopy.label}
                       </p>
-                      <p className="text-lg font-heading text-dark-text-primary">
-                        {transaction.product.name}
-                      </p>
+                      <p className="text-lg font-heading text-dark-text-primary">{transaction.product.name}</p>
                       <p className="text-sm text-dark-text-secondary">
                         {quantityDisplay} {unitLabel}
                       </p>
@@ -174,27 +174,22 @@ export function TransactionLogScreen() {
                       {transaction.performedBy && <p>By {transaction.performedBy.name}</p>}
                       {transaction.isReverted && (
                         <p className="text-alert-red font-semibold">
-                          Rolled back {transaction.revertedAt ? new Date(transaction.revertedAt).toLocaleString() : ''}
+                          Rolled back{' '}
+                          {transaction.revertedAt ? new Date(transaction.revertedAt).toLocaleString() : ''}
                           {transaction.revertedBy ? ` by ${transaction.revertedBy.name}` : ''}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="text-sm text-dark-text-secondary">
-                    {renderLocationSummary(transaction)}
-                  </div>
+                  <div className="text-sm text-dark-text-secondary">{renderLocationSummary(transaction)}</div>
 
                   {transaction.jobReference && (
-                    <div className="text-xs text-dark-text-muted">
-                      Job: {transaction.jobReference}
-                    </div>
+                    <div className="text-xs text-dark-text-muted">Job: {transaction.jobReference}</div>
                   )}
 
                   {transaction.notes && (
-                    <div className="text-xs text-dark-text-muted">
-                      Notes: {transaction.notes}
-                    </div>
+                    <div className="text-xs text-dark-text-muted">Notes: {transaction.notes}</div>
                   )}
 
                   <div className="flex items-center justify-end gap-3 flex-wrap">

@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Product, Location } from '../../types';
-import { ProductCard } from './ProductCard';
-import { EmptyState } from '../common/EmptyState';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { InventoryItem, Product, Location } from "../../types";
+import { ProductCard } from "./ProductCard";
+import { EmptyState } from "../common/EmptyState";
 
 interface ProductListProps {
   products: Product[];
@@ -11,6 +11,8 @@ interface ProductListProps {
   errorByKey?: Record<string, string | null>;
   onIncrement?: (product: Product, locationId: string) => void;
   onDecrement?: (product: Product, locationId: string) => void;
+  onProductClick?: (product: Product, locationId: string) => void;
+  onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
 }
 
 export function ProductList({
@@ -21,22 +23,28 @@ export function ProductList({
   errorByKey,
   onIncrement,
   onDecrement,
+  onProductClick,
+  onAdjustClick,
 }: ProductListProps) {
-  const locationName = selectedLocation !== 'all'
-    ? locations.find((location) => location.id === selectedLocation)?.name
-    : null;
+  const locationName =
+    selectedLocation !== "all"
+      ? locations.find((location) => location.id === selectedLocation)?.name
+      : null;
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   const groupedProducts = useMemo(() => {
-    const groups = new Map<string, {
-      key: string;
-      name: string;
-      products: Product[];
-    }>();
+    const groups = new Map<
+      string,
+      {
+        key: string;
+        name: string;
+        products: Product[];
+      }
+    >();
 
     for (const product of products) {
-      const key = product.category?.id || '__uncategorized__';
-      const name = product.category?.name || 'Uncategorized';
+      const key = product.category?.id || "__uncategorized__";
+      const name = product.category?.name || "Uncategorized";
       const existing = groups.get(key) ?? {
         key,
         name,
@@ -48,8 +56,8 @@ export function ProductList({
     }
 
     return Array.from(groups.values()).sort((left, right) => {
-      if (left.key === '__uncategorized__') return 1;
-      if (right.key === '__uncategorized__') return -1;
+      if (left.key === "__uncategorized__") return 1;
+      if (right.key === "__uncategorized__") return -1;
       return left.name.localeCompare(right.name);
     });
   }, [products]);
@@ -91,7 +99,7 @@ export function ProductList({
 
   const hasExpandedSections = groupedProducts.some((group) => !collapsedSections[group.key]);
   const hasCollapsedSections = groupedProducts.some((group) => collapsedSections[group.key] ?? true);
-  const isEditable = selectedLocation !== 'all';
+  const isEditable = selectedLocation !== "all";
 
   return (
     <div className="space-y-3">
@@ -126,7 +134,10 @@ export function ProductList({
       ) : (
         <div className="space-y-3">
           {groupedProducts.map((group) => (
-            <section key={group.key} className="bg-dark-card border border-dark-border rounded-lg shadow-lg overflow-hidden">
+            <section
+              key={group.key}
+              className="bg-dark-card border border-dark-border rounded-lg shadow-lg overflow-hidden"
+            >
               <button
                 type="button"
                 onClick={() => toggleSection(group.key)}
@@ -136,8 +147,12 @@ export function ProductList({
                 <h3 className="font-heading font-semibold text-sm text-dark-text-primary truncate pr-2">
                   {group.name}
                 </h3>
-                <span className="text-dark-text-secondary text-xs whitespace-nowrap" aria-hidden="true">
-                  {collapsedSections[group.key] ? 'Show' : 'Hide'} ({group.products.length})
+                <span
+                  className="text-dark-text-secondary text-xs whitespace-nowrap"
+                  aria-hidden="true"
+                >
+                  {collapsedSections[group.key] ? "Show" : "Hide"} (
+                  {group.products.length})
                 </span>
               </button>
 
@@ -155,6 +170,8 @@ export function ProductList({
                         errorMessage={errorByKey?.[rowKey] ?? null}
                         onIncrement={onIncrement}
                         onDecrement={onDecrement}
+                        onCardClick={onProductClick}
+                        onAdjustClick={onAdjustClick}
                       />
                     );
                   })}
