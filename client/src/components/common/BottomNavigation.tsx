@@ -16,7 +16,7 @@ interface BottomNavigationProps {
 export function BottomNavigation({ activeTab = 'dashboard', onTabChange, disableManage = false }: BottomNavigationProps) {
   const navItems: NavItem[] = [
     { id: 'dashboard', icon: '\u{1F4CA}', label: 'Dashboard', active: true },
-    { id: 'add', icon: '\u{1F4CB}', label: 'Manage' },
+    { id: 'add', icon: '\u{1F4CB}', label: 'Tools' },
     { id: 'products', icon: '\u{1F4E6}', label: 'Products' },
     { id: 'more', icon: '+', label: 'More' },
   ];

@@ -36,7 +36,15 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const selectedProduct = products.find((p) => p.id === formData.productId);
+  const inventoryProducts = useMemo(
+    () =>
+      products.filter((product) =>
+        product.inventoryItems.some((item) => item.quantity > 0)
+      ),
+    [products]
+  );
+
+  const selectedProduct = inventoryProducts.find((p) => p.id === formData.productId) ?? products.find((p) => p.id === formData.productId);
 
   // Get available quantity at a specific location for the selected product
   const getAvailableQuantity = useCallback(
@@ -44,10 +52,9 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
       if (!productId || !locationId) return 0;
       const product = products.find((p) => p.id === productId);
       if (!product) return 0;
-      const inventoryItem = product.inventoryItems.find(
-        (item) => item.location.id === locationId
-      );
-      return inventoryItem?.quantity || 0;
+      return product.inventoryItems
+        .filter((item) => item.location.id === locationId)
+        .reduce((sum, item) => sum + item.quantity, 0);
     },
     [products]
   );
@@ -169,7 +176,7 @@ export const TransferInventoryForm = memo(function TransferInventoryForm({
           disabled={isSubmitting}
         >
           <option value="">Select a product...</option>
-          {products.map((product) => (
+          {inventoryProducts.map((product) => (
             <option key={product.id} value={product.id}>
               {product.name} {product.sku ? `(${product.sku})` : ""} -{" "}
               {product.unitSize}

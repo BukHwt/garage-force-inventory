@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { requireEditor } from '../middleware/auth.js';
+import { aggregateProductInventory } from '../lib/inventory.js';
 
 const router = Router();
 
@@ -54,7 +55,7 @@ router.get('/', async (req: Request, res: Response) => {
       },
     });
 
-    res.json(products);
+    res.json(products.map(aggregateProductInventory));
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ error: 'Failed to fetch products' });
@@ -82,7 +83,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    res.json(product);
+    res.json(aggregateProductInventory(product));
   } catch (error) {
     console.error('Error fetching product:', error);
     res.status(500).json({ error: 'Failed to fetch product' });
@@ -147,7 +148,7 @@ router.post('/', async (req: Request, res: Response) => {
       },
     });
 
-    res.status(201).json(product);
+    res.status(201).json(aggregateProductInventory(product));
   } catch (error) {
     console.error('Error creating product:', error);
     res.status(500).json({ error: 'Failed to create product' });
@@ -249,7 +250,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       },
     });
 
-    res.json(product);
+    res.json(aggregateProductInventory(product));
   } catch (error) {
     console.error('Error updating product:', error);
     res.status(500).json({ error: 'Failed to update product' });

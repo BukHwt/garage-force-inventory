@@ -1,33 +1,20 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import './index.css';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 
-// Hooks
 import { useInventory } from './hooks/useInventory';
 import { useAuth } from './context/AuthContext';
-
-// Utils
-import { filterProductsByLocation, getProductsNeedingReorder, getTotalQuantity } from './utils/inventory';
-
-// API Services
-import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage, unsealInventory } from './api/services/inventory';
-import type { ReceiveInventoryRequest, TransferInventoryRequest, UseInventoryRequest } from './api/services/inventory';
+import { filterProductsByLocation, getProductsNeedingReorder, getLocationQuantity, getTotalQuantity } from './utils/inventory';
+import { updateInventoryStock, receiveInventory, transferInventory } from './api/services/inventory';
+import type { ReceiveInventoryRequest, TransferInventoryRequest } from './api/services/inventory';
 import { updateProduct, createProduct, UpdateProductRequest, CreateProductRequest } from './api/services/products';
-
-// Types
-import { InventoryItem, Category, Product } from './types';
-
-// Components
+import { Category, Product } from './types';
 import { Header } from './components/layout/Header';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { BottomNavigation } from './components/common/BottomNavigation';
 import { ReorderAlerts } from './components/inventory/ReorderAlerts';
-import { QuickReceiveModal } from './components/inventory/QuickReceiveModal';
 import { LocationFilter } from './components/inventory/LocationFilter';
 import { ProductList } from './components/inventory/ProductList';
-import { InventoryAdjustmentModal } from './components/common/InventoryAdjustmentModal';
-import { InventoryActionModal } from './components/inventory/InventoryActionModal';
-import { UnsealModal } from './components/inventory/UnsealModal';
 import { AddInventoryScreen } from './components/inventory/AddInventoryScreen';
 import { ProductCatalogScreen } from './components/products/ProductCatalogScreen';
 import { LoginModal } from './components/auth/LoginModal';
@@ -39,7 +26,7 @@ import { SharedOrdersScreen } from './components/more/SharedOrdersScreen';
 
 type TabId = 'dashboard' | 'add' | 'products' | 'more';
 type ManagePrefill = {
-  mode?: 'receive' | 'transfer' | 'use';
+  mode?: 'receive' | 'transfer';
   productId?: string;
   locationId?: string;
 };
@@ -95,7 +82,7 @@ const parseManageSearch = (search: string): ManagePrefill => {
   }
   const params = new URLSearchParams(search);
   const modeParam = params.get('mode');
-  const allowedModes: ManagePrefill['mode'][] = ['receive', 'transfer', 'use'];
+  const allowedModes: ManagePrefill['mode'][] = ['receive', 'transfer'];
   const mode = allowedModes.includes(modeParam as ManagePrefill['mode'])
     ? (modeParam as ManagePrefill['mode'])
     : undefined;
@@ -111,12 +98,76 @@ const parseManageSearch = (search: string): ManagePrefill => {
 const isSamePrefill = (a: ManagePrefill, b: ManagePrefill) =>
   a.mode === b.mode && a.productId === b.productId && a.locationId === b.locationId;
 
+function applyStockOverrides(products: Product[], stockOverrides: Record<string, number>, locations: { id: string; name: string; description?: string | null }[]) {
+  return products.map((product) => {
+    let inventoryItems = product.inventoryItems;
+    let changed = false;
+
+    for (const [key, quantity] of Object.entries(stockOverrides)) {
+      const [productId, locationId] = key.split(':');
+      if (productId !== product.id) {
+        continue;
+      }
+
+      changed = true;
+      const existing = inventoryItems.find((item) => item.location.id === locationId);
+
+      if (quantity <= 0) {
+        inventoryItems = inventoryItems.filter((item) => item.location.id !== locationId);
+        continue;
+      }
+
+      if (existing) {
+        inventoryItems = inventoryItems.map((item) =>
+          item.location.id === locationId ? { ...item, quantity } : item,
+        );
+        continue;
+      }
+    }
+
+    if (!changed) {
+      return product;
+    }
+
+    for (const [key, quantity] of Object.entries(stockOverrides)) {
+      const [productId, locationId] = key.split(':');
+      if (productId !== product.id || quantity <= 0) {
+        continue;
+      }
+      const hasExisting = inventoryItems.some((item) => item.location.id === locationId);
+      if (hasExisting) {
+        continue;
+      }
+      const fallbackLocation =
+        product.inventoryItems.find((item) => item.location.id === locationId)?.location ||
+        locations.find((location) => location.id === locationId);
+      if (!fallbackLocation) {
+        continue;
+      }
+      inventoryItems = inventoryItems.concat({
+        id: key,
+        quantity,
+        location: fallbackLocation,
+      });
+    }
+
+    return {
+      ...product,
+      inventoryItems,
+    };
+  });
+}
+
 function App() {
   const { user, isReady: authReady } = useAuth();
   const isAuthenticated = Boolean(user);
   const isViewer = user?.role === 'VIEWER';
   const { products, locations, loading, error, refetch } = useInventory({ enabled: isAuthenticated });
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [preFilledData, setPreFilledData] = useState<ManagePrefill>({});
+  const [stockOverrides, setStockOverrides] = useState<Record<string, number>>({});
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const [errorByKey, setErrorByKey] = useState<Record<string, string | null>>({});
   const navigate = useNavigate();
   const location = useLocation();
   const currentTab = getTabFromPath(location.pathname);
@@ -125,57 +176,9 @@ function App() {
       const path = buildManagePath(prefill);
       navigate(path, { replace: options?.replace });
     },
-    [navigate]
+    [navigate],
   );
 
-  // Modal state for inventory adjustments
-  const [adjustmentModal, setAdjustmentModal] = useState<{
-    isOpen: boolean;
-    inventoryItem: InventoryItem | null;
-    productName: string;
-  }>({
-    isOpen: false,
-    inventoryItem: null,
-    productName: '',
-  });
-
-  // Modal state for inventory actions (use open/open sealed)
-  const [actionModal, setActionModal] = useState<{
-    isOpen: boolean;
-    product: Product | null;
-    locationId: string;
-  }>({
-    isOpen: false,
-    product: null,
-    locationId: '',
-  });
-
-  // Modal state for unsealing containers
-  const [unsealModal, setUnsealModal] = useState<{
-    isOpen: boolean;
-    product: Product | null;
-    locationId: string;
-    maxQuantity: number;
-  }>({
-    isOpen: false,
-    product: null,
-    locationId: '',
-    maxQuantity: 0,
-  });
-
-  // Pre-filled form state for quick actions from Dashboard
-  const [preFilledData, setPreFilledData] = useState<ManagePrefill>({});
-
-  // Scroll position tracking for returning to Dashboard
-  const [savedScrollPosition, setSavedScrollPosition] = useState<number>(0);
-  const shouldRestoreScroll = useRef<boolean>(false);
-  const [previousTab, setPreviousTab] = useState<TabId>('dashboard');
-  const lastTabRef = useRef<TabId>(currentTab);
-  const [quickReceiveProduct, setQuickReceiveProduct] = useState<Product | null>(null);
-  const [reorderAlertsCollapsed, setReorderAlertsCollapsed] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem('gf_reorder_collapsed') === 'true';
-  });
   const handleClearPreFilled = useCallback(() => {
     setPreFilledData({});
     if (location.pathname.startsWith(TAB_TO_PATH.add) && location.search) {
@@ -184,25 +187,12 @@ function App() {
   }, [location.pathname, location.search, navigateToManage]);
 
   useEffect(() => {
-    if (lastTabRef.current === 'add' && currentTab !== 'add') {
-      setPreFilledData({});
-    }
-    lastTabRef.current = currentTab;
-  }, [currentTab]);
-
-  useEffect(() => {
     if (currentTab !== 'add') {
       return;
     }
     const nextPrefill = parseManageSearch(location.search);
-    setPreFilledData(prev => (isSamePrefill(prev, nextPrefill) ? prev : nextPrefill));
+    setPreFilledData((prev) => (isSamePrefill(prev, nextPrefill) ? prev : nextPrefill));
   }, [currentTab, location.search]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('gf_reorder_collapsed', reorderAlertsCollapsed ? 'true' : 'false');
-    }
-  }, [reorderAlertsCollapsed]);
 
   useEffect(() => {
     if (isViewer && currentTab === 'add') {
@@ -210,28 +200,31 @@ function App() {
     }
   }, [isViewer, currentTab, navigate]);
 
-  // Memoized derived state - only recompute when dependencies change
+  const displayProducts = useMemo(
+    () => applyStockOverrides(products, stockOverrides, locations),
+    [locations, products, stockOverrides],
+  );
+
   const dashboardVisibleProducts = useMemo(
     () =>
-      products.filter((product) => {
+      displayProducts.filter((product) => {
         const hasInventory = getTotalQuantity(product) > 0;
         const hasReorderPoint = (product.reorderPoint ?? 0) > 0;
         return Boolean(product.isTracked || hasInventory || hasReorderPoint);
       }),
-    [products]
+    [displayProducts],
   );
 
   const filteredProducts = useMemo(
     () => filterProductsByLocation(dashboardVisibleProducts, selectedLocation),
-    [dashboardVisibleProducts, selectedLocation]
+    [dashboardVisibleProducts, selectedLocation],
   );
 
   const reorderAlerts = useMemo(
     () => getProductsNeedingReorder(dashboardVisibleProducts),
-    [dashboardVisibleProducts]
+    [dashboardVisibleProducts],
   );
 
-  // Extract unique categories from products
   const categories = useMemo(() => {
     const categoryMap = new Map<string, Category>();
     products.forEach((product) => {
@@ -242,65 +235,53 @@ function App() {
     return Array.from(categoryMap.values()).sort((a, b) => a.name.localeCompare(b.name));
   }, [products]);
 
-  // Stable callback references - prevent unnecessary re-renders of child components
-  const handleUseFromOpen = useCallback((productId: string, locationId: string) => {
-    // Save current scroll position and tab
-    setSavedScrollPosition(window.scrollY || document.documentElement.scrollTop);
-    setPreviousTab(currentTab);
-    const nextPrefill: ManagePrefill = {
-      mode: 'use',
-      productId,
-      locationId,
-    };
-    setPreFilledData(nextPrefill);
-    navigateToManage(nextPrefill);
-  }, [currentTab, navigateToManage]);
+  const handleStockChange = useCallback(async (product: Product, locationId: string, delta: number) => {
+    if (locationId === 'all') {
+      return;
+    }
 
-  const handleProductClick = useCallback(
-    (product: Product, locationId: string) => {
-      if (isViewer) {
-        return;
-      }
-      if (product.consumableType === 'SINGLE_USE') {
-        handleUseFromOpen(product.id, locationId);
-        return;
-      }
+    const key = `${product.id}:${locationId}`;
+    const currentQuantity = getLocationQuantity(product, locationId);
+    const nextQuantity = Math.max(0, currentQuantity + delta);
 
-      setActionModal({
-        isOpen: true,
-        product,
+    setErrorByKey((prev) => ({ ...prev, [key]: null }));
+    setPendingKey(key);
+    setStockOverrides((prev) => ({ ...prev, [key]: nextQuantity }));
+
+    try {
+      await updateInventoryStock({
+        productId: product.id,
         locationId,
+        quantity: nextQuantity,
       });
-    },
-    [handleUseFromOpen, isViewer]
-  );
-
-  const handleAdjustClick = useCallback(
-    (inventoryItem: InventoryItem, productName: string) => {
-      if (isViewer) {
-        return;
-      }
-      setAdjustmentModal({
-        isOpen: true,
-        inventoryItem,
-        productName,
+      await refetch();
+      setStockOverrides((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
       });
-    },
-    [isViewer]
-  );
-
-  const handleCloseModal = useCallback(() => {
-    setAdjustmentModal({
-      isOpen: false,
-      inventoryItem: null,
-      productName: '',
-    });
-  }, []);
-
-  const handleAdjustment = useCallback(async (inventoryItemId: string, adjustment: number, status?: 'SEALED' | 'OPEN') => {
-    await adjustInventory(inventoryItemId, adjustment, status);
-    await refetch();
+    } catch (err) {
+      setStockOverrides((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+      setErrorByKey((prev) => ({
+        ...prev,
+        [key]: err instanceof Error ? err.message : 'Unable to update stock',
+      }));
+    } finally {
+      setPendingKey((prev) => (prev === key ? null : prev));
+    }
   }, [refetch]);
+
+  const handleIncrement = useCallback((product: Product, locationId: string) => {
+    void handleStockChange(product, locationId, 1);
+  }, [handleStockChange]);
+
+  const handleDecrement = useCallback((product: Product, locationId: string) => {
+    void handleStockChange(product, locationId, -1);
+  }, [handleStockChange]);
 
   const handleReceiveInventory = useCallback(async (data: ReceiveInventoryRequest) => {
     await receiveInventory(data);
@@ -311,14 +292,6 @@ function App() {
     await transferInventory(data);
     await refetch();
   }, [refetch]);
-
-  const handleUseInventory = useCallback(async (data: UseInventoryRequest) => {
-    await recordInventoryUsage(data);
-    await refetch();
-    // Navigate back to Dashboard after successful usage
-    shouldRestoreScroll.current = true;
-    navigate(TAB_TO_PATH.dashboard);
-  }, [navigate, refetch]);
 
   const handleTabChange = useCallback(
     (tabId: string) => {
@@ -334,7 +307,6 @@ function App() {
         }
         return;
       }
-      setPreviousTab(currentTab);
       if (typedTab === 'add') {
         navigateToManage();
         return;
@@ -342,95 +314,26 @@ function App() {
       const targetPath = TAB_TO_PATH[typedTab] ?? TAB_TO_PATH.dashboard;
       navigate(targetPath);
     },
-    [currentTab, isViewer, location.pathname, navigate, navigateToManage]
+    [currentTab, isViewer, location.pathname, navigate, navigateToManage],
   );
 
   const handleReceiveFromAlert = useCallback((product: Product) => {
     if (isViewer || !locations.length) {
       return;
     }
-    setQuickReceiveProduct(product);
-  }, [isViewer, locations.length]);
-
-  const handleCloseQuickReceive = useCallback(() => {
-    setQuickReceiveProduct(null);
-  }, []);
-
-  const handleQuickReceiveSuccess = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
-
-  const handleOpenSealed = useCallback((product: Product, locationId: string) => {
-    // Calculate max sealed quantity at this location
-    const sealedItems = product.inventoryItems.filter(
-      item => item.location.id === locationId && item.status === 'SEALED'
-    );
-    const maxQuantity = sealedItems.reduce((sum, item) => sum + item.quantity, 0);
-
-    // Open unseal modal
-    setUnsealModal({
-      isOpen: true,
-      product,
-      locationId,
-      maxQuantity,
-    });
-
-    // Close the action modal
-    setActionModal({
-      isOpen: false,
-      product: null,
-      locationId: '',
-    });
-  }, []);
-
-  const handleConfirmUnseal = useCallback(async (quantity: number) => {
-    if (!unsealModal.product) return;
-
-    try {
-      await unsealInventory({
-        productId: unsealModal.product.id,
-        locationId: unsealModal.locationId,
-        quantity,
-      });
-      await refetch();
-      // Close the unseal modal after successful unsealing
-      setUnsealModal({
-        isOpen: false,
-        product: null,
-        locationId: '',
-        maxQuantity: 0,
-      });
-    } catch (error) {
-      console.error('Failed to unseal containers:', error);
-      // Could show a toast notification here
-    }
-  }, [unsealModal.product, unsealModal.locationId, refetch]);
-
-  const handleCloseUnsealModal = useCallback(() => {
-    setUnsealModal({
-      isOpen: false,
-      product: null,
-      locationId: '',
-      maxQuantity: 0,
-    });
-  }, []);
-
-  const handleCloseActionModal = useCallback(() => {
-    setActionModal({
-      isOpen: false,
-      product: null,
-      locationId: '',
-    });
-  }, []);
+    const nextPrefill: ManagePrefill = {
+      mode: 'receive',
+      productId: product.id,
+      locationId: selectedLocation !== 'all' ? selectedLocation : undefined,
+    };
+    setPreFilledData(nextPrefill);
+    navigateToManage(nextPrefill);
+  }, [isViewer, locations.length, navigateToManage, selectedLocation]);
 
   const handleCancelTransaction = useCallback(() => {
-    // Clear pre-filled data
     handleClearPreFilled();
-    // Return to previous tab
-    shouldRestoreScroll.current = previousTab === 'dashboard';
-    const targetPath = TAB_TO_PATH[previousTab] ?? TAB_TO_PATH.dashboard;
-    navigate(targetPath);
-  }, [handleClearPreFilled, navigate, previousTab]);
+    navigate(TAB_TO_PATH.dashboard);
+  }, [handleClearPreFilled, navigate]);
 
   const handleUpdateProduct = useCallback(async (productId: string, updates: UpdateProductRequest) => {
     await updateProduct(productId, updates);
@@ -438,7 +341,6 @@ function App() {
   }, [refetch]);
 
   const handleCreateProduct = useCallback(async (data: { isTracked: boolean; name: string; description: string; sku: string; color: string; unitSize: string; reorderPoint: number | null; supplierType: 'GARAGE_FORCE_REQUIRED' | 'GARAGE_FORCE_OPTIONAL' | 'OPEN_SOURCE'; categoryId: string }) => {
-    // Convert null to undefined for API
     const apiData: CreateProductRequest = {
       name: data.name,
       description: data.description || undefined,
@@ -454,21 +356,6 @@ function App() {
     await refetch();
   }, [refetch]);
 
-  // Restore scroll position when returning to Dashboard
-  useEffect(() => {
-    if (currentTab === 'dashboard' && shouldRestoreScroll.current) {
-      // Use setTimeout to ensure DOM is ready
-      setTimeout(() => {
-        window.scrollTo(0, savedScrollPosition);
-        shouldRestoreScroll.current = false;
-      }, 0);
-    } else if (currentTab === 'add') {
-      // Always scroll to top when entering Manage tab
-      window.scrollTo(0, 0);
-    }
-  }, [currentTab, savedScrollPosition]);
-
-  // Loading state
   if (!authReady) {
     return <LoadingSpinner />;
   }
@@ -485,7 +372,6 @@ function App() {
     return <LoadingSpinner />;
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-dark-bg flex items-center justify-center p-4">
@@ -512,8 +398,6 @@ function App() {
                     products={reorderAlerts}
                     onReceiveProduct={handleReceiveFromAlert}
                     disableReceive={isViewer || locations.length === 0}
-                    collapsed={reorderAlertsCollapsed}
-                    onToggleCollapsed={() => setReorderAlertsCollapsed((prev) => !prev)}
                   />
                 )}
 
@@ -527,22 +411,10 @@ function App() {
                   products={filteredProducts}
                   selectedLocation={selectedLocation}
                   locations={locations}
-                  onProductClick={
-                    isViewer
-                      ? undefined
-                      : selectedLocation === 'all'
-                  ? (product, _locationId) => {
-                      setPreviousTab(currentTab);
-                      const nextPrefill: ManagePrefill = {
-                        mode: 'receive',
-                        productId: product.id,
-                      };
-                      setPreFilledData(nextPrefill);
-                      navigateToManage(nextPrefill);
-                    }
-                  : handleProductClick
-                  }
-                  onAdjustClick={isViewer ? undefined : handleAdjustClick}
+                  pendingKey={pendingKey}
+                  errorByKey={errorByKey}
+                  onIncrement={isViewer ? undefined : handleIncrement}
+                  onDecrement={isViewer ? undefined : handleDecrement}
                 />
               </div>
             </>
@@ -561,7 +433,6 @@ function App() {
                 locations={locations}
                 onReceive={handleReceiveInventory}
                 onTransfer={handleTransferInventory}
-                onUse={handleUseInventory}
                 initialMode={preFilledData.mode}
                 initialProductId={preFilledData.productId}
                 initialLocationId={preFilledData.locationId || selectedLocation}
@@ -604,54 +475,8 @@ function App() {
         onTabChange={handleTabChange}
         disableManage={isViewer}
       />
-
-      {/* Inventory Adjustment Modal */}
-      {adjustmentModal.inventoryItem && (
-        <InventoryAdjustmentModal
-          inventoryItem={adjustmentModal.inventoryItem}
-          productName={adjustmentModal.productName}
-          isOpen={adjustmentModal.isOpen}
-          onClose={handleCloseModal}
-          onAdjust={handleAdjustment}
-        />
-      )}
-
-      {/* Inventory Action Modal (Use Open/Open Sealed) */}
-      {actionModal.product && (
-        <InventoryActionModal
-          product={actionModal.product}
-          locationId={actionModal.locationId}
-          isOpen={actionModal.isOpen}
-          onClose={handleCloseActionModal}
-          onUseFromOpen={handleUseFromOpen}
-          onOpenSealed={handleOpenSealed}
-        />
-      )}
-
-      {/* Unseal Modal */}
-      {unsealModal.product && (
-        <UnsealModal
-          product={unsealModal.product}
-          locationId={unsealModal.locationId}
-          maxQuantity={unsealModal.maxQuantity}
-          isOpen={unsealModal.isOpen}
-          onClose={handleCloseUnsealModal}
-          onConfirm={handleConfirmUnseal}
-        />
-      )}
-
-      {quickReceiveProduct && (
-        <QuickReceiveModal
-          product={quickReceiveProduct}
-          locations={locations}
-          isOpen
-          onClose={handleCloseQuickReceive}
-          onSuccess={handleQuickReceiveSuccess}
-        />
-      )}
     </div>
   );
 }
 
 export default App;
-

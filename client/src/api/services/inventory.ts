@@ -1,6 +1,30 @@
 import { apiPatch, apiPost } from '../client';
 import { InventoryItem } from '../../types';
 
+export interface UpdateInventoryStockRequest {
+  productId: string;
+  locationId: string;
+  quantity: number;
+}
+
+export interface UpdateInventoryStockResponse {
+  inventoryItem: InventoryItem | null;
+  previousQuantity: number;
+  nextQuantity: number;
+  transaction: {
+    id: string;
+    transactionType: string;
+    quantity: number;
+    createdAt: string;
+  };
+}
+
+export async function updateInventoryStock(
+  data: UpdateInventoryStockRequest
+): Promise<UpdateInventoryStockResponse> {
+  return apiPatch<UpdateInventoryStockResponse>('/api/inventory/stock', data);
+}
+
 /**
  * Adjust inventory quantity and/or status for a specific item at a location
  * @param inventoryItemId - The ID of the inventory item to adjust

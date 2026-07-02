@@ -1,159 +1,126 @@
-import React, { memo } from 'react';
-import { Product, InventoryItem } from '../../types';
+import React, { memo, useMemo } from 'react';
+import { Product } from '../../types';
 import { getTotalQuantity, getLocationQuantity, needsReorder } from '../../utils/inventory';
 
 interface ProductCardProps {
   product: Product;
   selectedLocation: string;
-  onCardClick?: (product: Product, locationId: string) => void;
-  onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
+  isEditable?: boolean;
+  isPending?: boolean;
+  errorMessage?: string | null;
+  onIncrement?: (product: Product, locationId: string) => void;
+  onDecrement?: (product: Product, locationId: string) => void;
 }
 
-// Memoized component - only re-renders when props actually change
-export const ProductCard = memo(function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({
+  product,
+  selectedLocation,
+  isEditable = false,
+  isPending = false,
+  errorMessage,
+  onIncrement,
+  onDecrement,
+}: ProductCardProps) {
   const isReorderNeeded = needsReorder(product);
   const showingAllLocations = selectedLocation === 'all';
-  const isSingleUse = product.consumableType === 'SINGLE_USE';
   const unitLabel = product.unitSize || 'units';
-
   const displayQuantity = showingAllLocations
     ? getTotalQuantity(product)
     : getLocationQuantity(product, selectedLocation);
 
-  // Calculate open vs sealed quantities
-  const inventoryToShow = showingAllLocations
-    ? product.inventoryItems
-    : product.inventoryItems.filter(item => item.location.id === selectedLocation);
+  const inventoryByLocation = useMemo(() => {
+    const totals = new Map<string, { name: string; quantity: number }>();
 
-  const openQuantity = inventoryToShow
-    .filter(item => item.status === 'OPEN')
-    .reduce((sum, item) => sum + item.quantity, 0);
-
-  const sealedQuantity = inventoryToShow
-    .filter(item => item.status === 'SEALED')
-    .reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleClick = () => {
-    if (onCardClick) {
-      onCardClick(product, selectedLocation);
+    for (const item of product.inventoryItems) {
+      const existing = totals.get(item.location.id);
+      if (existing) {
+        existing.quantity += item.quantity;
+      } else {
+        totals.set(item.location.id, { name: item.location.name, quantity: item.quantity });
+      }
     }
-  };
+
+    return Array.from(totals.entries()).map(([locationId, entry]) => ({
+      locationId,
+      name: entry.name,
+      quantity: entry.quantity,
+    }));
+  }, [product.inventoryItems]);
+
+  const canDecrement = isEditable && displayQuantity > 0 && !isPending;
+  const canIncrement = isEditable && !isPending;
 
   return (
     <div
-      onClick={handleClick}
       className={`bg-dark-card p-3 rounded-lg shadow-lg border ${
         isReorderNeeded ? 'border-l-4 border-alert-red' : 'border-dark-border'
-      } ${onCardClick ? 'cursor-pointer active:bg-gf-charcoal-700 transition-colors duration-150' : ''}`}
+      }`}
       style={{ minHeight: '44px' }}
     >
-      <div className="flex justify-between items-start mb-1">
-        <div className="flex-1">
+      <div className="flex justify-between items-start gap-3 mb-1">
+        <div className="flex-1 min-w-0">
           <h3 className="font-heading font-semibold text-sm text-dark-text-primary">{product.name}</h3>
           {product.sku && (
             <p className="text-xs text-dark-text-muted">SKU: {product.sku}</p>
           )}
         </div>
-        <div className="text-right">
-          {isSingleUse ? (
-            <>
+
+        {isEditable ? (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onDecrement?.(product, selectedLocation)}
+              disabled={!canDecrement}
+              className="h-9 w-9 rounded-lg border border-dark-border text-lg font-bold text-dark-text-primary disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              -
+            </button>
+            <div className="min-w-[3.5rem] text-center">
               <div className="text-xl font-heading font-bold text-dark-text-primary">
                 {displayQuantity}
               </div>
               <div className="text-xs font-body text-dark-text-secondary">
-                {unitLabel}
-              </div>
-            </>
-          ) : openQuantity > 0 && sealedQuantity > 0 ? (
-            <div className="flex gap-2 justify-end items-baseline">
-              <div className="text-right">
-                <div className="text-base font-heading font-bold text-amber-400">
-                  {openQuantity}
-                </div>
-                <div className="text-xs font-body text-amber-400/80">
-                  open {unitLabel}
-                </div>
-              </div>
-              <div className="text-dark-text-muted">+</div>
-              <div className="text-right">
-                <div className="text-base font-heading font-bold text-gf-green">
-                  {sealedQuantity}
-                </div>
-                <div className="text-xs font-body text-gf-green-400">
-                  sealed {unitLabel}
-                </div>
+                {isPending ? 'Saving...' : unitLabel}
               </div>
             </div>
-          ) : openQuantity > 0 ? (
-            <>
-              <div className="text-xl font-heading font-bold text-amber-400">
-                {openQuantity}
-              </div>
-              <div className="text-xs font-body text-amber-400/80">
-                open {unitLabel}
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="text-xl font-heading font-bold text-dark-text-primary">
-                {displayQuantity}
-              </div>
-              <div className="text-xs font-body text-dark-text-secondary">
-                {unitLabel}
-              </div>
-            </>
-          )}
-        </div>
+            <button
+              type="button"
+              onClick={() => onIncrement?.(product, selectedLocation)}
+              disabled={!canIncrement}
+              className="h-9 w-9 rounded-lg border border-dark-border text-lg font-bold text-dark-text-primary disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              +
+            </button>
+          </div>
+        ) : (
+          <div className="text-right">
+            <div className="text-xl font-heading font-bold text-dark-text-primary">
+              {displayQuantity}
+            </div>
+            <div className="text-xs font-body text-dark-text-secondary">
+              {unitLabel}
+            </div>
+          </div>
+        )}
       </div>
 
-      {showingAllLocations && product.inventoryItems.length > 0 && (
+      {showingAllLocations && inventoryByLocation.length > 0 && (
         <div className="mt-2 pt-2 border-t border-dark-border">
           <div className="text-xs text-dark-text-muted font-semibold mb-1">By Location:</div>
           <div className="space-y-1 text-xs">
-            {Array.from(
-              product.inventoryItems.reduce((map, item) => {
-                const key = item.location.id;
-                const summary = map.get(key) ?? {
-                  locationName: item.location.name,
-                  open: 0,
-                  sealed: 0,
-                  total: 0,
-                };
-                if (item.status === 'OPEN') {
-                  summary.open += item.quantity;
-                } else {
-                  summary.sealed += item.quantity;
-                }
-                summary.total += item.quantity;
-                map.set(key, summary);
-                return map;
-              }, new Map<string, { locationName: string; open: number; sealed: number; total: number }>())
-            ).map(([key, summary]) => (
-              <div key={key} className="flex items-center justify-between">
-                <span className="font-semibold text-dark-text-secondary">{summary.locationName}</span>
-                <span className="text-dark-text-muted">
-                  {isSingleUse ? (
-                    <span className="text-dark-text-primary">{summary.total}</span>
-                  ) : (
-                    <>
-                      {summary.open > 0 && (
-                        <span className="text-amber-400">
-                          {summary.open} open
-                          {summary.sealed > 0 ? ' / ' : ''}
-                        </span>
-                      )}
-                      {summary.sealed > 0 && (
-                        <span className="text-gf-green">
-                          {summary.sealed} sealed
-                        </span>
-                      )}
-                      {summary.open === 0 && summary.sealed === 0 && <span>0</span>}
-                    </>
-                  )}
-                </span>
+            {inventoryByLocation.map((item) => (
+              <div key={item.locationId} className="flex items-center justify-between">
+                <span className="font-semibold text-dark-text-secondary">{item.name}</span>
+                <span className="text-dark-text-primary">{item.quantity}</span>
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mt-2 text-xs text-alert-red">
+          {errorMessage}
         </div>
       )}
 
