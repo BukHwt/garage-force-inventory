@@ -9,8 +9,10 @@ Mobile-first inventory management system for SD Concrete Coating Inc / Garage Fo
 - **Neighbor inventory visibility** - Read-only cross-tenant view to see what nearby franchise inventory is on hand
 - **Shared orders list** - Combined purchasing list with status tracking and running total toward free shipping
 - **Smart reorder alerts** - Never run out of critical materials, with a compact collapsed view on the dashboard
-- **Location-aware inventory filtering** - Selecting a location shows only products that actually have stock there
+- **Tracked-first dashboard behavior** - Selecting a location keeps tracked products visible even when that location is currently at zero
 - **Cleaner transfer workflow** - Transfer only offers products that currently have inventory on hand
+- **Chip blend unit handling** - Chip blends can show separate box and bucket counts, including merged dashboard rows and per-location summaries
+- **Catalog unit-variant workflow** - Products tab can create a new unit size from an existing catalog item instead of retyping all shared fields
 - **Supplier management** - Track Garage Force required/optional vs locally sourced items
 - **Transaction history & rollback** - Full audit trail of receipts, consumption, transfers with rollback safeguards
 - **Mobile-optimized UI** - Designed for Android Chrome for on-the-go inventory updates
@@ -125,13 +127,32 @@ Legacy reconciliation scripts are archived in `server/scripts/archive`.
 
 - Products can be organized in collapsible category groups on both Dashboard and Products tabs (mobile-first scrolling behavior).
 - Tracking is edited in the Product Edit modal.
+- Products tab now includes a `Show Tracked Only` toggle in `View/Edit` mode for faster maintenance of tracked items.
 - Untracking is blocked when:
   - inventory quantity exists for that product, or
   - reorder point is above `0`.
 - Reorder behavior:
   - setting reorder point to a value above `0` automatically sets `isTracked = true`,
   - reorder point `0` (or cleared/null) does not force tracking.
+- Dashboard behavior:
+  - tracked products remain visible for a selected location even when quantity is `0`,
+  - tracked chip blends can be restored from `0` without leaving the dashboard.
 - The same API rules apply per tenant schema (`main`, `adam`) since both use the same backend route logic.
+
+## Product Catalog Workflows
+
+- `View/Edit` mode supports direct editing plus an `Add Unit` action on each product row.
+- `Add / Add Unit` mode now supports two creation paths:
+  - `Add Unit Size To Existing Product` pre-fills shared fields from a selected catalog item so the user only needs to set the new `SKU` and `unit size`.
+  - `Add Brand-New Product` remains available for items that do not already exist in the catalog.
+- This workflow is intended for cases like chip blends that need separate `box` and `bucket` variants without manually copying the product definition.
+
+## Chip Blend Dashboard Behavior
+
+- Chip blends with multiple unit variants can be merged into one dashboard row when they share the same blend name.
+- The dashboard shows separate `boxes` and `buckets` counts instead of treating them as a single total.
+- In `All Locations`, chip blend `By Location` summaries now show unit-aware counts such as `2 boxes / 3 buckets` rather than `open/sealed`.
+- Unit controls only render for unit types that actually exist in the catalog for that blend.
 
 ## Available Scripts
 

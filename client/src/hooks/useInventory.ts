@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
 import { Product, Location } from '../types';
 import { fetchProducts } from '../api/services/products';
 import { fetchLocations } from '../api/services/locations';
@@ -9,6 +9,7 @@ interface UseInventoryResult {
   locations: Location[];
   loading: boolean;
   error: string | null;
+  setProducts: Dispatch<SetStateAction<Product[]>>;
   refetch: () => Promise<void>;
 }
 
@@ -66,6 +67,7 @@ export function useInventory(options: UseInventoryOptions = {}): UseInventoryRes
     locations,
     loading,
     error,
+    setProducts,
     refetch: fetchData,
   };
 }

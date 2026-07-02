@@ -10,12 +10,12 @@ import { useAuth } from './context/AuthContext';
 import { filterProductsByLocation, getProductsNeedingReorder, getTotalQuantity } from './utils/inventory';
 
 // API Services
-import { adjustInventory, receiveInventory, transferInventory, useInventory as recordInventoryUsage, unsealInventory } from './api/services/inventory';
+import { adjustInventory, receiveInventory, transferInventory, updateInventoryStock, useInventory as recordInventoryUsage, unsealInventory } from './api/services/inventory';
 import type { ReceiveInventoryRequest, TransferInventoryRequest, UnsealInventoryRequest, UseInventoryRequest } from './api/services/inventory';
 import { updateProduct, createProduct, UpdateProductRequest, CreateProductRequest } from './api/services/products';
 
 // Types
-import { InventoryItem, Category, Product } from './types';
+import { Category, InventoryItem, Product } from './types';
 
 // Components
 import { Header } from './components/layout/Header';
@@ -25,7 +25,6 @@ import { ReorderAlerts } from './components/inventory/ReorderAlerts';
 import { QuickReceiveModal } from './components/inventory/QuickReceiveModal';
 import { LocationFilter } from './components/inventory/LocationFilter';
 import { ProductList } from './components/inventory/ProductList';
-import { InventoryAdjustmentModal } from './components/common/InventoryAdjustmentModal';
 import { InventoryActionModal } from './components/inventory/InventoryActionModal';
 import { UnsealModal } from './components/inventory/UnsealModal';
 import { AddInventoryScreen, InventoryMode } from './components/inventory/AddInventoryScreen';
@@ -115,7 +114,7 @@ function App() {
   const { user, isReady: authReady } = useAuth();
   const isAuthenticated = Boolean(user);
   const isViewer = user?.role === 'VIEWER';
-  const { products, locations, loading, error, refetch } = useInventory({ enabled: isAuthenticated });
+  const { products, locations, loading, error, setProducts, refetch } = useInventory({ enabled: isAuthenticated });
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const navigate = useNavigate();
   const location = useLocation();
@@ -127,17 +126,6 @@ function App() {
     },
     [navigate]
   );
-
-  // Modal state for inventory adjustments
-  const [adjustmentModal, setAdjustmentModal] = useState<{
-    isOpen: boolean;
-    inventoryItem: InventoryItem | null;
-    productName: string;
-  }>({
-    isOpen: false,
-    inventoryItem: null,
-    productName: '',
-  });
 
   // Modal state for inventory actions (use open/open sealed)
   const [actionModal, setActionModal] = useState<{
@@ -275,32 +263,162 @@ function App() {
     [handleUseFromOpen, isViewer]
   );
 
-  const handleAdjustClick = useCallback(
-    (inventoryItem: InventoryItem, productName: string) => {
-      if (isViewer) {
+  const handleInventoryUpdate = useCallback((
+    updatedItem: InventoryItem | null,
+    context?: { productId: string; locationId: string },
+  ) => {
+    setProducts((currentProducts) =>
+      currentProducts.map((currentProduct) => {
+        if (context && currentProduct.id !== context.productId && !updatedItem) {
+          return currentProduct;
+        }
+
+        if (updatedItem) {
+          if (currentProduct.id !== context?.productId && !currentProduct.inventoryItems.some((item) => item.id === updatedItem.id)) {
+            return currentProduct;
+          }
+
+          const existingIndex = currentProduct.inventoryItems.findIndex((item) => item.id === updatedItem.id);
+          if (existingIndex === -1) {
+            if (!context || currentProduct.id !== context.productId) {
+              return currentProduct;
+            }
+
+            const locationItemIndex = currentProduct.inventoryItems.findIndex(
+              (item) => item.location.id === context.locationId,
+            );
+            const nextItem =
+              locationItemIndex >= 0
+                ? {
+                    ...currentProduct.inventoryItems[locationItemIndex],
+                    ...updatedItem,
+                    location: updatedItem.location ?? currentProduct.inventoryItems[locationItemIndex].location,
+                  }
+                : updatedItem;
+
+            const nextInventoryItems =
+              locationItemIndex >= 0
+                ? currentProduct.inventoryItems.map((item, index) =>
+                    index === locationItemIndex ? nextItem : item,
+                  )
+                : [...currentProduct.inventoryItems, nextItem];
+
+            return {
+              ...currentProduct,
+              inventoryItems: nextInventoryItems,
+            };
+          }
+
+          return {
+            ...currentProduct,
+            inventoryItems: currentProduct.inventoryItems.map((item) =>
+              item.id === updatedItem.id
+                ? {
+                    ...item,
+                    ...updatedItem,
+                    location: updatedItem.location ?? item.location,
+                  }
+                : item
+            ),
+          };
+        }
+
+        if (!context || currentProduct.id !== context.productId) {
+          return currentProduct;
+        }
+
+        return {
+          ...currentProduct,
+          inventoryItems: currentProduct.inventoryItems.filter(
+            (item) => item.location.id !== context.locationId,
+          ),
+        };
+      })
+    );
+  }, [setProducts]);
+
+  const handleAdjustChipUnit = useCallback(async (
+    product: Product,
+    locationId: string,
+    unitType: 'BOX' | 'BUCKET',
+    delta: number,
+  ) => {
+    if (isViewer) {
+      return;
+    }
+
+    const matchingItem = product.inventoryItems.find((item) => item.location.id === locationId);
+    if (!matchingItem) {
+      if (delta <= 0) {
         return;
       }
-      setAdjustmentModal({
-        isOpen: true,
-        inventoryItem,
-        productName,
-      });
-    },
-    [isViewer]
-  );
 
-  const handleCloseModal = useCallback(() => {
-    setAdjustmentModal({
-      isOpen: false,
-      inventoryItem: null,
-      productName: '',
-    });
-  }, []);
+      try {
+        const response = await updateInventoryStock({
+          productId: product.id,
+          locationId,
+          quantity: delta,
+        });
+        handleInventoryUpdate(response.inventoryItem, { productId: product.id, locationId });
+      } catch (error) {
+        console.error('Failed to create chip inventory:', error);
+      }
+      return;
+    }
 
-  const handleAdjustment = useCallback(async (inventoryItemId: string, adjustment: number, status?: 'SEALED' | 'OPEN') => {
-    await adjustInventory(inventoryItemId, adjustment, status);
-    await refetch();
-  }, [refetch]);
+    try {
+      const updatedItem = await adjustInventory(matchingItem.id, delta, undefined, unitType);
+      handleInventoryUpdate(updatedItem, { productId: product.id, locationId });
+    } catch (error) {
+      console.error('Failed to adjust chip inventory:', error);
+    }
+  }, [handleInventoryUpdate, isViewer]);
+
+  const handleIncrementInventory = useCallback(async (product: Product, locationId: string) => {
+    if (isViewer) {
+      return;
+    }
+
+    const matchingItem = product.inventoryItems.find((item) => item.location.id === locationId);
+    if (!matchingItem) {
+      try {
+        const response = await updateInventoryStock({
+          productId: product.id,
+          locationId,
+          quantity: 1,
+        });
+        handleInventoryUpdate(response.inventoryItem, { productId: product.id, locationId });
+      } catch (error) {
+        console.error('Failed to create inventory:', error);
+      }
+      return;
+    }
+
+    try {
+      const updatedItem = await adjustInventory(matchingItem.id, 1);
+      handleInventoryUpdate(updatedItem, { productId: product.id, locationId });
+    } catch (error) {
+      console.error('Failed to increment inventory:', error);
+    }
+  }, [handleInventoryUpdate, isViewer]);
+
+  const handleDecrementInventory = useCallback(async (product: Product, locationId: string) => {
+    if (isViewer) {
+      return;
+    }
+
+    const matchingItem = product.inventoryItems.find((item) => item.location.id === locationId);
+    if (!matchingItem || matchingItem.quantity <= 0) {
+      return;
+    }
+
+    try {
+      const updatedItem = await adjustInventory(matchingItem.id, -1);
+      handleInventoryUpdate(updatedItem, { productId: product.id, locationId });
+    } catch (error) {
+      console.error('Failed to decrement inventory:', error);
+    }
+  }, [handleInventoryUpdate, isViewer]);
 
   const handleReceiveInventory = useCallback(async (data: ReceiveInventoryRequest) => {
     await receiveInventory(data);
@@ -557,7 +675,9 @@ function App() {
                     }
                   : handleProductClick
                   }
-                  onAdjustClick={isViewer ? undefined : handleAdjustClick}
+                  onIncrement={isViewer ? undefined : handleIncrementInventory}
+                  onDecrement={isViewer ? undefined : handleDecrementInventory}
+                  onAdjustChipUnit={isViewer ? undefined : handleAdjustChipUnit}
                 />
               </div>
             </>
@@ -621,17 +741,6 @@ function App() {
         onTabChange={handleTabChange}
         disableManage={isViewer}
       />
-
-      {/* Inventory Adjustment Modal */}
-      {adjustmentModal.inventoryItem && (
-        <InventoryAdjustmentModal
-          inventoryItem={adjustmentModal.inventoryItem}
-          productName={adjustmentModal.productName}
-          isOpen={adjustmentModal.isOpen}
-          onClose={handleCloseModal}
-          onAdjust={handleAdjustment}
-        />
-      )}
 
       {/* Inventory Action Modal (Use Open/Open Sealed) */}
       {actionModal.product && (

@@ -34,11 +34,13 @@ export async function updateInventoryStock(
 export async function adjustInventory(
   inventoryItemId: string,
   adjustment: number,
-  status?: 'SEALED' | 'OPEN'
-): Promise<InventoryItem> {
-  return apiPatch<InventoryItem>(`/api/inventory/${inventoryItemId}/adjust`, {
+  status?: 'SEALED' | 'OPEN',
+  unitType?: 'BOX' | 'BUCKET'
+): Promise<InventoryItem | null> {
+  return apiPatch<InventoryItem | null>(`/api/inventory/${inventoryItemId}/adjust`, {
     adjustment,
     ...(status !== undefined && { status }),
+    ...(unitType && { unitType }),
   });
 }
 
