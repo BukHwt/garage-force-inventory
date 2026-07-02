@@ -15,7 +15,8 @@ export interface Category {
 export interface InventoryItem {
   id: string;
   quantity: number;
-  status: 'SEALED' | 'OPEN';
+  status?: 'SEALED' | 'OPEN';
+  notes?: string | null;
   location: Location;
 }
 

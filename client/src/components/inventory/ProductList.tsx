@@ -1,30 +1,54 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Product, Location, InventoryItem } from "../../types";
+import { Product, Location } from "../../types";
 import { ProductCard } from "./ProductCard";
 import { EmptyState } from "../common/EmptyState";
+import { getChipBlendGroupKey, getChipUnitType, getLocationQuantity, isChipBlendProduct } from "../../utils/inventory";
+
+type ProductRow =
+  | {
+      kind: "single";
+      key: string;
+      product: Product;
+    }
+  | {
+      kind: "merged-chip";
+      key: string;
+      product: Product;
+      chipUnitEntries: Array<{
+        product: Product;
+        unitType: "BOX" | "BUCKET";
+        quantity: number;
+      }>;
+    };
 
 interface ProductListProps {
   products: Product[];
   selectedLocation: string;
   locations: Location[];
+  pendingKey?: string | null;
+  errorByKey?: Record<string, string | null>;
+  onIncrement?: (product: Product, locationId: string) => void;
+  onDecrement?: (product: Product, locationId: string) => void;
+  onAdjustChipUnit?: (product: Product, locationId: string, unitType: 'BOX' | 'BUCKET', delta: number) => void;
   onProductClick?: (product: Product, locationId: string) => void;
-  onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
 }
 
 export function ProductList({
   products,
   selectedLocation,
   locations,
+  pendingKey,
+  errorByKey,
+  onIncrement,
+  onDecrement,
+  onAdjustChipUnit,
   onProductClick,
-  onAdjustClick,
 }: ProductListProps) {
   const locationName =
     selectedLocation !== "all"
-      ? locations.find((l) => l.id === selectedLocation)?.name
+      ? locations.find((location) => location.id === selectedLocation)?.name
       : null;
-  const [collapsedSections, setCollapsedSections] = useState<
-    Record<string, boolean>
-  >({});
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   const groupedProducts = useMemo(() => {
     const groups = new Map<
@@ -32,7 +56,7 @@ export function ProductList({
       {
         key: string;
         name: string;
-        products: Product[];
+        rows: ProductRow[];
       }
     >();
 
@@ -42,20 +66,56 @@ export function ProductList({
       const existing = groups.get(key) ?? {
         key,
         name,
-        products: [],
+        rows: [],
       };
 
-      existing.products.push(product);
+      const chipUnitType = getChipUnitType(product);
+      if (isChipBlendProduct(product) && chipUnitType) {
+        const mergedKey = getChipBlendGroupKey(product) ?? `chip:${product.name.trim().toLowerCase()}`;
+        const existingMergedRow = existing.rows.find(
+          (row): row is Extract<ProductRow, { kind: "merged-chip" }> =>
+            row.kind === "merged-chip" && row.key === mergedKey,
+        );
+
+        const chipEntry = {
+          product,
+          unitType: chipUnitType,
+          quantity: selectedLocation === "all"
+            ? product.inventoryItems.reduce((sum, item) => sum + item.quantity, 0)
+            : getLocationQuantity(product, selectedLocation),
+        };
+
+        if (existingMergedRow) {
+          existingMergedRow.chipUnitEntries.push(chipEntry);
+        } else {
+          existing.rows.push({
+            kind: "merged-chip",
+            key: mergedKey,
+            product,
+            chipUnitEntries: [chipEntry],
+          });
+        }
+      } else {
+        existing.rows.push({
+          kind: "single",
+          key: product.id,
+          product,
+        });
+      }
 
       groups.set(key, existing);
     }
 
-    return Array.from(groups.values()).sort((a, b) => {
-      if (a.key === "__uncategorized__") return 1;
-      if (b.key === "__uncategorized__") return -1;
-      return a.name.localeCompare(b.name);
+    Array.from(groups.values()).forEach((group) => {
+      group.rows = group.rows.sort((left, right) => left.product.name.localeCompare(right.product.name));
     });
-  }, [products]);
+
+    return Array.from(groups.values()).sort((left, right) => {
+      if (left.key === "__uncategorized__") return 1;
+      if (right.key === "__uncategorized__") return -1;
+      return left.name.localeCompare(right.name);
+    });
+  }, [products, selectedLocation]);
 
   useEffect(() => {
     setCollapsedSections((prev) => {
@@ -92,19 +152,18 @@ export function ProductList({
     );
   }, [groupedProducts]);
 
-  const hasExpandedSections = groupedProducts.some(
-    (group) => !collapsedSections[group.key],
-  );
-  const hasCollapsedSections = groupedProducts.some(
-    (group) => collapsedSections[group.key] ?? true,
-  );
+  const hasExpandedSections = groupedProducts.some((group) => !collapsedSections[group.key]);
+  const hasCollapsedSections = groupedProducts.some((group) => collapsedSections[group.key] ?? true);
+  const isEditable = selectedLocation !== "all";
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="font-bold text-dark-text-primary text-lg">
-          Inventory {locationName && `- ${locationName}`}
-        </h2>
+        <div>
+          <h2 className="font-bold text-dark-text-primary text-lg">
+            Inventory {locationName && `- ${locationName}`}
+          </h2>
+        </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -148,21 +207,31 @@ export function ProductList({
                   aria-hidden="true"
                 >
                   {collapsedSections[group.key] ? "Show" : "Hide"} (
-                  {group.products.length})
+                  {group.rows.length})
                 </span>
               </button>
 
               {!collapsedSections[group.key] && (
                 <div className="pb-2 space-y-2 border-t border-dark-border">
-                  {group.products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      selectedLocation={selectedLocation}
-                      onCardClick={onProductClick}
-                      onAdjustClick={onAdjustClick}
-                    />
-                  ))}
+                  {group.rows.map((row) => {
+                    const product = row.product;
+                    const rowKey = `${product.id}:${selectedLocation}`;
+                    return (
+                      <ProductCard
+                        key={row.key}
+                        product={product}
+                        chipUnitEntries={row.kind === "merged-chip" ? row.chipUnitEntries : undefined}
+                        selectedLocation={selectedLocation}
+                        isEditable={isEditable}
+                        isPending={pendingKey === rowKey}
+                        errorMessage={errorByKey?.[rowKey] ?? null}
+                        onIncrement={onIncrement}
+                        onDecrement={onDecrement}
+                        onAdjustChipUnit={onAdjustChipUnit}
+                        onCardClick={onProductClick}
+                      />
+                    );
+                  })}
                 </div>
               )}
             </section>

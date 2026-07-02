@@ -27,10 +27,10 @@ export const LocationPicker = memo(function LocationPicker({
   disabled = false,
 }: LocationPickerProps) {
   // Helper to get quantity at a specific location
-  const getLocationQuantity = (locationId: string): number => {
-    const item = inventoryItems.find((item) => item.location.id === locationId);
-    return item?.quantity || 0;
-  };
+  const getLocationQuantity = (locationId: string): number =>
+    inventoryItems
+      .filter((item) => item.location.id === locationId)
+      .reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div>

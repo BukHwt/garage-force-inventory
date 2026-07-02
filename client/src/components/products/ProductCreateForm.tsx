@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Category } from '../../types';
 
 export interface ProductCreateData {
@@ -17,36 +17,58 @@ interface ProductCreateFormProps {
   categories: Category[];
   onSubmit: (data: ProductCreateData) => Promise<void>;
   onCancel?: () => void;
+  initialData?: Partial<ProductCreateData>;
+  submitLabel?: string;
+  successMessage?: string;
+  heading?: string;
+  description?: string;
 }
 
-/**
- * Form for creating new products
- * Mobile-first design with 44px touch targets
- */
+const EMPTY_FORM_DATA: ProductCreateData = {
+  isTracked: false,
+  name: '',
+  description: '',
+  sku: '',
+  color: '',
+  unitSize: '',
+  reorderPoint: null,
+  supplierType: 'OPEN_SOURCE',
+  categoryId: '',
+};
+
 export function ProductCreateForm({
   categories,
   onSubmit,
   onCancel,
+  initialData,
+  submitLabel = 'Create Product',
+  successMessage = 'Product created successfully!',
+  heading,
+  description,
 }: ProductCreateFormProps) {
-  const [formData, setFormData] = useState<ProductCreateData>({
-    isTracked: false,
-    name: '',
-    description: '',
-    sku: '',
-    color: '',
-    unitSize: '',
-    reorderPoint: null,
-    supplierType: 'OPEN_SOURCE',
-    categoryId: '',
-  });
+  const resolvedInitialData = useMemo<ProductCreateData>(
+    () => ({
+      ...EMPTY_FORM_DATA,
+      ...initialData,
+    }),
+    [initialData],
+  );
+  const [formData, setFormData] = useState<ProductCreateData>(resolvedInitialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    setFormData(resolvedInitialData);
+    setError(null);
+    setShowSuccess(false);
+  }, [resolvedInitialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setShowSuccess(false);
 
-    // Validation
     if (!formData.name.trim()) {
       setError('Product name is required');
       return;
@@ -67,19 +89,9 @@ export function ProductCreateForm({
         categoryId: formData.categoryId || '',
       });
 
-      // Reset form on success
-      setFormData({
-        isTracked: false,
-        name: '',
-        description: '',
-        sku: '',
-        color: '',
-        unitSize: '',
-        reorderPoint: null,
-        supplierType: 'OPEN_SOURCE',
-        categoryId: '',
-      });
+      setFormData(resolvedInitialData);
       setIsSubmitting(false);
+      setShowSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create product');
       setIsSubmitting(false);
@@ -88,31 +100,40 @@ export function ProductCreateForm({
 
   const handleChange = (
     field: keyof ProductCreateData,
-    value: string | number | boolean | null
+    value: string | number | boolean | null,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (showSuccess) {
+      setShowSuccess(false);
+    }
   };
 
   return (
     <div className="bg-dark-card rounded-lg p-4">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Success Message */}
-        {!error && isSubmitting === false && formData.name === '' && (
-          <div className="bg-gf-green bg-opacity-20 border-l-4 border-gf-green p-3 rounded">
-            <p className="text-gf-green text-sm font-semibold">
-              ✓ Product created successfully!
-            </p>
+        {heading && (
+          <div>
+            <h2 className="font-heading text-lg font-semibold text-dark-text-primary">
+              {heading}
+            </h2>
+            {description && (
+              <p className="text-sm text-dark-text-secondary mt-1">{description}</p>
+            )}
           </div>
         )}
 
-        {/* Error Message */}
+        {showSuccess && !error && !isSubmitting && (
+          <div className="bg-gf-green bg-opacity-20 border-l-4 border-gf-green p-3 rounded">
+            <p className="text-gf-green text-sm font-semibold">{successMessage}</p>
+          </div>
+        )}
+
         {error && (
           <div className="bg-alert-red bg-opacity-20 border-l-4 border-alert-red p-3 rounded">
             <p className="text-alert-red text-sm font-semibold">{error}</p>
           </div>
         )}
 
-        {/* Product Name */}
         <div className="bg-dark-bg border border-dark-border rounded-lg p-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-dark-text-primary">
@@ -138,7 +159,6 @@ export function ProductCreateForm({
           )}
         </div>
 
-        {/* Product Name */}
         <div>
           <label className="block text-sm font-semibold text-dark-text-primary mb-2">
             Product Name *
@@ -154,7 +174,6 @@ export function ProductCreateForm({
           />
         </div>
 
-        {/* Description */}
         <div>
           <label className="block text-sm font-semibold text-dark-text-primary mb-2">
             Description
@@ -169,7 +188,6 @@ export function ProductCreateForm({
           />
         </div>
 
-        {/* SKU */}
         <div>
           <label className="block text-sm font-semibold text-dark-text-primary mb-2">
             SKU
@@ -185,7 +203,6 @@ export function ProductCreateForm({
           />
         </div>
 
-        {/* Category */}
         <div>
           <label className="block text-sm font-semibold text-dark-text-primary mb-2">
             Category
@@ -206,7 +223,6 @@ export function ProductCreateForm({
           </select>
         </div>
 
-        {/* Color */}
         <div>
           <label className="block text-sm font-semibold text-dark-text-primary mb-2">
             Color
@@ -222,7 +238,6 @@ export function ProductCreateForm({
           />
         </div>
 
-        {/* Unit Size */}
         <div>
           <label className="block text-sm font-semibold text-dark-text-primary mb-2">
             Unit Size
@@ -234,11 +249,10 @@ export function ProductCreateForm({
             disabled={isSubmitting}
             className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-gf-green disabled:opacity-50"
             style={{ minHeight: '44px' }}
-            placeholder="e.g., gallon, box, unit"
+            placeholder="e.g., gallon, 40 lb box, bucket"
           />
         </div>
 
-        {/* Reorder Point */}
         <div>
           <label className="block text-sm font-semibold text-dark-text-primary mb-2">
             Reorder Point
@@ -246,15 +260,13 @@ export function ProductCreateForm({
           <input
             type="number"
             value={formData.reorderPoint ?? ''}
-            onChange={(e) =>
-              {
-                const nextReorderPoint = e.target.value === '' ? null : parseInt(e.target.value, 10);
-                handleChange('reorderPoint', nextReorderPoint);
-                if ((nextReorderPoint ?? 0) > 0) {
-                  handleChange('isTracked', true);
-                }
+            onChange={(e) => {
+              const nextReorderPoint = e.target.value === '' ? null : parseInt(e.target.value, 10);
+              handleChange('reorderPoint', nextReorderPoint);
+              if ((nextReorderPoint ?? 0) > 0) {
+                handleChange('isTracked', true);
               }
-            }
+            }}
             disabled={isSubmitting}
             min={0}
             className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-gf-green disabled:opacity-50"
@@ -263,7 +275,6 @@ export function ProductCreateForm({
           />
         </div>
 
-        {/* Supplier Type */}
         <div>
           <label className="block text-sm font-semibold text-dark-text-primary mb-2">
             Supplier Type
@@ -273,24 +284,19 @@ export function ProductCreateForm({
             onChange={(e) =>
               handleChange(
                 'supplierType',
-                e.target.value as ProductCreateData['supplierType']
+                e.target.value as ProductCreateData['supplierType'],
               )
             }
             disabled={isSubmitting}
             className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-gf-green disabled:opacity-50"
             style={{ minHeight: '44px' }}
           >
-            <option value="GARAGE_FORCE_REQUIRED">
-              Garage Force Required
-            </option>
-            <option value="GARAGE_FORCE_OPTIONAL">
-              Garage Force Optional
-            </option>
+            <option value="GARAGE_FORCE_REQUIRED">Garage Force Required</option>
+            <option value="GARAGE_FORCE_OPTIONAL">Garage Force Optional</option>
             <option value="OPEN_SOURCE">Open Source</option>
           </select>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex gap-3 pt-4">
           {onCancel && (
             <button
@@ -309,7 +315,7 @@ export function ProductCreateForm({
             className="flex-1 bg-gf-green border border-gf-green-600 text-white font-heading font-semibold py-3 rounded-lg active:bg-gf-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ minHeight: '44px' }}
           >
-            {isSubmitting ? 'Creating...' : 'Create Product'}
+            {isSubmitting ? 'Creating...' : submitLabel}
           </button>
         </div>
       </form>

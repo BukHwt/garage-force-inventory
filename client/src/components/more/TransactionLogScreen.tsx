@@ -10,7 +10,7 @@ const TRANSACTION_TYPE_COPY: Record<string, { label: string; color: string }> = 
   RECEIPT: { label: 'Receipt', color: 'text-gf-green' },
   CONSUMPTION: { label: 'Usage', color: 'text-amber-300' },
   TRANSFER: { label: 'Transfer', color: 'text-sky-300' },
-  ADJUSTMENT: { label: 'Unseal', color: 'text-indigo-300' },
+  ADJUSTMENT: { label: 'Adjustment', color: 'text-indigo-300' },
 };
 
 interface TransactionLogScreenProps {
@@ -85,7 +85,7 @@ export function TransactionLogScreen({ onInventoryChanged }: TransactionLogScree
       case 'TRANSFER':
         return `${fromLocation ?? 'Unknown'} -> ${toLocation ?? 'Unknown'}`;
       case 'ADJUSTMENT':
-        return `Unsealed at ${fromLocation ?? 'Unknown location'}`;
+        return `Adjusted at ${fromLocation ?? 'Unknown location'}`;
       default:
         return 'Location not recorded';
     }
@@ -104,7 +104,7 @@ export function TransactionLogScreen({ onInventoryChanged }: TransactionLogScree
           <div>
             <h2 className="font-heading text-2xl font-bold text-dark-text-primary">Transaction Log</h2>
             <p className="text-sm text-dark-text-secondary">
-              Audit inventory moves and rollback mistakes before additional changes occur.
+              Audit stock changes and roll back mistakes before additional edits occur.
             </p>
           </div>
           <button onClick={loadTransactions} className="btn-gf-outline px-4 py-2 text-sm">

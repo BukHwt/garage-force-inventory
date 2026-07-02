@@ -2,8 +2,6 @@ import { Router, Request, Response } from 'express';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { requireEditor } from '../middleware/auth.js';
 
-type InventoryStatus = 'SEALED' | 'OPEN';
-
 const includeTransactionRelations = {
   product: {
     select: {
@@ -49,6 +47,7 @@ const MAX_LIMIT = 500;
 
 class RollbackError extends Error {
   status: number;
+
   constructor(message: string, status = 400) {
     super(message);
     this.name = 'RollbackError';
@@ -74,7 +73,7 @@ router.get('/', async (req: Request, res: Response) => {
       transactions.map(async (transaction) => ({
         ...transaction,
         rollbackEligible: await canRollbackTransaction(prisma, transaction),
-      }))
+      })),
     );
 
     res.json(enriched);
@@ -106,30 +105,16 @@ router.post('/:id/rollback', requireEditor, async (req: Request, res: Response) 
     await assertNoSubsequentActivity(prisma, transaction.productId, transaction.createdAt, relevantLocationIds);
 
     const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const quantity = Math.abs(transaction.quantity);
-
       switch (transaction.transactionType) {
         case 'RECEIPT': {
           if (!transaction.toLocationId) {
             throw new RollbackError('Receipt transaction is missing a destination location');
           }
-          await decrementInventory(tx, {
+
+          await adjustLocationQuantity(tx, {
             productId: transaction.productId,
             locationId: transaction.toLocationId,
-            quantity,
-            status: 'SEALED',
-          });
-          break;
-        }
-        case 'CONSUMPTION': {
-          if (!transaction.fromLocationId) {
-            throw new RollbackError('Consumption transaction is missing a source location');
-          }
-          await incrementInventory(tx, {
-            productId: transaction.productId,
-            locationId: transaction.fromLocationId,
-            quantity,
-            status: 'OPEN',
+            delta: -Math.abs(transaction.quantity),
           });
           break;
         }
@@ -137,17 +122,17 @@ router.post('/:id/rollback', requireEditor, async (req: Request, res: Response) 
           if (!transaction.fromLocationId || !transaction.toLocationId) {
             throw new RollbackError('Transfer transaction is missing location data');
           }
-          await decrementInventory(tx, {
+
+          const quantity = Math.abs(transaction.quantity);
+          await adjustLocationQuantity(tx, {
             productId: transaction.productId,
             locationId: transaction.toLocationId,
-            quantity,
-            status: 'SEALED',
+            delta: -quantity,
           });
-          await incrementInventory(tx, {
+          await adjustLocationQuantity(tx, {
             productId: transaction.productId,
             locationId: transaction.fromLocationId,
-            quantity,
-            status: 'SEALED',
+            delta: quantity,
           });
           break;
         }
@@ -155,17 +140,11 @@ router.post('/:id/rollback', requireEditor, async (req: Request, res: Response) 
           if (!transaction.fromLocationId) {
             throw new RollbackError('Adjustment transaction is missing location data');
           }
-          await decrementInventory(tx, {
+
+          await adjustLocationQuantity(tx, {
             productId: transaction.productId,
             locationId: transaction.fromLocationId,
-            quantity,
-            status: 'OPEN',
-          });
-          await incrementInventory(tx, {
-            productId: transaction.productId,
-            locationId: transaction.fromLocationId,
-            quantity,
-            status: 'SEALED',
+            delta: -transaction.quantity,
           });
           break;
         }
@@ -184,7 +163,10 @@ router.post('/:id/rollback', requireEditor, async (req: Request, res: Response) 
       });
     });
 
-    res.json(updated);
+    res.json({
+      ...updated,
+      rollbackEligible: false,
+    });
   } catch (error) {
     if (error instanceof RollbackError) {
       return res.status(error.status).json({ error: error.message });
@@ -214,78 +196,74 @@ async function assertNoSubsequentActivity(
   }
 }
 
-async function decrementInventory(
+async function adjustLocationQuantity(
   tx: Prisma.TransactionClient,
-  params: { productId: string; locationId: string; quantity: number; status: InventoryStatus },
+  params: { productId: string; locationId: string; delta: number },
 ) {
-  const { productId, locationId, quantity, status } = params;
-  if (quantity <= 0) {
-    throw new RollbackError('Quantity must be greater than zero');
-  }
-
   const items = await tx.inventoryItem.findMany({
-    where: { productId, locationId, status },
+    where: {
+      productId: params.productId,
+      locationId: params.locationId,
+    },
     orderBy: { createdAt: 'asc' },
   });
 
-  const total = items.reduce((sum, item) => sum + item.quantity, 0);
-  if (total < quantity) {
-    throw new RollbackError(`Insufficient ${status.toLowerCase()} inventory available at the selected location`);
+  const currentQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const nextQuantity = currentQuantity + params.delta;
+
+  if (nextQuantity < 0) {
+    throw new RollbackError('Insufficient inventory available at the selected location');
   }
 
-  let remaining = quantity;
-  for (const item of items) {
-    if (remaining <= 0) break;
-    const deduction = Math.min(item.quantity, remaining);
-    const newQuantity = item.quantity - deduction;
-    if (newQuantity <= 0) {
-      await tx.inventoryItem.delete({ where: { id: item.id } });
-    } else {
-      await tx.inventoryItem.update({
-        where: { id: item.id },
-        data: { quantity: newQuantity },
+  if (nextQuantity === 0) {
+    if (items.length) {
+      await tx.inventoryItem.deleteMany({
+        where: {
+          id: {
+            in: items.map((item) => item.id),
+          },
+        },
       });
     }
-    remaining -= deduction;
-  }
-}
-
-async function incrementInventory(
-  tx: Prisma.TransactionClient,
-  params: { productId: string; locationId: string; quantity: number; status: InventoryStatus },
-) {
-  const { productId, locationId, quantity, status } = params;
-  if (quantity <= 0) {
-    throw new RollbackError('Quantity must be greater than zero');
+    return;
   }
 
-  const existing = await tx.inventoryItem.findFirst({
-    where: { productId, locationId, status },
-  });
-
-  if (existing) {
-    await tx.inventoryItem.update({
-      where: { id: existing.id },
-      data: { quantity: existing.quantity + quantity },
-    });
-  } else {
+  const primary = items[0];
+  if (!primary) {
     await tx.inventoryItem.create({
       data: {
-        productId,
-        locationId,
-        quantity,
-        status,
+        productId: params.productId,
+        locationId: params.locationId,
+        quantity: nextQuantity,
+        status: 'SEALED',
+      },
+    });
+    return;
+  }
+
+  if (items.length > 1) {
+    await tx.inventoryItem.deleteMany({
+      where: {
+        id: {
+          in: items.slice(1).map((item) => item.id),
+        },
       },
     });
   }
+
+  await tx.inventoryItem.update({
+    where: { id: primary.id },
+    data: {
+      quantity: nextQuantity,
+      status: 'SEALED',
+    },
+  });
 }
 
 function getRelevantLocationIds(transaction: TransactionWithRelations) {
   switch (transaction.transactionType) {
     case 'RECEIPT':
       return transaction.toLocationId ? [transaction.toLocationId] : [];
-    case 'CONSUMPTION':
-      return transaction.fromLocationId ? [transaction.fromLocationId] : [];
     case 'TRANSFER':
       return [transaction.fromLocationId, transaction.toLocationId].filter((value): value is string => Boolean(value));
     case 'ADJUSTMENT':
@@ -302,7 +280,6 @@ async function canRollbackTransaction(prisma: PrismaClient, transaction: Transac
 
   const supportedTypes: Record<string, true> = {
     RECEIPT: true,
-    CONSUMPTION: true,
     TRANSFER: true,
     ADJUSTMENT: true,
   };
@@ -320,26 +297,27 @@ async function canRollbackTransaction(prisma: PrismaClient, transaction: Transac
     return false;
   }
 
-  const quantity = Math.abs(transaction.quantity);
   switch (transaction.transactionType) {
     case 'RECEIPT': {
       const destination = transaction.toLocationId;
       if (!destination) return false;
-      return hasSufficientInventory(prisma, transaction.productId, destination, 'SEALED', quantity);
+      return hasSufficientInventory(prisma, transaction.productId, destination, Math.abs(transaction.quantity));
     }
     case 'TRANSFER': {
       const destination = transaction.toLocationId;
       if (!destination) return false;
-      return hasSufficientInventory(prisma, transaction.productId, destination, 'SEALED', quantity);
+      return hasSufficientInventory(prisma, transaction.productId, destination, Math.abs(transaction.quantity));
     }
     case 'ADJUSTMENT': {
       const locationId = transaction.fromLocationId;
       if (!locationId) return false;
-      return hasSufficientInventory(prisma, transaction.productId, locationId, 'OPEN', quantity);
+      if (transaction.quantity <= 0) {
+        return true;
+      }
+      return hasSufficientInventory(prisma, transaction.productId, locationId, transaction.quantity);
     }
-    case 'CONSUMPTION':
     default:
-      return true;
+      return false;
   }
 }
 
@@ -347,11 +325,10 @@ async function hasSufficientInventory(
   prisma: PrismaClient,
   productId: string,
   locationId: string,
-  status: InventoryStatus,
   quantity: number,
 ) {
   if (quantity <= 0) {
-    return false;
+    return true;
   }
 
   const aggregate = await prisma.inventoryItem.aggregate({
@@ -361,7 +338,6 @@ async function hasSufficientInventory(
     where: {
       productId,
       locationId,
-      status,
     },
   });
 

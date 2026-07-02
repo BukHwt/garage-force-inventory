@@ -28,23 +28,79 @@ export function ProductCatalogScreen({
 }: ProductCatalogScreenProps) {
   const [mode, setMode] = useState<ProductMode>("catalog");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [unitBaseProductId, setUnitBaseProductId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [unitSearchTerm, setUnitSearchTerm] = useState("");
+  const [showTrackedOnly, setShowTrackedOnly] = useState(false);
   const [collapsedSections, setCollapsedSections] = useState<
     Record<string, boolean>
   >({});
+
+  const setProductMode = useCallback((nextMode: ProductMode) => {
+    setMode(nextMode);
+    if (nextMode !== "catalog") {
+      setSelectedProduct(null);
+    }
+  }, []);
 
   const filteredProducts = useMemo(
     () =>
       products.filter((product) => {
         const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = (
+          product.name.toLowerCase().includes(searchLower) ||
+          product.sku?.toLowerCase().includes(searchLower) ||
+          product.category?.name.toLowerCase().includes(searchLower)
+        );
+        if (!matchesSearch) {
+          return false;
+        }
+        if (showTrackedOnly && !product.isTracked) {
+          return false;
+        }
+        return true;
+      }),
+    [products, searchTerm, showTrackedOnly],
+  );
+
+  const filteredUnitCandidates = useMemo(
+    () =>
+      products.filter((product) => {
+        const searchLower = unitSearchTerm.toLowerCase();
+        if (!searchLower) {
+          return true;
+        }
         return (
           product.name.toLowerCase().includes(searchLower) ||
           product.sku?.toLowerCase().includes(searchLower) ||
           product.category?.name.toLowerCase().includes(searchLower)
         );
       }),
-    [products, searchTerm],
+    [products, unitSearchTerm],
   );
+
+  const selectedUnitBaseProduct = useMemo(
+    () => products.find((product) => product.id === unitBaseProductId) ?? null,
+    [products, unitBaseProductId],
+  );
+
+  const unitFormInitialData = useMemo<ProductCreateData | undefined>(() => {
+    if (!selectedUnitBaseProduct) {
+      return undefined;
+    }
+
+    return {
+      isTracked: Boolean(selectedUnitBaseProduct.isTracked),
+      name: selectedUnitBaseProduct.name,
+      description: selectedUnitBaseProduct.description || "",
+      sku: "",
+      color: selectedUnitBaseProduct.color || "",
+      unitSize: "",
+      reorderPoint: selectedUnitBaseProduct.reorderPoint ?? null,
+      supplierType: selectedUnitBaseProduct.supplierType,
+      categoryId: selectedUnitBaseProduct.category?.id || "",
+    };
+  }, [selectedUnitBaseProduct]);
 
   const groupedProducts = useMemo(() => {
     const groups = new Map<
@@ -86,6 +142,16 @@ export function ProductCatalogScreen({
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
   };
+
+  const handleSelectUnitBaseProduct = useCallback((productId: string) => {
+    setUnitBaseProductId(productId);
+  }, []);
+
+  const handleStartAddUnitFromProduct = useCallback((product: Product) => {
+    setUnitBaseProductId(product.id);
+    setUnitSearchTerm(product.name);
+    setProductMode("add");
+  }, [setProductMode]);
 
   const handleCloseModal = () => {
     setSelectedProduct(null);
@@ -157,7 +223,7 @@ export function ProductCatalogScreen({
         <div className="grid grid-cols-2 gap-2 mb-3">
           <button
             type="button"
-            onClick={() => setMode("catalog")}
+            onClick={() => setProductMode("catalog")}
             className={`p-3 rounded-lg border-2 transition-all font-heading font-semibold ${
               mode === "catalog"
                 ? "bg-gf-green-700 border-gf-green text-white"
@@ -169,7 +235,7 @@ export function ProductCatalogScreen({
           </button>
           <button
             type="button"
-            onClick={() => setMode("add")}
+            onClick={() => setProductMode("add")}
             className={`p-3 rounded-lg border-2 transition-all font-heading font-semibold ${
               mode === "add"
                 ? "bg-gf-green-700 border-gf-green text-white"
@@ -177,19 +243,37 @@ export function ProductCatalogScreen({
             }`}
             style={{ minHeight: "44px" }}
           >
-            <div className="text-sm">Add New</div>
+            <div className="text-sm">Add / Add Unit</div>
           </button>
         </div>
 
-        {mode === "catalog" && (
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search products..."
-            className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-gf-green"
-            style={{ minHeight: "44px" }}
-          />
+        {mode === "catalog" ? (
+          <div className="space-y-3">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search products..."
+              className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-gf-green"
+              style={{ minHeight: "44px" }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowTrackedOnly((prev) => !prev)}
+              className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-colors ${
+                showTrackedOnly
+                  ? "border-gf-green bg-gf-green-900 text-gf-green-200"
+                  : "border-dark-border text-dark-text-secondary active:bg-gf-charcoal-700"
+              }`}
+              style={{ minHeight: "44px" }}
+            >
+              {showTrackedOnly ? "Showing Tracked Only" : "Show Tracked Only"}
+            </button>
+          </div>
+        ) : (
+          <p className="text-sm text-dark-text-secondary">
+            Create a brand-new product or pick an existing catalog item to add another unit size.
+          </p>
         )}
       </div>
 
@@ -199,6 +283,7 @@ export function ProductCatalogScreen({
             <div className="text-sm text-dark-text-secondary mb-3">
               {filteredProducts.length}{" "}
               {filteredProducts.length === 1 ? "product" : "products"}
+              {showTrackedOnly ? " tracked" : ""}
             </div>
 
             <div className="flex items-center justify-end gap-2 mb-3">
@@ -305,9 +390,17 @@ export function ProductCatalogScreen({
                                 </div>
                               </div>
                               <div className="text-right ml-3 flex flex-col items-end gap-2">
-                                <span className="text-sm text-dark-text-secondary">
-                                  Edit
-                                </span>
+                                <button
+                                  type="button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleStartAddUnitFromProduct(product);
+                                  }}
+                                  className="px-2 py-1 text-xs rounded border border-dark-border text-dark-text-secondary active:bg-gf-charcoal-700"
+                                >
+                                  Add Unit
+                                </button>
+                                <span className="text-sm text-dark-text-secondary">Edit</span>
                               </div>
                             </div>
                           </div>
@@ -322,10 +415,65 @@ export function ProductCatalogScreen({
         )}
 
         {mode === "add" && (
-          <ProductCreateForm
-            categories={categories}
-            onSubmit={onCreateProduct}
-          />
+          <div className="space-y-4">
+            <div className="bg-dark-card rounded-lg p-4 border border-dark-border">
+              <h2 className="font-heading text-lg font-semibold text-dark-text-primary">
+                Add Unit Size To Existing Product
+              </h2>
+              <p className="text-sm text-dark-text-secondary mt-1">
+                Pick an existing catalog item. The form below will copy the shared fields and let you enter a new unit size and SKU.
+              </p>
+              <div className="mt-4 space-y-3">
+                <input
+                  type="text"
+                  value={unitSearchTerm}
+                  onChange={(e) => setUnitSearchTerm(e.target.value)}
+                  placeholder="Search for an existing product..."
+                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-gf-green"
+                  style={{ minHeight: "44px" }}
+                />
+                <select
+                  value={unitBaseProductId}
+                  onChange={(e) => handleSelectUnitBaseProduct(e.target.value)}
+                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-4 py-3 text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-gf-green"
+                  style={{ minHeight: "44px" }}
+                >
+                  <option value="">Select an existing product</option>
+                  {filteredUnitCandidates
+                    .slice()
+                    .sort((left, right) => left.name.localeCompare(right.name))
+                    .map((product) => (
+                      <option key={product.id} value={product.id}>
+                        {product.name}
+                        {product.unitSize ? ` | ${product.unitSize}` : ""}
+                        {product.sku ? ` | SKU: ${product.sku}` : ""}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+
+            {selectedUnitBaseProduct && unitFormInitialData && (
+              <ProductCreateForm
+                categories={categories}
+                onSubmit={onCreateProduct}
+                initialData={unitFormInitialData}
+                heading={`New unit size for ${selectedUnitBaseProduct.name}`}
+                description="Shared product details are prefilled from the selected catalog item. Change the unit size and SKU for the new variant before saving."
+                submitLabel="Create Unit Variant"
+                successMessage="Unit variant created successfully."
+              />
+            )}
+
+            <ProductCreateForm
+              categories={categories}
+              onSubmit={onCreateProduct}
+              heading="Add Brand-New Product"
+              description="Use this when the item does not already exist in the catalog."
+              submitLabel="Create Product"
+              successMessage="Product created successfully."
+            />
+          </div>
         )}
       </div>
 

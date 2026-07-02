@@ -17,7 +17,7 @@ export function ReorderAlerts({
   collapsed,
   onToggleCollapsed,
 }: ReorderAlertsProps) {
-  const [localCollapsed, setLocalCollapsed] = useState(false);
+  const [localCollapsed, setLocalCollapsed] = useState(true);
   const isCollapsed = collapsed ?? localCollapsed;
 
   const handleToggle = () => {
