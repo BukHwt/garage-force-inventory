@@ -1,4 +1,4 @@
-import { Product } from '../types';
+import { Product } from "../types";
 
 /**
  * Calculate total quantity across all locations for a product
@@ -10,8 +10,11 @@ export function getTotalQuantity(product: Product): number {
 /**
  * Get quantity for a specific location
  */
-export function getLocationQuantity(product: Product, locationId: string): number {
-  const item = product.inventoryItems.find(i => i.location.id === locationId);
+export function getLocationQuantity(
+  product: Product,
+  locationId: string,
+): number {
+  const item = product.inventoryItems.find((i) => i.location.id === locationId);
   return item?.quantity || 0;
 }
 
@@ -27,7 +30,7 @@ export function needsReorder(product: Product): boolean {
  * Filter products that need reordering
  */
 export function getProductsNeedingReorder(products: Product[]): Product[] {
-  return products.filter(p => needsReorder(p));
+  return products.filter((p) => needsReorder(p));
 }
 
 /**
@@ -36,12 +39,12 @@ export function getProductsNeedingReorder(products: Product[]): Product[] {
  */
 export function filterProductsByLocation(
   products: Product[],
-  locationId: string
+  locationId: string,
 ): Product[] {
-  if (locationId === 'all') return products;
+  if (locationId === "all") return products;
 
-  return products.filter(p =>
-    p.inventoryItems.some(item => item.location.id === locationId)
+  return products.filter((p) =>
+    p.inventoryItems.some((item) => item.location.id === locationId),
   );
 }
 
@@ -50,12 +53,12 @@ export function filterProductsByLocation(
  */
 export function getSupplierTypeLabel(supplierType: string): string {
   switch (supplierType) {
-    case 'GARAGE_FORCE_REQUIRED':
-      return '🏢 Garage Force Required';
-    case 'GARAGE_FORCE_OPTIONAL':
-      return '🏢 Garage Force Optional';
-    case 'OPEN_SOURCE':
-      return '🏪 Available Locally';
+    case "GARAGE_FORCE_REQUIRED":
+      return "🏢 Garage Force Required";
+    case "GARAGE_FORCE_OPTIONAL":
+      return "🏢 Garage Force Optional";
+    case "OPEN_SOURCE":
+      return "🏪 Available Locally";
     default:
       return supplierType;
   }

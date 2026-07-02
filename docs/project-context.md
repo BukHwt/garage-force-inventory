@@ -1,6 +1,7 @@
 # Project Context
 
 ## System Overview
+
 - Project: Garage Force Inventory
 - Repository root: `c:\Users\swand\garage-force-inventory`
 - Frontend app path: `client/`
@@ -11,11 +12,13 @@
 ## Hosted Environments
 
 ### Frontend
+
 - Platform: Vercel
 - URL: https://garage-force-inventory-prod.vercel.app/
 - Branch/deploy trigger: [fill in]
 
 ### Backend API
+
 - Platform: Render
 - Service name: garage-force-inventory-prod
 - URL: https://garage-force-inventory-prod.onrender.com
@@ -23,6 +26,7 @@
 - Branch/deploy trigger: [fill in]
 
 ### Database
+
 - Platform: Render PostgreSQL
 - Instance name: garage-force-database-prod
 - Main schema URL secret name: DATABASE_URL
@@ -34,6 +38,7 @@
 ## Runtime Env Vars
 
 ### Backend required
+
 - `DATABASE_URL` -> `...schema=public`
 - `DATABASE_URL_ADAM` -> `...schema=adam`
 - `JWT_SECRET`
@@ -41,17 +46,20 @@
 - `PORT`
 
 ### Local notes
+
 - Local `.env` is at `server/.env`.
 - Prefer temporary shell env when pointing local tools at production URLs.
 
 ## Data Workflow (Canonical)
 
 ### Current canonical source of seed data
+
 - `server/prisma/data/seed.snapshot.main.json`
 - `server/prisma/data/seed.snapshot.adam.json`
 - Optional fallback: `server/prisma/data/seed.snapshot.json`
 
 ### Snapshot export commands
+
 - `cd server && npm run snapshot:main`
 - `cd server && npm run snapshot:adam`
 - `cd server && npm run snapshot:all`
@@ -62,10 +70,12 @@
   - `cd server && npm run snapshot:all:replace`
 
 ### Seed commands
+
 - Single schema: `cd server && npm run db:init`
 - Multi-tenant schemas: `cd server && npm run db:init:tenants:seed`
 
 ### Safety rules
+
 - `npm run seed` is destructive for seed-managed tables (rebuild behavior).
 - Production default is migrate-only; run seed in prod only when intentionally rebuilding.
 - Do not rerun snapshot export against local DB when you intend to preserve prod-captured snapshots.
@@ -74,11 +84,13 @@
 ## Deploy Runbook
 
 ### Normal production deploy (no data reset)
+
 1. Deploy backend code.
 2. Run `prisma migrate deploy`.
 3. Do not run seed.
 
 ### Intentional production rebuild from snapshots
+
 1. Confirm snapshot files in repo are correct.
 2. Deploy backend code.
 3. Run `prisma migrate deploy`.
@@ -86,22 +98,26 @@
 5. Verify counts and key catalog categories.
 
 ## Known Decisions
+
 - `Product.sku` remains unique and is treated as internal unique code.
 - `Product.vendorPartNumber` is non-unique and stores supplier codes that may repeat across variants.
 - Case products and individual products are separate catalog rows (e.g., buckets, rollers).
 
 ## Open TODOs
+
 - [ ] Fill branch/deploy trigger details for Vercel and Render.
 - [ ] Add explicit rollback procedure for failed prod deploy.
 - [ ] Add verification checklist (category/product counts) after rebuild.
 
 ## Render Service Commands
+
 - Build command: `npm ci --include=dev && npm run build`
 - Pre-deploy command: `npm run db:init:tenants`
 - Start command: `npm run start`
 - Expected behavior: production does not seed automatically outside explicit pre-deploy commands.
 
 ## Current State
+
 - Production status: Live
 - Canonical data model status:
   - Snapshot-driven seeding in place (`seed.snapshot.main.json`, `seed.snapshot.adam.json`).
@@ -115,12 +131,14 @@
   - Browser: Chrome (Android)
 
 ## Collaboration Preferences
+
 - User preference: Keep communication practical and upbeat in a "Janet-like" style from The Good Place (friendly, clear, capable).
 - Guardrail: Keep scope tight; do not expand scope without explicit user approval.
 - Handoff preference: End each handoff with a short request for feedback on tone/style so future sessions can tune communication.
 - Latest tone feedback: Janet vibe rated "good" by user (2026-02-27).
 
 ## Next Chat Handoff
+
 - Date: 2026-07-02
 - Active goal status: Completed (location-aware inventory workflow + Manage picker + Unseal workflow).
 - Branch: `main`
@@ -150,6 +168,7 @@
   4. Spot-check location filtering and transfer availability on mobile before the next release.
 
 ## Security & Reliability Plan (Next Priority)
+
 - Objective: harden app against abuse/tampering before expanded neighbor onboarding.
 - Execution order:
   1. Tenant isolation hardening:
@@ -169,6 +188,7 @@
      - define backup/restore drill and monitoring alerts.
 
 ## Testing Baseline Needed For Next Release
+
 - Minimum automated gate:
   1. `client`: `npx tsc --noEmit` + `npm run build`
   2. `server`: `npx tsc --noEmit`
@@ -183,6 +203,7 @@
      - rollback reflected on Dashboard
 
 ## Neighborhood Collaboration Scope
+
 - Current phase scope:
   - Read-only cross-tenant visibility of on-hand inventory.
   - Shared order list for combined purchasing (`OPEN`, `ORDERED`, `RECEIVED`, `CANCELLED`).
@@ -194,12 +215,14 @@
   - Include richer pricing support sourced from canonical CSV data where available; if price data is missing in snapshots/CSVs, research alternative source (including vendor website) and backfill.
 
 ## Shared Orders Pricing Notes
+
 - Price support is deferred for now; no price input in current Shared Orders UI.
 - Future plan:
   1. Load canonical prices from curated data source (CSV/snapshot/import), not manual row-by-row typing.
   2. Once trusted pricing exists, show running subtotal and progress toward the `$3,000` free-shipping threshold.
 
 ## Location Feature Decisions
+
 - Delete behavior:
   - Location delete is allowed only when the location has no inventory.
   - Otherwise block delete with a clear error.
@@ -220,12 +243,14 @@
   - Sort locations alphabetically.
 
 ## Session Start Checklist
+
 1. Confirm current branch and `git status`.
 2. Confirm target environment (`local` vs `production`) before running DB commands.
 3. Confirm tenant impact (`main`, `adam`, or both`) before any seed run.
 4. Confirm whether changes should be canonical (snapshot edits) or one-off.
 
 ## Guardrails
+
 - Never run snapshot export against local DB when canonical prod snapshots must be preserved.
 - Prefer `snapshot:all` (candidate output) over `snapshot:*:replace` unless explicitly replacing canonical files.
 - Treat `db:init:tenants:seed` as destructive and intentional.

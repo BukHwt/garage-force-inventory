@@ -1,6 +1,10 @@
-import React, { memo } from 'react';
-import { Product, InventoryItem } from '../../types';
-import { getTotalQuantity, getLocationQuantity, needsReorder } from '../../utils/inventory';
+import React, { memo } from "react";
+import { Product, InventoryItem } from "../../types";
+import {
+  getTotalQuantity,
+  getLocationQuantity,
+  needsReorder,
+} from "../../utils/inventory";
 
 interface ProductCardProps {
   product: Product;
@@ -10,11 +14,16 @@ interface ProductCardProps {
 }
 
 // Memoized component - only re-renders when props actually change
-export const ProductCard = memo(function ProductCard({ product, selectedLocation, onCardClick, onAdjustClick }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({
+  product,
+  selectedLocation,
+  onCardClick,
+  onAdjustClick,
+}: ProductCardProps) {
   const isReorderNeeded = needsReorder(product);
-  const showingAllLocations = selectedLocation === 'all';
-  const isSingleUse = product.consumableType === 'SINGLE_USE';
-  const unitLabel = product.unitSize || 'units';
+  const showingAllLocations = selectedLocation === "all";
+  const isSingleUse = product.consumableType === "SINGLE_USE";
+  const unitLabel = product.unitSize || "units";
 
   const displayQuantity = showingAllLocations
     ? getTotalQuantity(product)
@@ -23,14 +32,16 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
   // Calculate open vs sealed quantities
   const inventoryToShow = showingAllLocations
     ? product.inventoryItems
-    : product.inventoryItems.filter(item => item.location.id === selectedLocation);
+    : product.inventoryItems.filter(
+        (item) => item.location.id === selectedLocation,
+      );
 
   const openQuantity = inventoryToShow
-    .filter(item => item.status === 'OPEN')
+    .filter((item) => item.status === "OPEN")
     .reduce((sum, item) => sum + item.quantity, 0);
 
   const sealedQuantity = inventoryToShow
-    .filter(item => item.status === 'SEALED')
+    .filter((item) => item.status === "SEALED")
     .reduce((sum, item) => sum + item.quantity, 0);
 
   const handleClick = () => {
@@ -43,13 +54,15 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
     <div
       onClick={handleClick}
       className={`bg-dark-card p-3 rounded-lg shadow-lg border ${
-        isReorderNeeded ? 'border-l-4 border-alert-red' : 'border-dark-border'
-      } ${onCardClick ? 'cursor-pointer active:bg-gf-charcoal-700 transition-colors duration-150' : ''}`}
-      style={{ minHeight: '44px' }}
+        isReorderNeeded ? "border-l-4 border-alert-red" : "border-dark-border"
+      } ${onCardClick ? "cursor-pointer active:bg-gf-charcoal-700 transition-colors duration-150" : ""}`}
+      style={{ minHeight: "44px" }}
     >
       <div className="flex justify-between items-start mb-1">
         <div className="flex-1">
-          <h3 className="font-heading font-semibold text-sm text-dark-text-primary">{product.name}</h3>
+          <h3 className="font-heading font-semibold text-sm text-dark-text-primary">
+            {product.name}
+          </h3>
           {product.sku && (
             <p className="text-xs text-dark-text-muted">SKU: {product.sku}</p>
           )}
@@ -108,7 +121,9 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
 
       {showingAllLocations && product.inventoryItems.length > 0 && (
         <div className="mt-2 pt-2 border-t border-dark-border">
-          <div className="text-xs text-dark-text-muted font-semibold mb-1">By Location:</div>
+          <div className="text-xs text-dark-text-muted font-semibold mb-1">
+            By Location:
+          </div>
           <div className="space-y-1 text-xs">
             {Array.from(
               product.inventoryItems.reduce((map, item) => {
@@ -119,7 +134,7 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
                   sealed: 0,
                   total: 0,
                 };
-                if (item.status === 'OPEN') {
+                if (item.status === "OPEN") {
                   summary.open += item.quantity;
                 } else {
                   summary.sealed += item.quantity;
@@ -127,19 +142,23 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
                 summary.total += item.quantity;
                 map.set(key, summary);
                 return map;
-              }, new Map<string, { locationName: string; open: number; sealed: number; total: number }>())
+              }, new Map<string, { locationName: string; open: number; sealed: number; total: number }>()),
             ).map(([key, summary]) => (
               <div key={key} className="flex items-center justify-between">
-                <span className="font-semibold text-dark-text-secondary">{summary.locationName}</span>
+                <span className="font-semibold text-dark-text-secondary">
+                  {summary.locationName}
+                </span>
                 <span className="text-dark-text-muted">
                   {isSingleUse ? (
-                    <span className="text-dark-text-primary">{summary.total}</span>
+                    <span className="text-dark-text-primary">
+                      {summary.total}
+                    </span>
                   ) : (
                     <>
                       {summary.open > 0 && (
                         <span className="text-amber-400">
                           {summary.open} open
-                          {summary.sealed > 0 ? ' / ' : ''}
+                          {summary.sealed > 0 ? " / " : ""}
                         </span>
                       )}
                       {summary.sealed > 0 && (
@@ -147,7 +166,9 @@ export const ProductCard = memo(function ProductCard({ product, selectedLocation
                           {summary.sealed} sealed
                         </span>
                       )}
-                      {summary.open === 0 && summary.sealed === 0 && <span>0</span>}
+                      {summary.open === 0 && summary.sealed === 0 && (
+                        <span>0</span>
+                      )}
                     </>
                   )}
                 </span>
