@@ -121,25 +121,33 @@
 - Latest tone feedback: Janet vibe rated "good" by user (2026-02-27).
 
 ## Next Chat Handoff
-- Date: 2026-02-27
-- Active goal status: Completed (`Manage` product picker + `Unseal` mode + rollback refresh fix).
-- Branch: `feature/manage-product-picker`
+- Date: 2026-07-02
+- Active goal status: Completed (location-aware inventory workflow + Manage picker + Unseal workflow).
+- Branch: `main`
 - Completed outcomes:
-  1. Manage forms use in-app `ProductPicker` (`Receive`, `Transfer`, `Use`) with search by `name`, `sku`, and `vendorPartNumber`.
-  2. Category sections in picker default to collapsed and support toggling.
-  3. Added lightweight recent-product memory in picker.
-  4. Added dedicated Manage `Unseal` mode in compact single-row mode selector.
-  5. `Unseal` picker is filtered to products with sealed quantity only.
-  6. Manage mode persists through URL (`/manage?mode=...`) so actions/refetch do not bounce tab state.
-  7. Shared Orders add rows no longer truncate product names.
-  8. Rolling back a transaction now refreshes dashboard inventory state.
+  1. Added reusable in-app `ProductPicker` to Manage forms (`Receive`, `Transfer`, `Use`).
+  2. Search supports `name`, `sku`, and `vendorPartNumber` (case-insensitive).
+  3. Category groups in picker start collapsed by default.
+  4. Added lightweight recent-product memory in picker.
+  5. Added dedicated `Unseal` mode in Manage (single-row mode selector).
+  6. `Unseal` product selection is filtered to products with sealed inventory only.
+  7. Manage mode persists (`/manage?mode=...`) so form stays on active tab after actions/refetch.
+  8. Shared Orders add rows now show full product names (no truncation clipping).
+  9. Transaction rollback now triggers inventory refetch so Dashboard reflects rolled-back quantities.
+  10. Selecting a location now filters out products that do not have inventory there.
+  11. Transfer actions only offer products that currently have on-hand inventory.
+  12. Reorder alerts begin collapsed on the dashboard to keep the inventory list prominent.
+  13. Helper text for inline editing was removed from the inventory UI.
 - Validation completed:
+  - [x] Browser-first verification for the latest inventory and Manage flow changes.
   - [x] `cd client && npx tsc --noEmit`
   - [x] `cd client && npm run build`
   - [x] `cd server && npx tsc --noEmit`
-- Manual QA pending:
-  1. End-to-end mobile verification on Samsung S25 Ultra (Chrome) for all 4 Manage modes.
-  2. Rollback behavior verification across receipt/use/transfer/unseal scenarios.
+- Follow-up/manual QA checklist:
+  1. Verify Manage tab behavior on Samsung S25 Ultra in Chrome for all 4 modes.
+  2. Verify rollback flow updates Dashboard counts immediately for receipt/use/transfer/unseal cases.
+  3. Confirm long product names remain readable in Shared Orders add rows without horizontal scroll.
+  4. Spot-check location filtering and transfer availability on mobile before the next release.
 
 ## Security & Reliability Plan (Next Priority)
 - Objective: harden app against abuse/tampering before expanded neighbor onboarding.

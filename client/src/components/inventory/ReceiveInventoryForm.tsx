@@ -2,6 +2,7 @@ import React, { useState, useEffect, memo } from 'react';
 import { Product, Location } from '../../types';
 import { QuantityInput } from './shared/QuantityInput';
 import { LocationPicker } from './shared/LocationPicker';
+import { ProductPicker } from './shared/ProductPicker';
 
 export interface ReceiveInventoryData {
   productId: string;
@@ -123,26 +124,15 @@ export const ReceiveInventoryForm = memo(function ReceiveInventoryForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Product Selection */}
       <div>
-        <label className="block text-sm font-semibold text-dark-text-primary mb-2">
-          Product *
-        </label>
-        <select
-          value={formData.productId}
-          onChange={(e) =>
-            setFormData({ ...formData, productId: e.target.value })
+        <ProductPicker
+          products={products}
+          selectedProductId={formData.productId}
+          onProductChange={(productId) =>
+            setFormData({ ...formData, productId })
           }
-          className="w-full bg-dark-bg border border-dark-border text-dark-text-primary px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-gf-green"
-          style={{ minHeight: '44px' }}
+          label="Product *"
           disabled={isSubmitting}
-        >
-          <option value="">Select a product...</option>
-          {products.map((product) => (
-            <option key={product.id} value={product.id}>
-              {product.name} {product.sku ? `(${product.sku})` : ''} -{' '}
-              {product.unitSize}
-            </option>
-          ))}
-        </select>
+        />
         {selectedProduct?.description && (
           <p className="text-xs text-dark-text-muted mt-1">
             {selectedProduct.description}
