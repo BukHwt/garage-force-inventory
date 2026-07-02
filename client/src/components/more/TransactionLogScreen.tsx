@@ -10,7 +10,7 @@ const TRANSACTION_TYPE_COPY: Record<string, { label: string; color: string }> = 
   RECEIPT: { label: 'Receipt', color: 'text-gf-green' },
   CONSUMPTION: { label: 'Usage', color: 'text-amber-300' },
   TRANSFER: { label: 'Transfer', color: 'text-sky-300' },
-  ADJUSTMENT: { label: 'Unseal', color: 'text-indigo-300' },
+  ADJUSTMENT: { label: 'Adjustment', color: 'text-indigo-300' },
 };
 
 export function TransactionLogScreen() {
@@ -56,7 +56,7 @@ export function TransactionLogScreen() {
       try {
         const updated = await rollbackTransaction(transactionId);
         setTransactions((prev) =>
-          prev.map((tx) => (tx.id === updated.id ? updated : tx))
+          prev.map((tx) => (tx.id === updated.id ? updated : tx)),
         );
       } catch (err) {
         const message = err instanceof ApiError ? err.message : 'Unable to roll back transaction';
@@ -65,7 +65,7 @@ export function TransactionLogScreen() {
         setSubmittingId(null);
       }
     },
-    [isViewer, transactions]
+    [isViewer, transactions],
   );
 
   const renderLocationSummary = useCallback((transaction: InventoryTransactionRecord) => {
@@ -78,9 +78,9 @@ export function TransactionLogScreen() {
       case 'CONSUMPTION':
         return `Used from ${fromLocation ?? 'Unknown location'}`;
       case 'TRANSFER':
-        return `${fromLocation ?? 'Unknown'} → ${toLocation ?? 'Unknown'}`;
+        return `${fromLocation ?? 'Unknown'} to ${toLocation ?? 'Unknown'}`;
       case 'ADJUSTMENT':
-        return `Unsealed at ${fromLocation ?? 'Unknown location'}`;
+        return `Adjusted at ${fromLocation ?? 'Unknown location'}`;
       default:
         return 'Location not recorded';
     }
@@ -88,7 +88,7 @@ export function TransactionLogScreen() {
 
   const quantityFormatter = useMemo(
     () => new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }),
-    []
+    [],
   );
 
   return (
@@ -99,7 +99,7 @@ export function TransactionLogScreen() {
           <div>
             <h2 className="font-heading text-2xl font-bold text-dark-text-primary">Transaction Log</h2>
             <p className="text-sm text-dark-text-secondary">
-              Audit inventory moves and rollback mistakes before additional changes occur.
+              Audit stock changes and roll back mistakes before additional edits occur.
             </p>
           </div>
           <button
@@ -138,20 +138,21 @@ export function TransactionLogScreen() {
                 color: 'text-dark-text-primary',
               };
               const unitLabel = transaction.product.unitSize || 'units';
-    const quantityDisplay = quantityFormatter.format(transaction.quantity);
-    const rollbackDisabled =
-      isViewer ||
-      transaction.isReverted ||
-      submittingId === transaction.id ||
-      !transaction.rollbackEligible;
-    const rollbackLabel = transaction.isReverted
-      ? 'Rolled Back'
-      : !transaction.rollbackEligible
-      ? 'Ineligible'
-      : submittingId === transaction.id
-      ? 'Rolling back...'
-      : 'Rollback';
-      return (
+              const quantityDisplay = quantityFormatter.format(transaction.quantity);
+              const rollbackDisabled =
+                isViewer ||
+                transaction.isReverted ||
+                submittingId === transaction.id ||
+                !transaction.rollbackEligible;
+              const rollbackLabel = transaction.isReverted
+                ? 'Rolled Back'
+                : !transaction.rollbackEligible
+                  ? 'Ineligible'
+                  : submittingId === transaction.id
+                    ? 'Rolling back...'
+                    : 'Rollback';
+
+              return (
                 <div
                   key={transaction.id}
                   className="bg-dark-card border border-dark-border rounded-xl p-4 space-y-3"
@@ -170,9 +171,7 @@ export function TransactionLogScreen() {
                     </div>
                     <div className="text-right text-xs text-dark-text-secondary">
                       <p>{new Date(transaction.createdAt).toLocaleString()}</p>
-                      {transaction.performedBy && (
-                        <p>By {transaction.performedBy.name}</p>
-                      )}
+                      {transaction.performedBy && <p>By {transaction.performedBy.name}</p>}
                       {transaction.isReverted && (
                         <p className="text-alert-red font-semibold">
                           Rolled back {transaction.revertedAt ? new Date(transaction.revertedAt).toLocaleString() : ''}

@@ -17,11 +17,12 @@ export function InventoryAdjustmentModal({
   onAdjust,
 }: InventoryAdjustmentModalProps) {
   const [adjustment, setAdjustment] = useState<number>(0);
-  const [status, setStatus] = useState<'SEALED' | 'OPEN'>(inventoryItem.status);
+  const initialStatus = inventoryItem.status ?? 'SEALED';
+  const [status, setStatus] = useState<'SEALED' | 'OPEN'>(initialStatus);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const statusChanged = status !== inventoryItem.status;
+  const statusChanged = status !== initialStatus;
 
   if (!isOpen) return null;
 
@@ -49,7 +50,7 @@ export function InventoryAdjustmentModal({
       // Pass status to backend if it changed
       await onAdjust(inventoryItem.id, adjustment, statusChanged ? status : undefined);
       setAdjustment(0);
-      setStatus(inventoryItem.status);
+      setStatus(initialStatus);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to adjust inventory');
@@ -65,7 +66,7 @@ export function InventoryAdjustmentModal({
 
   const handleClose = () => {
     setAdjustment(0);
-    setStatus(inventoryItem.status);
+    setStatus(initialStatus);
     setError(null);
     onClose();
   };

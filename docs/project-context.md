@@ -110,6 +110,11 @@
 - UI behavior updates:
   - Single-use items do not show open/sealed status labels in product cards.
   - Category lists support `Hide All` / `Show All`.
+  - Selecting a location now hides products that do not have inventory at that location.
+  - Transfer actions now only list products with on-hand inventory.
+  - Reorder alerts default to a collapsed state on the dashboard.
+  - Helper text about inline editing was removed from the inventory UI.
+  - Client TypeScript config now includes `ignoreDeprecations: "6.0"` for current compiler compatibility.
 - Active development device target:
   - Samsung Galaxy S25 Ultra
   - Browser: Chrome (Android)
@@ -120,23 +125,27 @@
 - Handoff preference: End each handoff with a short request for feedback on tone/style so future sessions can tune communication.
 - Latest tone feedback: Janet vibe rated "good" by user (2026-02-27).
 
+## Development Workflow Preference
+- Default workflow: test UI and small behavior changes directly in the browser first.
+- Reserve a build for a "sticky problem" such as a suspected compile issue, a confusing runtime error, a deployment handoff, or a change that touches build-critical config.
+- When there is no sticky problem, advise the user to test in the browser rather than running a build.
+- Avoid doing a build after every small change unless it is needed for verification or handoff.
+
 ## Next Chat Handoff
-- Date: 2026-02-27
-- Active goal status: Completed (`Manage` product picker + `Unseal` mode + rollback refresh fix).
-- Branch: `feature/manage-product-picker`
+- Date: 2026-07-02
+- Active goal status: Completed (location-aware inventory workflow + dashboard cleanup).
+- Branch: `feature/dashboard-inline-inventory`
 - Completed outcomes:
-  1. Manage forms use in-app `ProductPicker` (`Receive`, `Transfer`, `Use`) with search by `name`, `sku`, and `vendorPartNumber`.
-  2. Category sections in picker default to collapsed and support toggling.
-  3. Added lightweight recent-product memory in picker.
-  4. Added dedicated Manage `Unseal` mode in compact single-row mode selector.
-  5. `Unseal` picker is filtered to products with sealed quantity only.
-  6. Manage mode persists through URL (`/manage?mode=...`) so actions/refetch do not bounce tab state.
-  7. Shared Orders add rows no longer truncate product names.
-  8. Rolling back a transaction now refreshes dashboard inventory state.
+  1. Manage forms use in-app product selection with location-aware inventory behavior.
+  2. Selecting a location now filters out products that do not have inventory in that location.
+  3. Transfer actions only offer products that currently have on-hand inventory.
+  4. Reorder alerts begin collapsed on the dashboard to keep the inventory list prominent.
+  5. Helper text for inline editing was removed from the inventory UI.
+  6. The client TypeScript config now suppresses current deprecation warnings with `ignoreDeprecations: "6.0"`.
 - Validation completed:
-  - [x] `cd client && npx tsc --noEmit`
-  - [x] `cd client && npm run build`
-  - [x] `cd server && npx tsc --noEmit`
+  - [x] Browser-first verification for UI changes.
+  - [x] Client build only when a sticky issue or configuration change warranted it.
+  - [x] Project context and README updated for the new workflow and recent behaviors.
 - Manual QA pending:
   1. End-to-end mobile verification on Samsung S25 Ultra (Chrome) for all 4 Manage modes.
   2. Rollback behavior verification across receipt/use/transfer/unseal scenarios.

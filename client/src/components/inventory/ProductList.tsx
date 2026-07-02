@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Product, Location, InventoryItem } from '../../types';
+import { Product, Location } from '../../types';
 import { ProductCard } from './ProductCard';
 import { EmptyState } from '../common/EmptyState';
 
@@ -7,19 +7,23 @@ interface ProductListProps {
   products: Product[];
   selectedLocation: string;
   locations: Location[];
-  onProductClick?: (product: Product, locationId: string) => void;
-  onAdjustClick?: (inventoryItem: InventoryItem, productName: string) => void;
+  pendingKey?: string | null;
+  errorByKey?: Record<string, string | null>;
+  onIncrement?: (product: Product, locationId: string) => void;
+  onDecrement?: (product: Product, locationId: string) => void;
 }
 
 export function ProductList({
   products,
   selectedLocation,
   locations,
-  onProductClick,
-  onAdjustClick,
+  pendingKey,
+  errorByKey,
+  onIncrement,
+  onDecrement,
 }: ProductListProps) {
   const locationName = selectedLocation !== 'all'
-    ? locations.find(l => l.id === selectedLocation)?.name
+    ? locations.find((location) => location.id === selectedLocation)?.name
     : null;
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
@@ -40,19 +44,18 @@ export function ProductList({
       };
 
       existing.products.push(product);
-
       groups.set(key, existing);
     }
 
-    return Array.from(groups.values()).sort((a, b) => {
-      if (a.key === '__uncategorized__') return 1;
-      if (b.key === '__uncategorized__') return -1;
-      return a.name.localeCompare(b.name);
+    return Array.from(groups.values()).sort((left, right) => {
+      if (left.key === '__uncategorized__') return 1;
+      if (right.key === '__uncategorized__') return -1;
+      return left.name.localeCompare(right.name);
     });
   }, [products]);
 
   useEffect(() => {
-    setCollapsedSections(prev => {
+    setCollapsedSections((prev) => {
       const next: Record<string, boolean> = {};
       for (const group of groupedProducts) {
         next[group.key] = prev[group.key] ?? true;
@@ -62,7 +65,7 @@ export function ProductList({
   }, [groupedProducts]);
 
   const toggleSection = useCallback((key: string) => {
-    setCollapsedSections(prev => ({
+    setCollapsedSections((prev) => ({
       ...prev,
       [key]: !prev[key],
     }));
@@ -73,7 +76,7 @@ export function ProductList({
       groupedProducts.reduce<Record<string, boolean>>((acc, group) => {
         acc[group.key] = true;
         return acc;
-      }, {})
+      }, {}),
     );
   }, [groupedProducts]);
 
@@ -82,19 +85,22 @@ export function ProductList({
       groupedProducts.reduce<Record<string, boolean>>((acc, group) => {
         acc[group.key] = false;
         return acc;
-      }, {})
+      }, {}),
     );
   }, [groupedProducts]);
 
-  const hasExpandedSections = groupedProducts.some(group => !collapsedSections[group.key]);
-  const hasCollapsedSections = groupedProducts.some(group => collapsedSections[group.key] ?? true);
+  const hasExpandedSections = groupedProducts.some((group) => !collapsedSections[group.key]);
+  const hasCollapsedSections = groupedProducts.some((group) => collapsedSections[group.key] ?? true);
+  const isEditable = selectedLocation !== 'all';
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="font-bold text-dark-text-primary text-lg">
-          Inventory {locationName && `- ${locationName}`}
-        </h2>
+        <div>
+          <h2 className="font-bold text-dark-text-primary text-lg">
+            Inventory {locationName && `- ${locationName}`}
+          </h2>
+        </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -137,15 +143,21 @@ export function ProductList({
 
               {!collapsedSections[group.key] && (
                 <div className="pb-2 space-y-2 border-t border-dark-border">
-                  {group.products.map(product => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      selectedLocation={selectedLocation}
-                      onCardClick={onProductClick}
-                      onAdjustClick={onAdjustClick}
-                    />
-                  ))}
+                  {group.products.map((product) => {
+                    const rowKey = `${product.id}:${selectedLocation}`;
+                    return (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        selectedLocation={selectedLocation}
+                        isEditable={isEditable}
+                        isPending={pendingKey === rowKey}
+                        errorMessage={errorByKey?.[rowKey] ?? null}
+                        onIncrement={onIncrement}
+                        onDecrement={onDecrement}
+                      />
+                    );
+                  })}
                 </div>
               )}
             </section>
@@ -155,4 +167,3 @@ export function ProductList({
     </div>
   );
 }
-

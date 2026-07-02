@@ -8,7 +8,9 @@ Mobile-first inventory management system for SD Concrete Coating Inc / Garage Fo
 - **Location management** - Create/edit locations, enforce unique naming, and delete only when inventory is zero
 - **Neighbor inventory visibility** - Read-only cross-tenant view to see what nearby franchise inventory is on hand
 - **Shared orders list** - Combined purchasing list with status tracking and running total toward free shipping
-- **Smart reorder alerts** - Never run out of critical materials
+- **Smart reorder alerts** - Never run out of critical materials, with a compact collapsed view on the dashboard
+- **Location-aware inventory filtering** - Selecting a location shows only products that actually have stock there
+- **Cleaner transfer workflow** - Transfer only offers products that currently have inventory on hand
 - **Supplier management** - Track Garage Force required/optional vs locally sourced items
 - **Transaction history & rollback** - Full audit trail of receipts, consumption, transfers with rollback safeguards
 - **Mobile-optimized UI** - Designed for Android Chrome for on-the-go inventory updates
