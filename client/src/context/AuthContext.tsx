@@ -25,7 +25,10 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const AUTH_USER_STORAGE_KEY = 'gf_auth_user';
 const DEFAULT_TENANT = 'main';
 const HOME_TENANT_BY_NAME: Record<string, string> = {
-  DemoViewer: 'adam',
+  DemoNeighborOwner: 'adam',
+  DemoNeighborTechnician: 'adam',
+  DemoNeighborManager: 'adam',
+  DemoNeighborViewer: 'adam',
 };
 const TENANT_PRIORITY = ['main', 'adam'];
 

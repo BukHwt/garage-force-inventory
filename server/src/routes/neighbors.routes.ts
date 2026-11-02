@@ -5,8 +5,8 @@ import { getPrismaClient, getTenantKeys } from '../lib/prismaTenants.js';
 const router = Router();
 
 const TENANT_LABELS: Record<string, string> = {
-  main: 'Garage Force of Metro Detroit',
-  adam: 'Garage Force of Mid-Michigan',
+  main: 'Demo Franchise North',
+  adam: 'Demo Franchise South',
 };
 
 type NeighborInventoryLocation = {

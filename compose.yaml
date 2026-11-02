@@ -1,20 +1,21 @@
+name: inventory-public-review
 services:
   db:
     image: postgres:16
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-garageforce}
+      POSTGRES_USER: public_demo
+      POSTGRES_PASSWORD: public_demo_only
+      POSTGRES_DB: inventory_public_demo
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "127.0.0.1:55433:5432"
     volumes:
-      - garage-force-db:/var/lib/postgresql/data
+      - inventory-public-review-db:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U public_demo -d inventory_public_demo"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
-  garage-force-db:
+  inventory-public-review-db:

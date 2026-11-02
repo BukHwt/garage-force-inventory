@@ -5,7 +5,7 @@ export function Header() {
   const { user, logout, tenant } = useAuth();
 
   const franchiseLabel =
-    tenant === 'adam' ? 'Garage Force of Mid-Michigan' : 'Garage Force of Metro Detroit';
+    tenant === 'adam' ? 'Demo Franchise South' : 'Demo Franchise North';
 
   return (
     <header className="bg-dark-card text-dark-text-primary p-4 shadow-lg sticky top-0 z-10 border-b-2 border-gf-green">

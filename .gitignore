@@ -16,6 +16,12 @@ node_modules/
 
 # Environment variables
 .env
+.env.*
+!.env.example
+.claude/settings.local.json
+server/prisma/data/*.csv
+server/prisma/data/*.candidate.json
+server/scripts/**/report-*.json
 .env.local
 .env.development.local
 .env.test.local

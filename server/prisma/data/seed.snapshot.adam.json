@@ -3,25 +3,25 @@
   "sourceSchema": "adam",
   "users": [
     {
-      "name": "DemoOwner",
+      "name": "DemoNeighborOwner",
       "role": "OWNER",
       "pin": "5555",
       "isActive": true
     },
     {
-      "name": "DemoTechnician",
+      "name": "DemoNeighborTechnician",
       "role": "TECH",
       "pin": "5555",
       "isActive": true
     },
     {
-      "name": "DemoManager",
+      "name": "DemoNeighborManager",
       "role": "OWNER",
       "pin": "5555",
       "isActive": true
     },
     {
-      "name": "DemoViewer",
+      "name": "DemoNeighborViewer",
       "role": "VIEWER",
       "pin": "5555",
       "isActive": true
@@ -29,16 +29,16 @@
   ],
   "locations": [
     {
-      "name": "Demo Warehouse",
-      "description": "Fictional demo storage"
+      "name": "South Warehouse",
+      "description": "Fictional storage for Demo Franchise South"
     },
     {
-      "name": "Demo Trailer",
-      "description": "Fictional demo storage"
+      "name": "South Trailer",
+      "description": "Fictional storage for Demo Franchise South"
     },
     {
-      "name": "Demo Shelf",
-      "description": "Fictional demo storage"
+      "name": "South Storage",
+      "description": "Fictional storage for Demo Franchise South"
     }
   ],
   "categories": [
@@ -85,7 +85,7 @@
       ],
       "inventory": [
         {
-          "location": "Demo Trailer",
+          "location": "South Trailer",
           "quantity": 3,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -109,7 +109,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "South Warehouse",
           "quantity": 4,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -133,7 +133,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "South Warehouse",
           "quantity": 4,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -175,8 +175,8 @@
       "parentSku": "DEMO-GRAY",
       "inventory": [
         {
-          "location": "Demo Warehouse",
-          "quantity": 5,
+          "location": "South Warehouse",
+          "quantity": 8,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
         }
@@ -200,7 +200,7 @@
       "parentSku": "DEMO-GRAY",
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "South Warehouse",
           "quantity": 1,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -224,7 +224,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Trailer",
+          "location": "South Trailer",
           "quantity": 2,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -248,7 +248,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "South Warehouse",
           "quantity": 1,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -272,7 +272,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "South Warehouse",
           "quantity": 2,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -296,7 +296,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Trailer",
+          "location": "South Trailer",
           "quantity": 3,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -320,7 +320,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "South Warehouse",
           "quantity": 0,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -344,7 +344,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "South Warehouse",
           "quantity": 1,
           "status": "SEALED",
           "notes": "Synthetic demo stock"

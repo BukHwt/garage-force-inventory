@@ -1,6 +1,13 @@
 # Garage Force Inventory Manager
 
-Mobile-first inventory management system for SD Concrete Coating Inc / Garage Force franchise operations.
+Original project code is licensed under the ISC License; see `LICENSE`.
+Third-party dependencies and branded assets retain their applicable rights and licenses.
+
+See [ROADMAP.md](ROADMAP.md) for the planned bulk-receiving, neighbor transfer-request, and notification workflows.
+
+Mobile-first inventory management system for concrete-coating materials, storage locations, and supplies shared between neighboring operators. Created and personally owned by Steve.
+
+This review copy includes fictional users and inventory. Every demo user's PIN is **5555**. No operational database is included. The revised example configuration uses its own database, Docker volume, and local ports; do not copy environment files from a running installation into this folder.
 
 ## Features
 
@@ -42,21 +49,30 @@ garage-force-inventory/
 
 ### Authentication
 - The app now requires signing in with a PIN so every transaction is attributed to a teammate.
-- Default users (seeded locally and on staging):
+- Fictional demo users:
 
 | Name  | Role   | PIN  |
 | ----- | ------ | ---- |
 | DemoOwner | OWNER  | 5555 |
 | DemoTechnician  | TECH   | 5555 |
-| DemoManager   | TECH   | 5555 |
+| DemoManager   | OWNER  | 5555 |
 | DemoViewer  | VIEWER | 5555 |
+| DemoNeighborOwner | OWNER | 5555 |
+| DemoNeighborTechnician | TECH | 5555 |
+| DemoNeighborManager | OWNER | 5555 |
+| DemoNeighborViewer | VIEWER | 5555 |
+
+The first four accounts belong to **Demo Franchise North**. The four DemoNeighbor accounts belong to **Demo Franchise South**. Each franchise has its own warehouse, trailer, and storage location, plus independent stock of twelve fictional catalog records. All accounts use PIN **5555**.
+
+The demo deliberately includes different stock levels: North has no Sample Gray Blend boxes while South has eight, and South has no Sample Primer while North has ten. These are useful cases for designing transfer requests in both directions. A franchise is a separate inventory namespace; a warehouse or trailer is a storage location inside that franchise.
 
 - Set `JWT_SECRET` in each environment. View-only users can browse data but cannot access the Manage tab.
 
 ### Prerequisites
 
-- Node.js 16+
+- Node.js 22 (the project's Prisma version requires at least Node.js 18.18)
 - npm
+- Docker Desktop, running with Linux containers, for the isolated demo database
 
 ### Installation
 
@@ -74,9 +90,13 @@ npm run install-all
 3. Set up and seed the database
 ```bash
 cp server/.env.example server/.env
+cp client/.env.example client/.env
 npm run db:up        # starts Postgres via Docker Compose
-npm run db:init      # runs migrations + seed script
+npm --prefix server run db:init:tenants:seed
 ```
+On Windows PowerShell, use `Copy-Item server/.env.example server/.env` and `Copy-Item client/.env.example client/.env` for the two copy commands. Copy these examples only when creating a fresh demo configuration; do not overwrite an existing configuration you need to keep.
+
+The initialization command applies migrations and replaces demo seed data in both configured schemas. Run it only against the disposable local demo database supplied here, never against an operational database.
 - Seed data now lives in snapshot files:
   - `server/prisma/data/seed.snapshot.main.json` (public/main schema)
   - `server/prisma/data/seed.snapshot.adam.json` (adam schema)
@@ -91,23 +111,27 @@ npm run dev
 ```
 
 The app will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
+- Frontend: http://localhost:3101
+- Backend API: http://localhost:5101
+
+The example PostgreSQL instance is bound to 127.0.0.1:55433 and uses the dedicated `inventory_public_demo` database. Its Compose project and volume are independent from existing installations. The example credentials and signing key are public demo values and must not be used for a live service. Complete the documented multi-tenant initialization to populate both public/main and adam demo schemas.
 
 ## Multi-tenant (one Postgres, separate schemas)
 
-- Model: one Postgres database (the binder) with per-tenant schemas (folders). Default tenant uses `public`, DemoViewer uses `adam`.
+- Model: one Postgres database with separate franchise schemas. Demo Franchise North uses `public` (tenant key `main`); Demo Franchise South uses `adam`. The `adam` key is retained for compatibility and does not contain real user or inventory data.
 - Env: set `DATABASE_URL_MAIN` (or `DATABASE_URL`) to `...schema=public` and `DATABASE_URL_ADAM` to `...schema=adam` on the backend.
 - Create the extra schema once: `psql "$DATABASE_URL_MAIN" -c "CREATE SCHEMA IF NOT EXISTS adam;"`.
 - Migrations only: `npm run db:init:tenants` (runs `prisma migrate deploy` for each configured schema).
-- Migrate + seed both schemas: `npm run db:init:tenants:seed`.
+- Migrate + seed both schemas from the project root: `npm --prefix server run db:init:tenants:seed`.
 - Routing: the backend picks the schema per request via header `x-tenant: adam` (defaults to `main`). Use the same backend URL for all tenants.
 
 ## Snapshot Seed Workflow
 
 Use this as the single repeatable data workflow:
 
-1. Export snapshots from the live source of truth:
+Only fictional demo data should be committed to the public repository. Never replace these demo snapshots with exports from an operational database; candidate exports are ignored by Git for that reason.
+
+1. Optionally export snapshots from your disposable demo database:
    - `cd server && npm run snapshot:all`
    - Default output files:
      - `server/prisma/data/seed.snapshot.main.candidate.json`
@@ -207,7 +231,7 @@ Legacy reconciliation scripts are archived in `server/scripts/archive`.
 - Open the **More** tab and tap **Neighbor Inventory**.
 - Choose the neighboring tenant and search by name/SKU/vendor part number.
 - The screen is intentionally read-only in this phase.
-- Future request workflows (build list + email/text) are planned separately and are out of scope for this release.
+- Transfer requests and in-app notifications are planned in `ROADMAP.md`; email and text delivery are possible later additions.
 
 ## Shared Orders
 
@@ -264,4 +288,4 @@ ISC
 
 ## Author
 
-SD Concrete Coating Inc
+Steve — personal project owner and developer.

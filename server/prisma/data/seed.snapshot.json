@@ -29,16 +29,16 @@
   ],
   "locations": [
     {
-      "name": "Demo Warehouse",
-      "description": "Fictional demo storage"
+      "name": "North Warehouse",
+      "description": "Fictional storage for Demo Franchise North"
     },
     {
-      "name": "Demo Trailer",
-      "description": "Fictional demo storage"
+      "name": "North Trailer",
+      "description": "Fictional storage for Demo Franchise North"
     },
     {
-      "name": "Demo Shelf",
-      "description": "Fictional demo storage"
+      "name": "North Storage",
+      "description": "Fictional storage for Demo Franchise North"
     }
   ],
   "categories": [
@@ -85,7 +85,7 @@
       ],
       "inventory": [
         {
-          "location": "Demo Trailer",
+          "location": "North Trailer",
           "quantity": 8,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -109,7 +109,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "North Warehouse",
           "quantity": 5,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -133,7 +133,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "North Warehouse",
           "quantity": 5,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -175,8 +175,8 @@
       "parentSku": "DEMO-GRAY",
       "inventory": [
         {
-          "location": "Demo Warehouse",
-          "quantity": 12,
+          "location": "North Warehouse",
+          "quantity": 0,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
         }
@@ -200,7 +200,7 @@
       "parentSku": "DEMO-GRAY",
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "North Warehouse",
           "quantity": 3,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -224,7 +224,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Trailer",
+          "location": "North Trailer",
           "quantity": 8,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -248,7 +248,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "North Warehouse",
           "quantity": 2,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -272,7 +272,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "North Warehouse",
           "quantity": 6,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -296,7 +296,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Trailer",
+          "location": "North Trailer",
           "quantity": 0,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -320,7 +320,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "North Warehouse",
           "quantity": 10,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
@@ -344,7 +344,7 @@
       "leadTimeDays": 7,
       "inventory": [
         {
-          "location": "Demo Warehouse",
+          "location": "North Warehouse",
           "quantity": 2,
           "status": "SEALED",
           "notes": "Synthetic demo stock"
